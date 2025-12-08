@@ -4,6 +4,7 @@ import * as Comlink from 'comlink';
 import { getWorker } from '../services/worker.service';
 import type { TimerMode } from '../types';
 import { useTaskStore } from './useTaskStore'; // To update tasks
+import { playAlarm, sendNotification } from '../services/sound.service';
 
 interface TimeState {
   timeLeft: number;
@@ -63,8 +64,10 @@ export const useTimeStore = create<TimeState>()(
         } else {
           // Timer Finished
           get().pauseTimer();
+          playAlarm();
           
           if (mode === 'pomodoro') {
+             sendNotification("Break Time!", "Great job! Take a short break.");
              // Logic: Check for active task and increment its counter
              const activeTaskId = useTaskStore.getState().activeTaskId;
              if (activeTaskId) {
@@ -80,6 +83,7 @@ export const useTimeStore = create<TimeState>()(
                timeLeft: TIMES[nextMode]
              });
           } else {
+             sendNotification("Back to Work!", "Break is over. Let's focus.");
              // Break is over, back to work
              set({ 
                mode: 'pomodoro',

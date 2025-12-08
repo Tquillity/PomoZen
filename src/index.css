@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+:root {
+  --theme-primary: #ba4949;
+  --theme-secondary: #c15c5c;
+  --theme-bg: #ba4949;
+}
+
+body {
+  background-color: var(--theme-bg);
+  transition: background-color 0.5s ease;
+}
