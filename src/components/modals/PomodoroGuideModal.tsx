@@ -31,9 +31,14 @@ export const PomodoroGuideModal = ({ isOpen, onClose }: Props) => {
 
         {isExpanded && (
           <div className="mt-4 space-y-4 text-sm leading-relaxed text-gray-200">
-            <p className="text-gray-300">
-              A simple guide to using PomoZen for maximum productivity.
-            </p>
+            <div>
+              <p className="font-semibold text-white mb-2">What is PomoZen?</p>
+              <p className="text-white/80">
+                PomoZen is a customizable, privacy-first focus timer designed to help you enter flow state.
+                It is inspired by the <a href="https://www.pomodorotechnique.com/" target="_blank" rel="noopener noreferrer" className="text-[var(--theme-primary)] hover:underline font-medium">Pomodoro Technique®</a>,
+                a time management method developed by Francesco Cirillo.
+              </p>
+            </div>
 
             <div>
               <p className="font-semibold text-white mb-2">What is the Pomodoro Technique?</p>
