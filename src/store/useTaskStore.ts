@@ -10,6 +10,8 @@ interface TaskState {
   toggleTask: (id: string) => void;
   setActiveTask: (id: string | null) => void;
   updateActPomo: (id: string) => void; // Increment actual pomodoros for a task
+  clearTasks: () => void;
+  clearCompletedTasks: () => void;
 }
 
 export const useTaskStore = create<TaskState>()(
@@ -41,6 +43,13 @@ export const useTaskStore = create<TaskState>()(
       
       updateActPomo: (id) => set((state) => ({
         tasks: state.tasks.map((t) => t.id === id ? { ...t, actPomodoros: t.actPomodoros + 1 } : t)
+      })),
+
+      clearTasks: () => set({ tasks: [], activeTaskId: null }),
+
+      clearCompletedTasks: () => set((state) => ({
+        tasks: state.tasks.filter((t) => !t.completed),
+        activeTaskId: state.activeTaskId && state.tasks.find(t => t.id === state.activeTaskId)?.completed ? null : state.activeTaskId
       }))
     }),
     { name: 'pomo-tasks-storage' }

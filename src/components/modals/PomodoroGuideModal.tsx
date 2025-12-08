@@ -10,7 +10,7 @@ export const PomodoroGuideModal = ({ isOpen, onClose }: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="The Pomodoro Technique">
+    <Modal isOpen={isOpen} onClose={onClose} title="The Pomodoro Technique – How & Why It Works">
       <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
         <button
           onClick={() => setIsExpanded(!isExpanded)}

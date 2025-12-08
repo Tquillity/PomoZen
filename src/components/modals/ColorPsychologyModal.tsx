@@ -7,7 +7,7 @@ interface Props {
 
 export const ColorPsychologyModal = ({ isOpen, onClose }: Props) => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Color Psychology">
+    <Modal isOpen={isOpen} onClose={onClose} title="Color Psychology in PomoZen">
       <div className="space-y-5 text-sm leading-relaxed text-gray-600">
         <p>PomoZen deliberately uses different background colors for each timer mode to support your cognitive and emotional state, based on decades of peer-reviewed color psychology research.</p>
 
