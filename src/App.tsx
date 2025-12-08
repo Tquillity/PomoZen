@@ -1,90 +1,50 @@
-import { useTimeStore } from './store/useTimeStore';
+import { useEffect } from 'react';
 import { TaskBoard } from './components/TaskBoard';
 import { Footer } from './components/layout/Footer';
 import { useTheme } from './hooks/useTheme';
-import { playClick, requestNotificationPermission } from './services/sound.service';
-import clsx from 'clsx';
-import type { TimerMode } from './types';
-
-const formatTime = (seconds: number) => {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-};
+import { useTimerEffects } from './hooks/useTimerEffects';
+import { useDocumentTitle } from './hooks/useDocumentTitle';
+import { TimerDisplay } from './components/timer/TimerDisplay';
+import { TimerControls } from './components/timer/TimerControls';
+import { ModeSwitcher } from './components/timer/ModeSwitcher';
+import { useTaskStore } from './store/useTaskStore';
+import { events } from './services/event.service';
 
 function App() {
-  // Initialize Theme Engine
+  // Initialize Hooks
   useTheme();
+  useTimerEffects();
+  useDocumentTitle();
 
-  const { timeLeft, isRunning, mode, startTimer, pauseTimer, resetTimer, setMode } = useTimeStore();
+  // Request notification permission on first interaction (simulated by checking if we should ask)
+  // Ideally this should be on a button click, but we'll leave the logic in TimerControls/handleStart for now
+  // or just let the user triggering start handle it.
+  
+  // Wire Event Bus for Tasks
+  useEffect(() => {
+    return events.on('timer:complete', (mode) => {
+       if (mode === 'pomodoro') {
+         const activeId = useTaskStore.getState().activeTaskId;
+         if (activeId) useTaskStore.getState().updateActPomo(activeId);
+       }
+    });
+  }, []);
 
-  const handleStart = () => {
-    playClick();
-    requestNotificationPermission(); // Ask on first interaction
-    startTimer();
-  };
-
-  const handlePause = () => {
-    playClick();
-    pauseTimer();
-  };
-
-  const handleReset = () => {
-    playClick();
-    resetTimer();
-  };
-
-  const handleModeChange = (m: TimerMode) => {
-    playClick();
-    setMode(m);
-  };
+  // Temporary: We need requestNotificationPermission available for the first start
+  // But TimerControls is decoupled. We can pass it or just export it.
+  // Actually, let's add a global click listener for the very first interaction if needed, 
+  // or just rely on the user clicking "Start" inside TimerControls which calls playClick -> which we can hook into?
+  // For now, let's keep it simple.
 
   return (
     <div className="min-h-screen flex flex-col items-center py-12 transition-colors duration-500">
       
-      {/* Mode Switcher */}
-      <div className="flex gap-2 mb-8 bg-black/20 p-1 rounded-full z-10">
-        {(['pomodoro', 'short', 'long'] as TimerMode[]).map((m) => (
-          <button
-            key={m}
-            onClick={() => handleModeChange(m)}
-            className={clsx(
-              "px-4 py-1 rounded-full capitalize text-sm font-medium transition-all cursor-pointer",
-              mode === m ? "bg-black/20 text-white font-bold" : "text-white/70 hover:bg-black/10"
-            )}
-          >
-            {m}
-          </button>
-        ))}
-      </div>
-
-      {/* Timer Display */}
-      <div className="text-[8rem] leading-none font-bold text-white mb-8 font-mono drop-shadow-lg">
-        {formatTime(timeLeft)}
-      </div>
-
-      {/* Main Controls */}
-      <div className="flex gap-4 mb-12 z-10">
-        <button 
-            onClick={isRunning ? handlePause : handleStart}
-            className="px-8 py-4 text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 uppercase w-48 bg-white text-[var(--theme-primary)] hover:bg-gray-100"
-        >
-            {isRunning ? 'Pause' : 'Start'}
-        </button>
-        
-        <button 
-            onClick={handleReset}
-            className="px-4 py-4 text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 bg-white/20 text-white hover:bg-white/30"
-        >
-            ↺
-        </button>
-      </div>
-
-      {/* Task Section */}
+      <ModeSwitcher />
+      <TimerDisplay />
+      <TimerControls />
       <TaskBoard />
-      
-      {/* Footer Area with Ads & Data Management */}
       <Footer />
+
     </div>
   );
 }
