@@ -1,0 +1,49 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import type { Task } from '../types';
+
+interface TaskState {
+  tasks: Task[];
+  activeTaskId: string | null;
+  addTask: (title: string, est: number) => void;
+  deleteTask: (id: string) => void;
+  toggleTask: (id: string) => void;
+  setActiveTask: (id: string | null) => void;
+  updateActPomo: (id: string) => void; // Increment actual pomodoros for a task
+}
+
+export const useTaskStore = create<TaskState>()(
+  persist(
+    (set) => ({
+      tasks: [],
+      activeTaskId: null,
+
+      addTask: (title, est) => set((state) => ({
+        tasks: [...state.tasks, {
+          id: crypto.randomUUID(),
+          title,
+          completed: false,
+          estPomodoros: est,
+          actPomodoros: 0
+        }]
+      })),
+
+      deleteTask: (id) => set((state) => ({
+        tasks: state.tasks.filter((t) => t.id !== id),
+        activeTaskId: state.activeTaskId === id ? null : state.activeTaskId
+      })),
+
+      toggleTask: (id) => set((state) => ({
+        tasks: state.tasks.map((t) => t.id === id ? { ...t, completed: !t.completed } : t)
+      })),
+
+      setActiveTask: (id) => set({ activeTaskId: id }),
+      
+      updateActPomo: (id) => set((state) => ({
+        tasks: state.tasks.map((t) => t.id === id ? { ...t, actPomodoros: t.actPomodoros + 1 } : t)
+      }))
+    }),
+    { name: 'pomo-tasks-storage' }
+  )
+);
+

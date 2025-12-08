@@ -1,4 +1,7 @@
 import { useTimeStore } from './store/useTimeStore';
+import { TaskBoard } from './components/TaskBoard';
+import clsx from 'clsx';
+import type { TimerMode } from './types';
 
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60);
@@ -7,42 +10,63 @@ const formatTime = (seconds: number) => {
 };
 
 function App() {
-  const { timeLeft, startTimer, pauseTimer, resetTimer, isRunning } = useTimeStore();
+  const { timeLeft, isRunning, mode, startTimer, pauseTimer, resetTimer, setMode } = useTimeStore();
+
+  const getBgColor = () => {
+    switch(mode) {
+        case 'short': return 'bg-teal-700';
+        case 'long': return 'bg-indigo-700';
+        default: return 'bg-red-700';
+    }
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white space-y-8">
-      <h1 className="text-4xl font-bold text-red-500">PomoZen</h1>
+    <div className={clsx("min-h-screen transition-colors duration-500 flex flex-col items-center py-12", getBgColor())}>
       
+      {/* Mode Switcher */}
+      <div className="flex gap-2 mb-8 bg-black/20 p-1 rounded-full">
+        {(['pomodoro', 'short', 'long'] as TimerMode[]).map((m) => (
+          <button
+            key={m}
+            onClick={() => setMode(m)}
+            className={clsx(
+              "px-4 py-1 rounded-full capitalize text-sm font-medium transition-all cursor-pointer",
+              mode === m ? "bg-white/20 text-white font-bold" : "text-white/70 hover:bg-white/10"
+            )}
+          >
+            {m}
+          </button>
+        ))}
+      </div>
+
       {/* Timer Display */}
-      <div className="text-9xl font-mono font-bold tracking-wider">
+      <div className="text-[8rem] leading-none font-bold text-white mb-8 font-mono">
         {formatTime(timeLeft)}
       </div>
 
-      {/* Controls */}
-      <div className="flex gap-4">
-        {!isRunning ? (
-          <button 
-            onClick={startTimer}
-            className="px-8 py-3 text-xl font-bold bg-white text-red-500 rounded-lg shadow-lg hover:bg-gray-100 cursor-pointer transition-transform active:scale-95"
-          >
-            START
-          </button>
-        ) : (
-          <button 
-            onClick={pauseTimer}
-            className="px-8 py-3 text-xl font-bold bg-red-800 text-white rounded-lg shadow-lg hover:bg-red-700 cursor-pointer transition-transform active:scale-95"
-          >
-            PAUSE
-          </button>
-        )}
-        
+      {/* Main Controls */}
+      <div className="flex gap-4 mb-12">
         <button 
-          onClick={resetTimer}
-          className="px-8 py-3 text-xl font-bold border-2 border-white/20 text-white rounded-lg hover:bg-white/10 cursor-pointer transition-transform active:scale-95"
+            onClick={isRunning ? pauseTimer : startTimer}
+            className={clsx(
+              "px-8 py-4 text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 uppercase w-48",
+              isRunning ? "bg-white/20 text-white" : "bg-white text-gray-800"
+            )}
         >
-          RESET
+            {isRunning ? 'Pause' : 'Start'}
+        </button>
+        
+        {/* Reset Button (Small) */}
+         <button 
+            onClick={resetTimer}
+            className="px-4 py-4 text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 bg-white/20 text-white"
+        >
+            ↺
         </button>
       </div>
+
+      {/* Task Section */}
+      <TaskBoard />
     </div>
   );
 }
