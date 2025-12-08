@@ -4,9 +4,9 @@ import type { TimerMode } from '../types';
 
 // HSL values for the themes
 const THEMES: Record<TimerMode, { primary: string; secondary: string }> = {
-  pomodoro: { primary: '#ba4949', secondary: '#c15c5c' },
-  short: { primary: '#38858a', secondary: '#4c9196' },
-  long: { primary: '#397097', secondary: '#4d7fa2' },
+  pomodoro: { primary: '#c15c5c', secondary: '#d96d6d' }, // softer warm red – motivating urgency without bright-red anxiety
+  short: { primary: '#52a89a', secondary: '#6ab8ad' },     // refreshing mint-teal/green – fastest stress recovery
+  long: { primary: '#2c5578', secondary: '#416a9b' },     // deep serene indigo-blue – maximum restoration & clarity
 };
 
 const formatTime = (seconds: number) => {

@@ -18,6 +18,8 @@ import { SEOHelmet } from './components/seo/SEOHelmet';
 // Lazy load modals for code splitting
 const SettingsModal = lazy(() => import('./components/settings/SettingsModal').then(module => ({ default: module.SettingsModal })));
 const StatsModal = lazy(() => import('./components/stats/StatsModal').then(module => ({ default: module.StatsModal })));
+const ColorPsychologyModal = lazy(() => import('./components/modals/ColorPsychologyModal').then(module => ({ default: module.ColorPsychologyModal })));
+const PomodoroGuideModal = lazy(() => import('./components/modals/PomodoroGuideModal').then(module => ({ default: module.PomodoroGuideModal })));
 
 function App() {
   // Initialize Hooks
@@ -29,6 +31,8 @@ function App() {
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
+  const [isColorPsychOpen, setIsColorPsychOpen] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   // Wire Event Bus for Tasks
   useEffect(() => {
@@ -48,8 +52,30 @@ function App() {
 
       {/* Top Right Buttons */}
       <div className="absolute top-6 right-6 z-20 flex gap-2">
+        {/* Color Psychology */}
+        <button
+          onClick={() => setIsColorPsychOpen(true)}
+          className="bg-white/20 p-2 rounded-full hover:bg-white/30 text-white transition-colors cursor-pointer"
+          aria-label="Why these colors? (Color psychology)"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6 6 0 0 0 6-6V6a6 6 0 0 0-12 0v3.75a6 6 0 0 0 6 6z" />
+          </svg>
+        </button>
+
+        {/* Pomodoro Guide */}
+        <button
+          onClick={() => setIsGuideOpen(true)}
+          className="bg-white/20 p-2 rounded-full hover:bg-white/30 text-white transition-colors cursor-pointer"
+          aria-label="How & why the Pomodoro Technique works"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.5 0-3 1.125-3 2.5v11.5c0 1.375 1.125 2.5 3 2.5 1.5 0 3-1.125 3-2.5V6.042zM12 6.042a8.967 8.967 0 0 1 6 2.292c1.5 0 3-1.125 3-2.5v-11.5c0-1.375-1.125-2.5-3-2.5-1.5 0-3 1.125-3 2.5v11.458z" />
+          </svg>
+        </button>
+
         {/* Stats Button */}
-        <button 
+        <button
           onClick={() => setIsStatsOpen(true)}
           className="bg-white/20 p-2 rounded-full hover:bg-white/30 text-white transition-colors cursor-pointer"
           aria-label="Open Statistics"
@@ -82,6 +108,8 @@ function App() {
       <Suspense fallback={null}>
         <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
         <StatsModal isOpen={isStatsOpen} onClose={() => setIsStatsOpen(false)} />
+        <ColorPsychologyModal isOpen={isColorPsychOpen} onClose={() => setIsColorPsychOpen(false)} />
+        <PomodoroGuideModal isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
       </Suspense>
 
     </div>
