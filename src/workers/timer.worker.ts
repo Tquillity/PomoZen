@@ -2,18 +2,16 @@ import * as Comlink from 'comlink';
 import type { TimerWorkerAPI } from '../types/worker-types';
 
 let intervalId: number | null = null;
-let seconds = 0; // Just a counter for now
 
 const api: TimerWorkerAPI = {
   start(callback) {
-    if (intervalId) return; // Already running
-
-    // Tick immediately
-    callback(seconds);
+    if (intervalId) return;
+    
+    // Initial Tick
+    callback(0); // Value doesn't matter, it's just a pulse
 
     intervalId = self.setInterval(() => {
-      seconds++;
-      callback(seconds);
+      callback(0);
     }, 1000);
   },
 
@@ -26,9 +24,7 @@ const api: TimerWorkerAPI = {
 
   reset() {
     this.pause();
-    seconds = 0;
   }
 };
 
 Comlink.expose(api);
-

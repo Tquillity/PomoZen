@@ -1,56 +1,46 @@
-import { useEffect, useRef, useState } from 'react';
-import * as Comlink from 'comlink';
-import type { TimerWorkerAPI } from './types/worker-types';
+import { useTimeStore } from './store/useTimeStore';
+
+const formatTime = (seconds: number) => {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+};
 
 function App() {
-  // We keep the worker instance in a ref so it doesn't recreate on re-renders
-  const workerRef = useRef<Comlink.Remote<TimerWorkerAPI> | null>(null);
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    // 1. Init Worker
-    const worker = new Worker(new URL('./workers/timer.worker.ts', import.meta.url), {
-      type: 'module',
-    });
-    
-    // 2. Wrap with Comlink
-    workerRef.current = Comlink.wrap<TimerWorkerAPI>(worker);
-
-    return () => {
-      worker.terminate();
-    };
-  }, []);
-
-  const handleStart = async () => {
-    if (workerRef.current) {
-      // 3. Pass a proxy callback to the worker
-      // The worker calls this function every second
-      await workerRef.current.start(
-        Comlink.proxy((val: number) => setCount(val))
-      );
-    }
-  };
-
-  const handlePause = async () => {
-    await workerRef.current?.pause();
-  };
+  const { timeLeft, startTimer, pauseTimer, resetTimer, isRunning } = useTimeStore();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white space-y-6">
-      <h1 className="text-4xl font-bold text-red-500">Worker Test</h1>
-      <div className="text-6xl font-mono">{count}</div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white space-y-8">
+      <h1 className="text-4xl font-bold text-red-500">PomoZen</h1>
+      
+      {/* Timer Display */}
+      <div className="text-9xl font-mono font-bold tracking-wider">
+        {formatTime(timeLeft)}
+      </div>
+
+      {/* Controls */}
       <div className="flex gap-4">
+        {!isRunning ? (
+          <button 
+            onClick={startTimer}
+            className="px-8 py-3 text-xl font-bold bg-white text-red-500 rounded-lg shadow-lg hover:bg-gray-100 cursor-pointer transition-transform active:scale-95"
+          >
+            START
+          </button>
+        ) : (
+          <button 
+            onClick={pauseTimer}
+            className="px-8 py-3 text-xl font-bold bg-red-800 text-white rounded-lg shadow-lg hover:bg-red-700 cursor-pointer transition-transform active:scale-95"
+          >
+            PAUSE
+          </button>
+        )}
+        
         <button 
-          onClick={handleStart}
-          className="px-6 py-2 bg-green-600 rounded hover:bg-green-500 cursor-pointer"
+          onClick={resetTimer}
+          className="px-8 py-3 text-xl font-bold border-2 border-white/20 text-white rounded-lg hover:bg-white/10 cursor-pointer transition-transform active:scale-95"
         >
-          Start
-        </button>
-        <button 
-          onClick={handlePause}
-          className="px-6 py-2 bg-yellow-600 rounded hover:bg-yellow-500 cursor-pointer"
-        >
-          Pause
+          RESET
         </button>
       </div>
     </div>
