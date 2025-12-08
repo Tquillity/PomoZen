@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useTimeStore } from '../store/useTimeStore';
 import { useSettingsStore } from '../store/useSettingsStore';
-import { playAlarm, sendNotification } from '../services/sound.service';
+import { playAlarm, sendNotification, triggerVisualBell } from '../services/sound.service';
 
 export const useTimerEffects = () => {
   const timeLeft = useTimeStore(state => state.timeLeft);
@@ -16,6 +16,8 @@ export const useTimerEffects = () => {
       
       // Trigger Side Effects
       const { soundEnabled } = useSettingsStore.getState();
+      
+      triggerVisualBell();
       
       if (soundEnabled) {
         playAlarm();

@@ -10,3 +10,18 @@ body {
   background-color: var(--theme-bg);
   transition: background-color 0.5s ease;
 }
+
+@keyframes flash {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.3; }
+}
+
+.animate-flash {
+  position: fixed;
+  inset: 0;
+  background-color: white;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0;
+  animation: flash 1s ease-in-out;
+}

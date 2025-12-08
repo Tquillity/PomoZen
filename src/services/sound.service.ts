@@ -35,3 +35,11 @@ export const sendNotification = (title: string, body: string) => {
   }
 };
 
+export const triggerVisualBell = () => {
+  const flash = document.createElement('div');
+  flash.className = 'animate-flash';
+  document.body.appendChild(flash);
+  setTimeout(() => {
+    document.body.removeChild(flash);
+  }, 1000);
+};

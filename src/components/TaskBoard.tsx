@@ -137,7 +137,8 @@ export const TaskBoard = () => {
                 
                 <button
                     onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}
-                    className="text-white/20 hover:text-red-400 p-1 rounded transition-colors opacity-0 group-hover:opacity-100"
+                    className="text-white/20 hover:text-red-400 p-1 rounded transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:text-red-400"
+                    aria-label={`Delete task: ${task.title}`}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

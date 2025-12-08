@@ -37,6 +37,7 @@ export const Footer = () => {
               onClick={exportData}
               className="text-xs font-medium text-white/70 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
               title="Export Data"
+              aria-label="Export Data"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
@@ -46,7 +47,7 @@ export const Footer = () => {
 
             <div className="w-px h-4 bg-white/20"></div>
 
-            <label className="text-xs font-medium text-white/70 hover:text-white flex items-center gap-1 transition-colors cursor-pointer" title="Import Data">
+            <label className="text-xs font-medium text-white/70 hover:text-white flex items-center gap-1 transition-colors cursor-pointer" title="Import Data" aria-label="Import Data">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" className="rotate-180 origin-center" />
               </svg>
