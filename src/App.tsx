@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense, lazy } from 'react';
 import { TaskBoard } from './components/TaskBoard';
 import { Footer } from './components/layout/Footer';
 import { LandingContent } from './components/layout/LandingContent';
@@ -10,12 +10,14 @@ import { TimerControls } from './components/timer/TimerControls';
 import { ModeSwitcher } from './components/timer/ModeSwitcher';
 import { useTaskStore } from './store/useTaskStore';
 import { events } from './services/event.service';
-import { SettingsModal } from './components/settings/SettingsModal';
-import { StatsModal } from './components/stats/StatsModal';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useFocusMode } from './hooks/useFocusMode';
 import { ZenPlayer } from './components/sound/ZenPlayer';
 import { SEOHelmet } from './components/seo/SEOHelmet';
+
+// Lazy load modals for code splitting
+const SettingsModal = lazy(() => import('./components/settings/SettingsModal').then(module => ({ default: module.SettingsModal })));
+const StatsModal = lazy(() => import('./components/stats/StatsModal').then(module => ({ default: module.StatsModal })));
 
 function App() {
   // Initialize Hooks
@@ -76,8 +78,11 @@ function App() {
       <Footer />
       <LandingContent />
 
-      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
-      <StatsModal isOpen={isStatsOpen} onClose={() => setIsStatsOpen(false)} />
+      {/* Lazy loaded modals with code splitting */}
+      <Suspense fallback={null}>
+        <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+        <StatsModal isOpen={isStatsOpen} onClose={() => setIsStatsOpen(false)} />
+      </Suspense>
 
     </div>
   );
