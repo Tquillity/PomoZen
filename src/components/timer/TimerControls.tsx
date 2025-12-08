@@ -24,20 +24,20 @@ export const TimerControls = () => {
   };
 
   return (
-    <div className="flex gap-4 mb-12 z-10">
-      <button 
+    <div className="flex gap-2 sm:gap-4 mb-6 sm:mb-8 md:mb-12 z-10">
+      <button
           onClick={isRunning ? handlePause : handleStart}
           className={cn(
-            "px-8 py-4 text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 uppercase w-48",
+            "px-4 sm:px-6 md:px-8 py-3 sm:py-4 text-lg sm:text-xl md:text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 uppercase w-32 sm:w-40 md:w-48",
             "bg-white text-[var(--theme-primary)] hover:bg-gray-100"
           )}
       >
           {isRunning ? 'Pause' : 'Start'}
       </button>
-      
-      <button 
+
+      <button
           onClick={handleReset}
-          className="px-4 py-4 text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 bg-white/20 text-white hover:bg-white/30"
+          className="px-3 sm:px-4 py-3 sm:py-4 text-lg sm:text-xl md:text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 bg-white/20 text-white hover:bg-white/30"
       >
           ↺
       </button>

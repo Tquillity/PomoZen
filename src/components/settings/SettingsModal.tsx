@@ -39,11 +39,11 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         <div className="space-y-6">
           {/* Timer Durations */}
           <div className="space-y-3">
-            <h3 className="font-semibold text-white/80 uppercase text-xs tracking-wider">Timer (Minutes)</h3>
+            <h3 className="font-semibold text-white uppercase text-xs tracking-wider">Timer (Minutes)</h3>
             <div className="grid grid-cols-3 gap-4">
               {(['pomodoro', 'short', 'long'] as TimerMode[]).map((mode) => (
                 <div key={mode} className="flex flex-col">
-                  <label className="text-sm text-white/70 capitalize mb-1">{mode}</label>
+                  <label className="text-sm text-white capitalize mb-1">{mode}</label>
                   <input
                     type="number"
                     value={durations[mode]}
@@ -102,7 +102,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
         {/* Zen Mode */}
         <div className="space-y-4">
-          <h3 className="font-semibold text-white/80 uppercase text-xs tracking-wider">Zen Mode</h3>
+          <h3 className="font-semibold text-white uppercase text-xs tracking-wider">Zen Mode</h3>
 
           <div className="flex justify-between items-center">
             <label className="font-medium text-white">Background Audio</label>
@@ -125,7 +125,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           {zenModeEnabled && (
             <div className="space-y-3 bg-white/10 p-4 rounded-lg border border-white/10">
               <div className="flex flex-col gap-2">
-                <label className="text-sm text-white/70">Soundscape</label>
+                <label className="text-sm text-white">Soundscape</label>
                 <select
                   value={zenTrack}
                   onChange={(e) => setZenTrack(e.target.value as ZenTrack)}
@@ -138,7 +138,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm text-white/70">Volume</label>
+                <label className="text-sm text-white">Volume</label>
                 <input 
                   type="range" 
                   min="0" 

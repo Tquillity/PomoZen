@@ -43,16 +43,16 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
         <div className="flex justify-around text-center">
           <div>
             <div className="text-3xl font-bold text-white">{totalPomodoros}</div>
-            <div className="text-xs text-white/60 uppercase tracking-wider">Total Sessions</div>
+            <div className="text-xs text-white/80 uppercase tracking-wider">Total Sessions</div>
           </div>
           <div>
             <div className="text-3xl font-bold text-white">{totalHours}</div>
-            <div className="text-xs text-white/60 uppercase tracking-wider">Est. Hours</div>
+            <div className="text-xs text-white/80 uppercase tracking-wider">Est. Hours</div>
           </div>
         </div>
 
         <div>
-          <h3 className="font-semibold text-white/80 uppercase text-xs tracking-wider mb-3">Last 14 Days</h3>
+          <h3 className="font-semibold text-white uppercase text-xs tracking-wider mb-3">Last 14 Days</h3>
           <div className="flex justify-between gap-1">
             {last14Days.map((day) => (
               <div key={day.key} className="flex flex-col items-center gap-1 flex-1">
