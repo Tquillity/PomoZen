@@ -1,5 +1,6 @@
 import { useTimeStore } from './store/useTimeStore';
 import { TaskBoard } from './components/TaskBoard';
+import { Footer } from './components/layout/Footer';
 import { useTheme } from './hooks/useTheme';
 import { playClick, requestNotificationPermission } from './services/sound.service';
 import clsx from 'clsx';
@@ -81,6 +82,9 @@ function App() {
 
       {/* Task Section */}
       <TaskBoard />
+      
+      {/* Footer Area with Ads & Data Management */}
+      <Footer />
     </div>
   );
 }
