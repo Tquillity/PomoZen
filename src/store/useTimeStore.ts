@@ -5,12 +5,14 @@ import { getWorker } from '../services/worker.service';
 import type { TimerMode } from '../types';
 import { events } from '../services/event.service';
 import { useSettingsStore } from './useSettingsStore';
+import { format } from 'date-fns';
 
 interface TimeState {
   timeLeft: number;
   isRunning: boolean;
   mode: TimerMode;
   pomodorosCompleted: number;
+  history: Record<string, number>; // Key: YYYY-MM-DD, Value: count
   
   startTimer: () => void;
   pauseTimer: () => void;
@@ -32,6 +34,7 @@ export const useTimeStore = create<TimeState>()(
       isRunning: false,
       mode: 'pomodoro',
       pomodorosCompleted: 0,
+      history: {},
 
       startTimer: async () => {
         const { isRunning } = get();
@@ -57,7 +60,7 @@ export const useTimeStore = create<TimeState>()(
       },
 
       tick: () => {
-        const { timeLeft, mode, pomodorosCompleted } = get();
+        const { timeLeft, mode, pomodorosCompleted, history } = get();
         
         if (timeLeft > 0) {
           set({ timeLeft: timeLeft - 1 });
@@ -72,10 +75,15 @@ export const useTimeStore = create<TimeState>()(
              const newCompleted = pomodorosCompleted + 1;
              const nextMode = newCompleted % 4 === 0 ? 'long' : 'short';
              
+             // Update History
+             const todayKey = format(new Date(), 'yyyy-MM-dd');
+             const newHistory = { ...history, [todayKey]: (history[todayKey] || 0) + 1 };
+             
              set({ 
                pomodorosCompleted: newCompleted, 
                mode: nextMode,
-               timeLeft: getDuration(nextMode)
+               timeLeft: getDuration(nextMode),
+               history: newHistory
              });
           } else {
              // Break is over, back to work
