@@ -1,7 +1,6 @@
 import { useEffect, useState, Suspense, lazy } from 'react';
 import { TaskBoard } from './components/TaskBoard';
 import { Footer } from './components/layout/Footer';
-import { LandingContent } from './components/layout/LandingContent';
 import { useTheme } from './hooks/useTheme';
 import { useTimerEffects } from './hooks/useTimerEffects';
 import { useDocumentTitle } from './hooks/useDocumentTitle';
@@ -102,7 +101,6 @@ function App() {
       <TimerControls />
       <TaskBoard />
       <Footer />
-      <LandingContent />
 
       {/* Lazy loaded modals with code splitting */}
       <Suspense fallback={null}>
