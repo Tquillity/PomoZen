@@ -2,10 +2,8 @@ import { useEffect } from 'react';
 
 export const SEOHelmet = () => {
   useEffect(() => {
-    // Set basic meta tags
-    document.title = 'PomoZen - Offline Pomodoro Focus Timer';
-
-    // Remove any existing meta tags we want to control
+    // Note: Title is now managed by useDocumentTitle hook
+    // Remove any existing meta tags we want to control (but not title)
     const existingMetaTags = document.querySelectorAll('meta[name="description"], meta[name="keywords"], meta[property^="og:"], script[type="application/ld+json"]');
     existingMetaTags.forEach(tag => tag.remove());
 

@@ -7,8 +7,14 @@ export const useDocumentTitle = () => {
 
   useEffect(() => {
     const timeString = formatTime(timeLeft);
-    const status = isRunning ? 'Focusing' : 'Paused';
-    document.title = `${timeString} - ${status}`;
+
+    if (isRunning) {
+      // When running, show dynamic countdown
+      document.title = `${timeString} - Focusing - PomoZen`;
+    } else {
+      // When paused/stopped, show SEO-friendly title
+      document.title = 'PomoZen - Offline Pomodoro Focus Timer';
+    }
   }, [timeLeft, isRunning]);
 };
 
