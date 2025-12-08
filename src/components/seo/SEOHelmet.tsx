@@ -9,10 +9,11 @@ export const SEOHelmet = () => {
 
     // Create and append meta tags
     const metaTags = [
-      { name: 'description', content: 'Boost productivity with PomoZen. A free, privacy-first Pomodoro timer with tasks, ambient sounds, and statistics. Works offline.' },
-      { name: 'keywords', content: 'pomodoro timer, focus timer, tomato timer, study timer, offline pomodoro, productivity tool' },
+      { name: 'description', content: 'Boost productivity with PomoZen. A free, privacy-first online Pomodoro timer with tasks, ambient sounds, and statistics. Works offline.' },
+      { name: 'keywords', content: 'pomodoro timer, online timer, focus timer, aesthetic timer, study timer, offline pomodoro, productivity tool, pomozen' },
       { property: 'og:type', content: 'website' },
       { property: 'og:title', content: 'PomoZen - Master Your Focus' },
+      { property: 'og:url', content: 'https://pomozen.online' },
       { property: 'og:description', content: 'The Zen way to focus. Offline-first Pomodoro timer with tasks and soundscapes.' },
     ];
 
@@ -27,8 +28,9 @@ export const SEOHelmet = () => {
     // Add JSON-LD structured data
     const schema = {
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
+      "@type": "WebApplication",
       "name": "PomoZen",
+      "url": "https://pomozen.online",
       "applicationCategory": "ProductivityApplication",
       "operatingSystem": "Web",
       "offers": {
@@ -37,7 +39,9 @@ export const SEOHelmet = () => {
         "priceCurrency": "USD"
       },
       "description": "A privacy-first, offline-capable Pomodoro timer with ambient soundscapes and usage statistics.",
-      "featureList": "Offline Mode, Task Tracking, White Noise, Custom Timer"
+      "keywords": "Pomodoro Technique, Timer, Productivity, Study Tool, Focus App",
+      "featureList": "Offline Mode, Task Tracking, White Noise, Custom Timer",
+      "isAccessibleForFree": true
     };
 
     const script = document.createElement('script');

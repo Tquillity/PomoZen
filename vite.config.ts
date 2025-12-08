@@ -16,11 +16,11 @@ export default defineConfig({
       manifest: {
         name: 'PomoZen',
         short_name: 'PomoZen',
-        description: 'Offline-First Pomodoro Timer',
+        description: 'Free Online Pomodoro Timer',
         theme_color: '#ba4949',
         icons: [
           {
-            src: 'pwa-192x192.png', // We don't have these yet, but config needs them
+            src: 'pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
@@ -32,7 +32,8 @@ export default defineConfig({
         ]
       }
     }),
-    sitemap({ hostname: 'https://pomozen.app' }) // Placeholder domain
+    // FIX: Updated to correct domain
+    sitemap({ hostname: 'https://pomozen.online' })
   ],
   // @ts-expect-error - vitest types are not automatically picked up by vite config types without extra work
   test: {

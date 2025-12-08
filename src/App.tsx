@@ -14,10 +14,11 @@ import { useFocusMode } from './hooks/useFocusMode';
 import { ZenPlayer } from './components/sound/ZenPlayer';
 import { SEOHelmet } from './components/seo/SEOHelmet';
 
+import { PomodoroGuideModal } from './components/modals/PomodoroGuideModal';
+
 const SettingsModal = lazy(() => import('./components/settings/SettingsModal').then(module => ({ default: module.SettingsModal })));
 const StatsModal = lazy(() => import('./components/stats/StatsModal').then(module => ({ default: module.StatsModal })));
 const ColorPsychologyModal = lazy(() => import('./components/modals/ColorPsychologyModal').then(module => ({ default: module.ColorPsychologyModal })));
-const PomodoroGuideModal = lazy(() => import('./components/modals/PomodoroGuideModal').then(module => ({ default: module.PomodoroGuideModal })));
 
 function App() {
   useTheme();
