@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import sitemap from 'vite-plugin-sitemap'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -30,7 +31,8 @@ export default defineConfig({
           }
         ]
       }
-    })
+    }),
+    sitemap({ hostname: 'https://pomozen.app' }) // Placeholder domain
   ],
   // @ts-expect-error - vitest types are not automatically picked up by vite config types without extra work
   test: {

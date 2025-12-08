@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { useSettingsStore, ZenTrack } from '../../store/useSettingsStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
+import type { ZenTrack } from '../../store/useSettingsStore';
 
 const TRACKS: Record<ZenTrack, string> = {
   rain: 'https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg',

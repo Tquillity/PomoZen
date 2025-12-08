@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { TaskBoard } from './components/TaskBoard';
 import { Footer } from './components/layout/Footer';
+import { LandingContent } from './components/layout/LandingContent';
 import { useTheme } from './hooks/useTheme';
 import { useTimerEffects } from './hooks/useTimerEffects';
 import { useDocumentTitle } from './hooks/useDocumentTitle';
@@ -14,6 +15,7 @@ import { StatsModal } from './components/stats/StatsModal';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useFocusMode } from './hooks/useFocusMode';
 import { ZenPlayer } from './components/sound/ZenPlayer';
+import { SEOHelmet } from './components/seo/SEOHelmet';
 
 function App() {
   // Initialize Hooks
@@ -38,7 +40,8 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col items-center py-12 transition-colors duration-500 relative">
-      
+
+      <SEOHelmet />
       <ZenPlayer />
 
       {/* Top Right Buttons */}
@@ -71,7 +74,8 @@ function App() {
       <TimerControls />
       <TaskBoard />
       <Footer />
-      
+      <LandingContent />
+
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       <StatsModal isOpen={isStatsOpen} onClose={() => setIsStatsOpen(false)} />
 

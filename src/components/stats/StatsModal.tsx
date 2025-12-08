@@ -9,8 +9,7 @@ interface StatsModalProps {
 }
 
 export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
-  const history = useTimeStore(state => state.history);
-  const pomodoroDuration = useTimeStore(state => state.timeLeft); // Just for type safety, really we want duration from settings but let's keep it simple. 
+  const history = useTimeStore(state => state.history); 
   // Actually, calculating total hours is tricky if duration changes. Let's just count Pomodoros.
   
   // Close on Escape key
