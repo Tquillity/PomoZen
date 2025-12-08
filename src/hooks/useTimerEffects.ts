@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useTimeStore } from '../store/useTimeStore';
+import { useSettingsStore } from '../store/useSettingsStore';
 import { playAlarm, sendNotification } from '../services/sound.service';
 
 export const useTimerEffects = () => {
@@ -14,7 +15,11 @@ export const useTimerEffects = () => {
       hasHandledComplete.current = true;
       
       // Trigger Side Effects
-      playAlarm();
+      const { soundEnabled } = useSettingsStore.getState();
+      
+      if (soundEnabled) {
+        playAlarm();
+      }
       
       if (mode === 'pomodoro') {
         sendNotification("Break Time!", "Great job! Take a short break.");
@@ -33,4 +38,3 @@ export const useTimerEffects = () => {
   // Note: The store emits 'timer:complete', we can listen here if needed, 
   // but App.tsx will handle the task update logic via event bus.
 };
-

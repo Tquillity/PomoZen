@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { TaskBoard } from './components/TaskBoard';
 import { Footer } from './components/layout/Footer';
 import { useTheme } from './hooks/useTheme';
@@ -9,17 +9,20 @@ import { TimerControls } from './components/timer/TimerControls';
 import { ModeSwitcher } from './components/timer/ModeSwitcher';
 import { useTaskStore } from './store/useTaskStore';
 import { events } from './services/event.service';
+import { SettingsModal } from './components/settings/SettingsModal';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useFocusMode } from './hooks/useFocusMode';
 
 function App() {
   // Initialize Hooks
   useTheme();
   useTimerEffects();
   useDocumentTitle();
+  useKeyboardShortcuts();
+  useFocusMode();
 
-  // Request notification permission on first interaction (simulated by checking if we should ask)
-  // Ideally this should be on a button click, but we'll leave the logic in TimerControls/handleStart for now
-  // or just let the user triggering start handle it.
-  
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   // Wire Event Bus for Tasks
   useEffect(() => {
     return events.on('timer:complete', (mode) => {
@@ -30,20 +33,29 @@ function App() {
     });
   }, []);
 
-  // Temporary: We need requestNotificationPermission available for the first start
-  // But TimerControls is decoupled. We can pass it or just export it.
-  // Actually, let's add a global click listener for the very first interaction if needed, 
-  // or just rely on the user clicking "Start" inside TimerControls which calls playClick -> which we can hook into?
-  // For now, let's keep it simple.
-
   return (
-    <div className="min-h-screen flex flex-col items-center py-12 transition-colors duration-500">
+    <div className="min-h-screen flex flex-col items-center py-12 transition-colors duration-500 relative">
       
+      {/* Settings Button */}
+      <div className="absolute top-6 right-6 z-20">
+        <button 
+          onClick={() => setIsSettingsOpen(true)}
+          className="bg-white/20 p-2 rounded-full hover:bg-white/30 text-white transition-colors cursor-pointer"
+          aria-label="Open Settings"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 1 1 0-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 0 1-1.44-4.282m3.102.069a18.03 18.03 0 0 1-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 0 1 8.835 2.535M10.34 6.66a23.847 23.847 0 0 0 8.835-2.535m0 0A23.74 23.74 0 0 0 18.795 3m.38 1.125a23.91 23.91 0 0 1 1.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 0 0 1.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.42 24.42 0 0 1 0 3.46" />
+          </svg>
+        </button>
+      </div>
+
       <ModeSwitcher />
       <TimerDisplay />
       <TimerControls />
       <TaskBoard />
       <Footer />
+      
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 
     </div>
   );

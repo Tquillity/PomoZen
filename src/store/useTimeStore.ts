@@ -4,6 +4,7 @@ import * as Comlink from 'comlink';
 import { getWorker } from '../services/worker.service';
 import type { TimerMode } from '../types';
 import { events } from '../services/event.service';
+import { useSettingsStore } from './useSettingsStore';
 
 interface TimeState {
   timeLeft: number;
@@ -18,16 +19,16 @@ interface TimeState {
   tick: () => void;
 }
 
-const TIMES = {
-  pomodoro: 25 * 60,
-  short: 5 * 60,
-  long: 15 * 60
+// Helper to get duration in seconds from settings
+const getDuration = (mode: TimerMode) => {
+  return useSettingsStore.getState().durations[mode] * 60;
 };
 
 export const useTimeStore = create<TimeState>()(
   persist(
     (set, get) => ({
-      timeLeft: TIMES.pomodoro,
+      // Initialize with default or current settings
+      timeLeft: getDuration('pomodoro'),
       isRunning: false,
       mode: 'pomodoro',
       pomodorosCompleted: 0,
@@ -46,12 +47,12 @@ export const useTimeStore = create<TimeState>()(
 
       resetTimer: () => {
         const { mode } = get();
-        set({ isRunning: false, timeLeft: TIMES[mode] });
+        set({ isRunning: false, timeLeft: getDuration(mode) });
         getWorker().reset();
       },
 
       setMode: (mode) => {
-        set({ mode, isRunning: false, timeLeft: TIMES[mode] });
+        set({ mode, isRunning: false, timeLeft: getDuration(mode) });
         getWorker().reset();
       },
 
@@ -74,14 +75,20 @@ export const useTimeStore = create<TimeState>()(
              set({ 
                pomodorosCompleted: newCompleted, 
                mode: nextMode,
-               timeLeft: TIMES[nextMode]
+               timeLeft: getDuration(nextMode)
              });
           } else {
              // Break is over, back to work
              set({ 
                mode: 'pomodoro',
-               timeLeft: TIMES.pomodoro
+               timeLeft: getDuration('pomodoro')
              });
+          }
+          
+          // Auto-start logic
+          const { autoStart } = useSettingsStore.getState();
+          if (autoStart) {
+            get().startTimer();
           }
         }
       }
