@@ -36,33 +36,33 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Settings">
-      <div className="space-y-6">
-        {/* Timer Durations */}
-        <div className="space-y-3">
-          <h3 className="font-semibold text-gray-500 uppercase text-xs tracking-wider">Timer (Minutes)</h3>
-          <div className="grid grid-cols-3 gap-4">
-            {(['pomodoro', 'short', 'long'] as TimerMode[]).map((mode) => (
-              <div key={mode} className="flex flex-col">
-                <label className="text-sm text-gray-600 capitalize mb-1">{mode}</label>
-                <input 
-                  type="number" 
-                  value={durations[mode]} 
-                  onChange={(e) => handleDurationChange(mode, parseInt(e.target.value) || 0)}
-                  className="border border-gray-300 rounded p-2 focus:ring-2 focus:ring-[var(--theme-primary)] focus:outline-none transition-shadow"
-                  min="1" 
-                  max="60"
-                />
-              </div>
-            ))}
+        <div className="space-y-6">
+          {/* Timer Durations */}
+          <div className="space-y-3">
+            <h3 className="font-semibold text-white/80 uppercase text-xs tracking-wider">Timer (Minutes)</h3>
+            <div className="grid grid-cols-3 gap-4">
+              {(['pomodoro', 'short', 'long'] as TimerMode[]).map((mode) => (
+                <div key={mode} className="flex flex-col">
+                  <label className="text-sm text-white/70 capitalize mb-1">{mode}</label>
+                  <input
+                    type="number"
+                    value={durations[mode]}
+                    onChange={(e) => handleDurationChange(mode, parseInt(e.target.value) || 0)}
+                    className="border border-white/30 bg-white/10 text-white rounded p-2 focus:ring-2 focus:ring-white/50 focus:outline-none transition-shadow"
+                    min="1"
+                    max="60"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <hr className="border-gray-100" />
+        <hr className="border-white/10" />
 
         {/* Toggles */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <label className="font-medium text-gray-700">Auto-start Breaks</label>
+            <label className="font-medium text-white">Auto-start Breaks</label>
             <button 
               onClick={toggleAutoStart}
               className={cn(
@@ -80,12 +80,12 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           </div>
 
           <div className="flex justify-between items-center">
-            <label className="font-medium text-gray-700">Sound Effects</label>
-            <button 
+            <label className="font-medium text-white">Sound Effects</label>
+            <button
               onClick={toggleSound}
               className={cn(
                 "w-12 h-6 rounded-full transition-colors relative cursor-pointer",
-                soundEnabled ? "bg-green-500" : "bg-gray-300"
+                soundEnabled ? "bg-green-500" : "bg-white/30"
               )}
               aria-pressed={soundEnabled}
               aria-label="Toggle Sound"
@@ -98,14 +98,14 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           </div>
         </div>
 
-        <hr className="border-gray-100" />
+        <hr className="border-white/10" />
 
         {/* Zen Mode */}
         <div className="space-y-4">
-          <h3 className="font-semibold text-gray-500 uppercase text-xs tracking-wider">Zen Mode</h3>
-          
+          <h3 className="font-semibold text-white/80 uppercase text-xs tracking-wider">Zen Mode</h3>
+
           <div className="flex justify-between items-center">
-            <label className="font-medium text-gray-700">Background Audio</label>
+            <label className="font-medium text-white">Background Audio</label>
             <button 
               onClick={toggleZenMode}
               className={cn(
@@ -123,13 +123,13 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           </div>
 
           {zenModeEnabled && (
-            <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+            <div className="space-y-3 bg-white/10 p-4 rounded-lg border border-white/10">
               <div className="flex flex-col gap-2">
-                <label className="text-sm text-gray-600">Soundscape</label>
-                <select 
-                  value={zenTrack} 
+                <label className="text-sm text-white/70">Soundscape</label>
+                <select
+                  value={zenTrack}
                   onChange={(e) => setZenTrack(e.target.value as ZenTrack)}
-                  className="border border-gray-300 rounded p-2 bg-white focus:ring-2 focus:ring-[var(--theme-primary)] focus:outline-none"
+                  className="border border-white/30 bg-white/10 text-white rounded p-2 focus:ring-2 focus:ring-white/50 focus:outline-none"
                 >
                   <option value="rain">Heavy Rain</option>
                   <option value="forest">Forest Morning</option>
@@ -138,7 +138,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm text-gray-600">Volume</label>
+                <label className="text-sm text-white/70">Volume</label>
                 <input 
                   type="range" 
                   min="0" 

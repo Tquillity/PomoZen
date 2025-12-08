@@ -33,20 +33,20 @@ export const Modal = ({ isOpen, onClose, title, children, className }: ModalProp
         ref={modalRef}
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
         className={cn(
-          "bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-in zoom-in-95 duration-200 mx-4 flex flex-col max-h-[90vh]",
+          "bg-[var(--theme-primary)] brightness-95 text-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-in zoom-in-95 duration-200 mx-4 flex flex-col max-h-[85vh] border border-white/10",
           className
         )}
         role="dialog"
         aria-modal="true"
       >
         {/* Header with Dynamic Theme Color */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-100">
-          <h2 className="text-2xl font-bold text-[var(--theme-primary)] transition-colors duration-500">
+        <div className="flex justify-between items-center p-6 border-b border-white/10">
+          <h2 className="text-2xl font-bold text-white transition-colors duration-500">
             {title}
           </h2>
-          <button 
+          <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+            className="p-2 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
             aria-label="Close"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
