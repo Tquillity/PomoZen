@@ -33,7 +33,7 @@ export const Modal = ({ isOpen, onClose, title, children, className }: ModalProp
         ref={modalRef}
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
         className={cn(
-          "bg-[var(--theme-primary)] brightness-95 text-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-in zoom-in-95 duration-200 mx-4 flex flex-col max-h-[85vh] border border-white/10",
+          "bg-[var(--theme-primary)] brightness-95 text-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-in zoom-in-95 duration-200 mx-2 flex flex-col max-h-[85vh] border border-white/10",
           className
         )}
         role="dialog"
