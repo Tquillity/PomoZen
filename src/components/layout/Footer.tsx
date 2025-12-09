@@ -27,7 +27,7 @@ export const Footer = () => {
           {/* Left: Branding */}
           <div className="flex items-center gap-2 text-white/60">
             <span className="font-bold text-white tracking-wide">PomoZen</span>
-            <span className="text-xs border border-white/20 px-1.5 rounded text-white/40">v1.0</span>
+            <span className="text-xs border border-white/20 px-1.5 rounded text-white/40">v1.1</span>
             <span className="text-xs hidden sm:inline">Offline First</span>
           </div>
 
