@@ -1,13 +1,6 @@
 import { useEffect } from 'react';
 import { useTimeStore } from '../store/useTimeStore';
-import type { TimerMode } from '../types';
-
-// HSL values for the themes
-const THEMES: Record<TimerMode, { primary: string; secondary: string }> = {
-  pomodoro: { primary: '#c15c5c', secondary: '#d96d6d' }, // softer warm red – motivating urgency without bright-red anxiety
-  short: { primary: '#52a89a', secondary: '#6ab8ad' },     // refreshing mint-teal/green – fastest stress recovery
-  long: { primary: '#2c5578', secondary: '#416a9b' },     // deep serene indigo-blue – maximum restoration & clarity
-};
+import { useSettingsStore } from '../store/useSettingsStore';
 
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60);
@@ -17,18 +10,20 @@ const formatTime = (seconds: number) => {
 
 export const useTheme = () => {
   const { mode, timeLeft, isRunning } = useTimeStore();
+  const themeColors = useSettingsStore((state) => state.themeColors);
 
   // 1. Handle Colors
   useEffect(() => {
-    const theme = THEMES[mode];
+    const primaryColor = themeColors[mode];
     const root = document.documentElement;
     
     // Set CSS variables for Tailwind to consume
-    root.style.setProperty('--theme-primary', theme.primary);
-    root.style.setProperty('--theme-secondary', theme.secondary);
+    root.style.setProperty('--theme-primary', primaryColor);
+    // Calculated Secondary: Lighten/saturate the user's chosen color
+    root.style.setProperty('--theme-secondary', `color-mix(in srgb, ${primaryColor}, white 20%)`);
     // Darker variant for backgrounds
-    root.style.setProperty('--theme-bg', theme.primary); 
-  }, [mode]);
+    root.style.setProperty('--theme-bg', primaryColor); 
+  }, [mode, themeColors]);
 
   // 2. Handle Title
   useEffect(() => {
@@ -37,4 +32,3 @@ export const useTheme = () => {
     document.title = `${timeString} - ${status}`;
   }, [timeLeft, isRunning]);
 };
-

@@ -39,7 +39,7 @@ export const TaskBoard = () => {
     <div className="w-full max-w-md bg-black/30 border border-white/10 shadow-2xl p-6 rounded-2xl backdrop-blur-md flex flex-col h-full max-h-[400px] relative overflow-hidden transition-all">
       
       {/* Header */}
-      <div className="flex justify-between items-center mb-4 flex-shrink-0 z-10">
+      <div className="flex justify-between items-center mb-4 shrink-0 z-10">
         <h2 className="text-xl font-bold text-white tracking-tight">Tasks</h2>
         
         <div ref={menuRef} className="relative">
@@ -73,7 +73,7 @@ export const TaskBoard = () => {
       </div>
       
       {/* Current Focus Section */}
-      <div className="mb-4 bg-white/5 rounded-lg p-3 text-center border border-white/5 flex-shrink-0">
+      <div className="mb-4 bg-white/5 rounded-lg p-3 text-center border border-white/5 shrink-0">
         <span className="text-white/50 uppercase text-[10px] tracking-widest font-bold block mb-1">Current Focus</span>
         <div className="text-white text-base font-medium truncate">
             {tasks.find(t => t.id === activeTaskId)?.title || "No active task"}
@@ -81,7 +81,7 @@ export const TaskBoard = () => {
       </div>
 
       {/* Input Form */}
-      <form onSubmit={handleAdd} className="flex gap-2 mb-4 flex-shrink-0">
+      <form onSubmit={handleAdd} className="flex gap-2 mb-4 shrink-0">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -108,7 +108,7 @@ export const TaskBoard = () => {
             className={clsx(
               "group p-3 rounded-lg cursor-pointer border transition-all flex justify-between items-center",
               activeTaskId === task.id 
-                ? "bg-[var(--theme-primary)]/40 border-white/30 shadow-lg translate-x-1" 
+                ? "bg-(--theme-primary)/40 border-white/30 shadow-lg translate-x-1"  
                 : "bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10"
             )}
           >
@@ -116,7 +116,7 @@ export const TaskBoard = () => {
                <button 
                  onClick={(e) => { e.stopPropagation(); toggleTask(task.id); }}
                  className={clsx(
-                   "w-5 h-5 rounded-full border flex-shrink-0 flex items-center justify-center transition-all",
+                   "w-5 h-5 rounded-full border shrink-0 flex items-center justify-center transition-all",
                    task.completed ? "bg-green-500 border-green-500" : "border-white/30 hover:border-white"
                  )}
                >

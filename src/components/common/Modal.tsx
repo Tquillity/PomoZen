@@ -5,48 +5,44 @@ import { cn } from '../../utils/cn';
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  title?: string;
+  title: string;
   children: React.ReactNode;
-  className?: string;
 }
 
-export const Modal = ({ isOpen, onClose, title, children, className }: ModalProps) => {
+export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Handle Escape Key
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
+    const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-    if (isOpen) window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   return createPortal(
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in"
-      onClick={onClose} // Backdrop click
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div 
         ref={modalRef}
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
         className={cn(
-          "bg-[var(--theme-primary)] brightness-95 text-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-in zoom-in-95 duration-200 mx-2 flex flex-col max-h-[85vh] border border-white/10",
-          className
+          "bg-(--theme-primary) brightness-95 text-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-in zoom-in-95 duration-200 mx-2 flex flex-col max-h-[85vh] border border-white/10",
         )}
-        role="dialog"
-        aria-modal="true"
       >
-        {/* Header with Dynamic Theme Color */}
-        <div className="flex justify-between items-center p-6 border-b border-white/10">
-          <h2 className="text-2xl font-bold text-white transition-colors duration-500">
-            {title}
-          </h2>
+        <div className="flex justify-between items-center p-4 border-b border-white/10 bg-black/10">
+          <h2 className="text-xl font-bold tracking-tight">{title}</h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
+            className="text-white/70 hover:text-white transition-colors p-1 hover:bg-white/10 rounded-full"
             aria-label="Close"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -54,9 +50,8 @@ export const Modal = ({ isOpen, onClose, title, children, className }: ModalProp
             </svg>
           </button>
         </div>
-
-        {/* Scrollable Content */}
-        <div className="p-6 overflow-y-auto">
+        
+        <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
           {children}
         </div>
       </div>
@@ -64,4 +59,3 @@ export const Modal = ({ isOpen, onClose, title, children, className }: ModalProp
     document.body
   );
 };
-

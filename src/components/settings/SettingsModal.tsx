@@ -13,12 +13,15 @@ interface SettingsModalProps {
 export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   const { 
     durations, 
+    themeColors,
     autoStart, 
     soundEnabled, 
     zenModeEnabled,
     zenTrack,
     zenVolume,
-    updateDuration, 
+    updateDuration,
+    setThemeColor,
+    resetThemeColors,
     toggleAutoStart, 
     toggleSound,
     toggleZenMode,
@@ -56,6 +59,36 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
               ))}
             </div>
           </div>
+
+        <hr className="border-white/10" />
+
+        {/* Theme Colors */}
+        <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <h3 className="font-semibold text-white uppercase text-xs tracking-wider">Theme Colors</h3>
+              <button 
+                onClick={resetThemeColors}
+                className="text-xs text-white/50 underline hover:text-white transition-colors"
+              >
+                Reset Defaults
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              {(['pomodoro', 'short', 'long'] as TimerMode[]).map((mode) => (
+                <div key={mode} className="flex flex-col">
+                  <label className="text-sm text-white capitalize mb-1">{mode}</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={themeColors[mode]}
+                      onChange={(e) => setThemeColor(mode, e.target.value)}
+                      className="w-full h-8 rounded cursor-pointer bg-transparent border-0 p-0"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+        </div>
 
         <hr className="border-white/10" />
 
@@ -146,7 +179,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                   step="0.05"
                   value={zenVolume}
                   onChange={(e) => setZenVolume(parseFloat(e.target.value))}
-                  className="w-full accent-[var(--theme-primary)]"
+                  className="w-full accent-(--theme-primary)"
                 />
               </div>
             </div>

@@ -7,12 +7,18 @@ import { events } from '../services/event.service';
 import { useSettingsStore } from './useSettingsStore';
 import { format } from 'date-fns';
 
+interface DailyStats {
+  pomodoro: number;
+  short: number;
+  long: number;
+}
+
 interface TimeState {
   timeLeft: number;
   isRunning: boolean;
   mode: TimerMode;
   pomodorosCompleted: number;
-  history: Record<string, number>; // Key: YYYY-MM-DD, Value: count
+  history: Record<string, DailyStats>; // Key: YYYY-MM-DD, Value: DailyStats
   
   startTimer: () => void;
   pauseTimer: () => void;
@@ -71,13 +77,21 @@ export const useTimeStore = create<TimeState>()(
           // Emit event instead of calling side effects directly
           events.emit('timer:complete', mode);
           
+          // Update History
+          const todayKey = format(new Date(), 'yyyy-MM-dd');
+          const currentStats = history[todayKey] || { pomodoro: 0, short: 0, long: 0 };
+          
+          const newHistory = { 
+            ...history, 
+            [todayKey]: { 
+              ...currentStats, 
+              [mode]: currentStats[mode] + 1 
+            } 
+          };
+
           if (mode === 'pomodoro') {
              const newCompleted = pomodorosCompleted + 1;
              const nextMode = newCompleted % 4 === 0 ? 'long' : 'short';
-             
-             // Update History
-             const todayKey = format(new Date(), 'yyyy-MM-dd');
-             const newHistory = { ...history, [todayKey]: (history[todayKey] || 0) + 1 };
              
              set({ 
                pomodorosCompleted: newCompleted, 
@@ -89,7 +103,8 @@ export const useTimeStore = create<TimeState>()(
              // Break is over, back to work
              set({ 
                mode: 'pomodoro',
-               timeLeft: getDuration('pomodoro')
+               timeLeft: getDuration('pomodoro'),
+               history: newHistory
              });
           }
           
@@ -101,6 +116,23 @@ export const useTimeStore = create<TimeState>()(
         }
       }
     }),
-    { name: 'pomo-time-storage' }
+    { 
+      name: 'pomo-time-storage',
+      version: 2,
+      migrate: (persistedState: any, version: number) => {
+        if (version === 0 || version === 1) {
+          // Convert old history (number) to new history (object)
+          const newHistory: Record<string, any> = {};
+          if (persistedState.history) {
+            Object.entries(persistedState.history).forEach(([date, count]) => {
+              // Assume old counts were all Pomodoros
+              newHistory[date] = { pomodoro: count as number, short: 0, long: 0 };
+            });
+          }
+          return { ...persistedState, history: newHistory };
+        }
+        return persistedState;
+      },
+    }
   )
 );

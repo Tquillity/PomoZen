@@ -29,7 +29,7 @@ export const TimerControls = () => {
           onClick={isRunning ? handlePause : handleStart}
           className={cn(
             "px-4 sm:px-6 md:px-8 py-3 sm:py-4 text-lg sm:text-xl md:text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 uppercase w-32 sm:w-40 md:w-48",
-            "bg-white text-[var(--theme-primary)] hover:bg-gray-100"
+            "bg-white text-(--theme-primary) hover:bg-gray-100"
           )}
       >
           {isRunning ? 'Pause' : 'Start'}
@@ -45,4 +45,3 @@ export const TimerControls = () => {
     </div>
   );
 };
-

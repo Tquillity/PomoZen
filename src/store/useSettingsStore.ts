@@ -6,6 +6,7 @@ export type ZenTrack = 'rain' | 'white_noise' | 'forest';
 
 interface SettingsState {
   durations: Record<TimerMode, number>;
+  themeColors: Record<TimerMode, string>;
   autoStart: boolean;
   soundEnabled: boolean;
   isFocusMode: boolean;
@@ -16,6 +17,8 @@ interface SettingsState {
   zenVolume: number; // 0 to 1
   
   updateDuration: (mode: TimerMode, minutes: number) => void;
+  setThemeColor: (mode: TimerMode, color: string) => void;
+  resetThemeColors: () => void;
   toggleAutoStart: () => void;
   toggleSound: () => void;
   toggleFocusMode: () => void;
@@ -25,10 +28,17 @@ interface SettingsState {
   setZenVolume: (volume: number) => void;
 }
 
+const DEFAULT_THEME_COLORS = {
+  pomodoro: '#c15c5c',
+  short: '#52a89a',
+  long: '#2c5578',
+};
+
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
       durations: { pomodoro: 25, short: 5, long: 15 },
+      themeColors: DEFAULT_THEME_COLORS,
       autoStart: false,
       soundEnabled: true,
       isFocusMode: false,
@@ -40,6 +50,11 @@ export const useSettingsStore = create<SettingsState>()(
       updateDuration: (mode, minutes) => set((state) => ({
         durations: { ...state.durations, [mode]: minutes }
       })),
+      setThemeColor: (mode, color) => set((state) => ({
+        themeColors: { ...state.themeColors, [mode]: color }
+      })),
+      resetThemeColors: () => set({ themeColors: DEFAULT_THEME_COLORS }),
+      
       toggleAutoStart: () => set((state) => ({ autoStart: !state.autoStart })),
       toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
       toggleFocusMode: () => set((state) => ({ isFocusMode: !state.isFocusMode })),
@@ -52,6 +67,7 @@ export const useSettingsStore = create<SettingsState>()(
       name: 'pomo-settings-storage',
       partialize: (state) => ({ 
         durations: state.durations, 
+        themeColors: state.themeColors,
         autoStart: state.autoStart, 
         soundEnabled: state.soundEnabled,
         zenModeEnabled: state.zenModeEnabled,
