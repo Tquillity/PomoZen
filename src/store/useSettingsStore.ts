@@ -15,6 +15,16 @@ interface SettingsState {
   zenModeEnabled: boolean;
   zenTrack: ZenTrack;
   zenVolume: number; // 0 to 1
+  zenStrategy: 'always' | 'break_only';
+
+  // Presets
+  savedPreset: {
+    durations: Record<TimerMode, number>;
+    themeColors: Record<TimerMode, string>;
+    zenTrack: ZenTrack;
+    zenVolume: number;
+    zenStrategy: 'always' | 'break_only';
+  } | null;
   
   updateDuration: (mode: TimerMode, minutes: number) => void;
   setThemeColor: (mode: TimerMode, color: string) => void;
@@ -26,6 +36,11 @@ interface SettingsState {
   toggleZenMode: () => void;
   setZenTrack: (track: ZenTrack) => void;
   setZenVolume: (volume: number) => void;
+  setZenStrategy: (strategy: 'always' | 'break_only') => void;
+
+  savePreset: () => void;
+  loadPreset: () => void;
+  loadFactoryDefaults: () => void;
 }
 
 const DEFAULT_THEME_COLORS = {
@@ -34,10 +49,12 @@ const DEFAULT_THEME_COLORS = {
   long: '#2c5578',
 };
 
+const DEFAULT_DURATIONS = { pomodoro: 25, short: 5, long: 15 };
+
 export const useSettingsStore = create<SettingsState>()(
   persist(
-    (set) => ({
-      durations: { pomodoro: 25, short: 5, long: 15 },
+    (set, get) => ({
+      durations: DEFAULT_DURATIONS,
       themeColors: DEFAULT_THEME_COLORS,
       autoStart: false,
       soundEnabled: true,
@@ -46,6 +63,8 @@ export const useSettingsStore = create<SettingsState>()(
       zenModeEnabled: false,
       zenTrack: 'rain',
       zenVolume: 0.5,
+      zenStrategy: 'always',
+      savedPreset: null,
 
       updateDuration: (mode, minutes) => set((state) => ({
         durations: { ...state.durations, [mode]: minutes }
@@ -62,9 +81,40 @@ export const useSettingsStore = create<SettingsState>()(
       toggleZenMode: () => set((state) => ({ zenModeEnabled: !state.zenModeEnabled })),
       setZenTrack: (track) => set({ zenTrack: track }),
       setZenVolume: (volume) => set({ zenVolume: volume }),
+      setZenStrategy: (strategy) => set({ zenStrategy: strategy }),
+
+      savePreset: () => {
+        const { durations, themeColors, zenTrack, zenVolume, zenStrategy } = get();
+        set({ savedPreset: { durations, themeColors, zenTrack, zenVolume, zenStrategy } });
+      },
+      loadPreset: () => {
+        const { savedPreset } = get();
+        if (savedPreset) {
+            set({
+                durations: savedPreset.durations,
+                themeColors: savedPreset.themeColors,
+                zenTrack: savedPreset.zenTrack,
+                zenVolume: savedPreset.zenVolume,
+                zenStrategy: savedPreset.zenStrategy
+            });
+        }
+      },
+      loadFactoryDefaults: () => {
+          set({
+              durations: DEFAULT_DURATIONS,
+              themeColors: DEFAULT_THEME_COLORS,
+              zenTrack: 'rain',
+              zenVolume: 0.5,
+              zenStrategy: 'always',
+              autoStart: false,
+              soundEnabled: true,
+              zenModeEnabled: false
+          });
+      }
     }),
     { 
       name: 'pomo-settings-storage',
+      version: 3,
       partialize: (state) => ({ 
         durations: state.durations, 
         themeColors: state.themeColors,
@@ -72,8 +122,20 @@ export const useSettingsStore = create<SettingsState>()(
         soundEnabled: state.soundEnabled,
         zenModeEnabled: state.zenModeEnabled,
         zenTrack: state.zenTrack,
-        zenVolume: state.zenVolume
-      }), // Don't persist Focus Mode
+        zenVolume: state.zenVolume,
+        zenStrategy: state.zenStrategy,
+        savedPreset: state.savedPreset
+      }),
+      migrate: (persistedState: any, version) => {
+          if (version < 3) {
+              return {
+                  ...persistedState,
+                  zenStrategy: 'always',
+                  savedPreset: null
+              };
+          }
+          return persistedState;
+      }
     }
   )
 );

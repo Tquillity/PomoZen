@@ -12,7 +12,8 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      // Includes all mp3s in public/sounds/ to guarantee offline availability
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg', 'sounds/*.mp3'],
       manifest: {
         name: 'PomoZen',
         short_name: 'PomoZen',

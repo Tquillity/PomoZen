@@ -19,6 +19,8 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     zenModeEnabled,
     zenTrack,
     zenVolume,
+    zenStrategy,
+    savedPreset,
     updateDuration,
     setThemeColor,
     resetThemeColors,
@@ -26,7 +28,11 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     toggleSound,
     toggleZenMode,
     setZenTrack,
-    setZenVolume
+    setZenVolume,
+    setZenStrategy,
+    savePreset,
+    loadPreset,
+    loadFactoryDefaults
   } = useSettingsStore();
 
   const resetTimer = useTimeStore(state => state.resetTimer);
@@ -162,12 +168,34 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 <select
                   value={zenTrack}
                   onChange={(e) => setZenTrack(e.target.value as ZenTrack)}
-                  className="border border-white/30 bg-white/10 text-white rounded p-2 focus:ring-2 focus:ring-white/50 focus:outline-none"
+                  className="border border-white/30 bg-white/10 text-black rounded p-2 focus:ring-2 focus:ring-white/50 focus:outline-none"
                 >
                   <option value="rain">Heavy Rain</option>
                   <option value="forest">Forest Morning</option>
                   <option value="white_noise">White Noise</option>
                 </select>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm text-white">Playback Mode</label>
+                <div className="flex gap-2">
+                  <button 
+                     onClick={() => setZenStrategy('always')}
+                     className={cn("flex-1 py-1.5 px-3 rounded text-xs font-medium border transition-colors", 
+                        zenStrategy === 'always' ? "bg-white text-[var(--theme-primary)] border-white" : "bg-transparent text-white/70 border-white/20 hover:border-white/40"
+                     )}
+                  >
+                    Always On
+                  </button>
+                  <button 
+                     onClick={() => setZenStrategy('break_only')}
+                     className={cn("flex-1 py-1.5 px-3 rounded text-xs font-medium border transition-colors", 
+                        zenStrategy === 'break_only' ? "bg-white text-[var(--theme-primary)] border-white" : "bg-transparent text-white/70 border-white/20 hover:border-white/40"
+                     )}
+                  >
+                    Break Only
+                  </button>
+                </div>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -185,6 +213,41 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
             </div>
           )}
         </div>
+
+        <hr className="border-white/10" />
+        
+        {/* Presets */}
+        <div className="space-y-3">
+             <h3 className="font-semibold text-white uppercase text-xs tracking-wider">Presets</h3>
+             <div className="flex flex-col gap-2">
+                <button 
+                  onClick={savePreset}
+                  className="w-full py-2 px-4 rounded bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                  </svg>
+                  Save Current Settings as Preset
+                </button>
+                
+                <div className="flex gap-2">
+                    <button 
+                      onClick={loadPreset}
+                      disabled={!savedPreset}
+                      className="flex-1 py-2 px-4 rounded bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Load My Preset
+                    </button>
+                    <button 
+                      onClick={loadFactoryDefaults}
+                      className="flex-1 py-2 px-4 rounded bg-white/5 hover:bg-white/10 text-white/80 text-sm font-medium transition-colors"
+                    >
+                      Factory Reset
+                    </button>
+                </div>
+             </div>
+        </div>
+
       </div>
     </Modal>
   );

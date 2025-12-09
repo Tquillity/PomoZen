@@ -1,15 +1,18 @@
 import { useEffect, useRef } from 'react';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { useTimeStore } from '../../store/useTimeStore';
 import type { ZenTrack } from '../../store/useSettingsStore';
 
+// Local assets (Offline-ready)
 const TRACKS: Record<ZenTrack, string> = {
-  rain: 'https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg',
-  forest: 'https://actions.google.com/sounds/v1/ambiences/forest_morning.ogg',
-  white_noise: 'https://actions.google.com/sounds/v1/ambiences/industrial_hum.ogg'
+  rain: '/sounds/rain.mp3',
+  forest: '/sounds/forest.mp3',
+  white_noise: '/sounds/white_noise.mp3'
 };
 
 export const ZenPlayer = () => {
-  const { zenModeEnabled, zenTrack, zenVolume } = useSettingsStore();
+  const { zenModeEnabled, zenTrack, zenVolume, zenStrategy } = useSettingsStore();
+  const mode = useTimeStore(state => state.mode);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Create audio element on mount
@@ -35,12 +38,17 @@ export const ZenPlayer = () => {
         audio.src = TRACKS[zenTrack];
     }
 
-    if (zenModeEnabled) {
+    const shouldPlay = zenModeEnabled && (
+        zenStrategy === 'always' || 
+        (zenStrategy === 'break_only' && mode !== 'pomodoro')
+    );
+
+    if (shouldPlay) {
       audio.play().catch(e => console.error("Zen play failed:", e));
     } else {
       audio.pause();
     }
-  }, [zenModeEnabled, zenTrack]);
+  }, [zenModeEnabled, zenTrack, zenStrategy, mode]);
 
   // Handle Volume changes independently
   useEffect(() => {
