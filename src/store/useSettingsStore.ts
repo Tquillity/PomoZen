@@ -150,7 +150,7 @@ export const useSettingsStore = create<SettingsState>()(
         zenStrategy: state.zenStrategy,
         presets: state.presets 
       }),
-      migrate: (persistedState: any, version) => {
+      migrate: (persistedState: unknown, version) => {
           // Migration from v3 (single savedPreset) to v4 (array presets)
           if (version === 3) {
               const oldPreset = persistedState.savedPreset;

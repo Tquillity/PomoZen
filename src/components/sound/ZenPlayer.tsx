@@ -3,12 +3,11 @@ import { useSettingsStore } from '../../store/useSettingsStore';
 import { useTimeStore } from '../../store/useTimeStore';
 import type { ZenTrack } from '../../store/useSettingsStore';
 
-// Using Google's official ambient sounds (Reliable, Hotlink-friendly)
-// FOR OFFLINE SUPPORT: Download these files to /public/sounds/ and change paths to '/sounds/rain.mp3' etc.
+// Local assets (Offline-ready & CORB-free)
 const TRACKS: Record<ZenTrack, string> = {
-  rain: 'https://www.gstatic.com/voice_delight/sounds/long/rain.mp3',
-  forest: 'https://www.gstatic.com/voice_delight/sounds/long/forest.mp3',
-  white_noise: 'https://www.gstatic.com/voice_delight/sounds/long/pink_noise.mp3' // Google uses pink noise (better for focus)
+  rain: '/sounds/rain.mp3',
+  forest: '/sounds/forest.mp3',
+  white_noise: '/sounds/white_noise.mp3'
 };
 
 export const ZenPlayer = () => {
@@ -21,7 +20,7 @@ export const ZenPlayer = () => {
     const audio = new Audio();
     audio.loop = true;
     audioRef.current = audio;
-    
+
     return () => {
       audio.pause();
       audio.src = '';
@@ -33,19 +32,29 @@ export const ZenPlayer = () => {
     if (!audioRef.current) return;
 
     const audio = audioRef.current;
-    
+
     // Only update source if it changed to avoid restarting track
     if (!audio.src.includes(TRACKS[zenTrack])) {
         audio.src = TRACKS[zenTrack];
     }
 
     const shouldPlay = isAudioUnlocked && zenModeEnabled && (
-        zenStrategy === 'always' || 
+        zenStrategy === 'always' ||
         (zenStrategy === 'break_only' && mode !== 'pomodoro')
     );
 
     if (shouldPlay) {
-      audio.play().catch(e => console.error("Zen play failed:", e));
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+            if (error.name === 'NotSupportedError') {
+                console.warn('PomoZen Audio Error: Missing audio file. Please run "node scripts/generate-audio.js" or check public/sounds/');
+            } else if (error.name !== 'NotAllowedError') {
+                // Ignore NotAllowedError as AudioUnlocker handles it, log others
+                console.error("Zen play failed:", error);
+            }
+        });
+      }
     } else {
       audio.pause();
     }

@@ -13,11 +13,11 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
-  const { 
-    durations, 
+  const {
+    durations,
     themeColors,
-    autoStart, 
-    soundEnabled, 
+    autoStart,
+    soundEnabled,
     zenModeEnabled,
     zenTrack,
     zenVolume,
@@ -26,7 +26,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     updateDuration,
     setThemeColor,
     resetThemeColors,
-    toggleAutoStart, 
+    toggleAutoStart,
     toggleSound,
     toggleZenMode,
     setZenTrack,
@@ -71,8 +71,10 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
             <div className="grid grid-cols-3 gap-4">
               {(['pomodoro', 'short', 'long'] as TimerMode[]).map((mode) => (
                 <div key={mode} className="flex flex-col">
-                  <label className="text-sm text-white capitalize mb-1">{mode}</label>
+                  <label htmlFor={`duration-${mode}`} className="text-sm text-white capitalize mb-1">{mode}</label>
                   <input
+                    id={`duration-${mode}`}
+                    name={`duration-${mode}`}
                     type="number"
                     value={durations[mode]}
                     onChange={(e) => handleDurationChange(mode, parseInt(e.target.value) || 0)}
@@ -91,7 +93,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         <div className="space-y-3">
             <div className="flex justify-between items-center">
               <h3 className="font-semibold text-white uppercase text-xs tracking-wider">Theme Colors</h3>
-              <button 
+              <button
                 onClick={resetThemeColors}
                 className="text-xs text-white/50 underline hover:text-white transition-colors"
               >
@@ -101,9 +103,11 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
             <div className="grid grid-cols-3 gap-4">
               {(['pomodoro', 'short', 'long'] as TimerMode[]).map((mode) => (
                 <div key={mode} className="flex flex-col">
-                  <label className="text-sm text-white capitalize mb-1">{mode}</label>
+                  <label htmlFor={`color-${mode}`} className="text-sm text-white capitalize mb-1">{mode}</label>
                   <div className="flex items-center gap-2">
                     <input
+                      id={`color-${mode}`}
+                      name={`color-${mode}`}
                       type="color"
                       value={themeColors[mode]}
                       onChange={(e) => setThemeColor(mode, e.target.value)}
@@ -120,8 +124,9 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         {/* Toggles */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <label className="font-medium text-white">Auto-start Breaks</label>
-            <button 
+            <label htmlFor="toggle-autostart" className="font-medium text-white">Auto-start Breaks</label>
+            <button
+              id="toggle-autostart"
               onClick={toggleAutoStart}
               className={cn(
                 "w-12 h-6 rounded-full transition-colors relative cursor-pointer",
@@ -138,8 +143,9 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           </div>
 
           <div className="flex justify-between items-center">
-            <label className="font-medium text-white">Sound Effects</label>
+            <label htmlFor="toggle-sound" className="font-medium text-white">Sound Effects</label>
             <button
+              id="toggle-sound"
               onClick={toggleSound}
               className={cn(
                 "w-12 h-6 rounded-full transition-colors relative cursor-pointer",
@@ -163,8 +169,9 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           <h3 className="font-semibold text-white uppercase text-xs tracking-wider">Zen Mode</h3>
 
           <div className="flex justify-between items-center">
-            <label className="font-medium text-white">Background Audio</label>
-            <button 
+            <label htmlFor="toggle-zen" className="font-medium text-white">Background Audio</label>
+            <button
+              id="toggle-zen"
               onClick={toggleZenMode}
               className={cn(
                 "w-12 h-6 rounded-full transition-colors relative cursor-pointer",
@@ -183,8 +190,10 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           {zenModeEnabled && (
             <div className="space-y-3 bg-white/10 p-4 rounded-lg border border-white/10">
               <div className="flex flex-col gap-2">
-                <label className="text-sm text-white">Soundscape</label>
+                <label htmlFor="zen-track-select" className="text-sm text-white">Soundscape</label>
                 <select
+                  id="zen-track-select"
+                  name="zen-track"
                   value={zenTrack}
                   onChange={(e) => setZenTrack(e.target.value as ZenTrack)}
                   className="border border-white/30 bg-white/10 text-black rounded p-2 focus:ring-2 focus:ring-white/50 focus:outline-none"
@@ -196,20 +205,20 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm text-white">Playback Mode</label>
+                <span className="text-sm text-white">Playback Mode</span>
                 <div className="flex gap-2">
-                  <button 
+                  <button
                      onClick={() => setZenStrategy('always')}
-                     className={cn("flex-1 py-1.5 px-3 rounded text-xs font-medium border transition-colors", 
-                        zenStrategy === 'always' ? "bg-white text-[var(--theme-primary)] border-white" : "bg-transparent text-white/70 border-white/20 hover:border-white/40"
+                     className={cn("flex-1 py-1.5 px-3 rounded text-xs font-medium border transition-colors",
+                        zenStrategy === 'always' ? "bg-white text-(--theme-primary) border-white" : "bg-transparent text-white/70 border-white/20 hover:border-white/40"
                      )}
                   >
                     Always On
                   </button>
-                  <button 
+                  <button
                      onClick={() => setZenStrategy('break_only')}
-                     className={cn("flex-1 py-1.5 px-3 rounded text-xs font-medium border transition-colors", 
-                        zenStrategy === 'break_only' ? "bg-white text-[var(--theme-primary)] border-white" : "bg-transparent text-white/70 border-white/20 hover:border-white/40"
+                     className={cn("flex-1 py-1.5 px-3 rounded text-xs font-medium border transition-colors",
+                        zenStrategy === 'break_only' ? "bg-white text-(--theme-primary) border-white" : "bg-transparent text-white/70 border-white/20 hover:border-white/40"
                      )}
                   >
                     Break Only
@@ -218,11 +227,13 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm text-white">Volume</label>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="1" 
+                <label htmlFor="zen-volume-slider" className="text-sm text-white">Volume</label>
+                <input
+                  id="zen-volume-slider"
+                  name="zen-volume"
+                  type="range"
+                  min="0"
+                  max="1"
                   step="0.05"
                   value={zenVolume}
                   onChange={(e) => setZenVolume(parseFloat(e.target.value))}
@@ -234,14 +245,17 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         </div>
 
         <hr className="border-white/10" />
-        
+
         {/* Presets & Data */}
         <div className="space-y-4">
              <h3 className="font-semibold text-white uppercase text-xs tracking-wider">Presets & Data</h3>
-             
+
              {/* Add New Preset */}
              <div className="flex gap-2">
-                <input 
+                <label htmlFor="preset-name-input" className="sr-only">Preset Name</label>
+                <input
+                    id="preset-name-input"
+                    name="preset-name"
                     value={presetName}
                     onChange={(e) => setPresetName(e.target.value)}
                     placeholder="Preset Name (e.g. Deep Work)"
@@ -252,7 +266,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                       }
                     }}
                 />
-                <button 
+                <button
                   onClick={handleSavePreset}
                   disabled={!presetName.trim()}
                   className="bg-white/20 hover:bg-white/30 text-white p-2 rounded disabled:opacity-50 transition-colors"
@@ -283,8 +297,8 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
              {/* Actions */}
              <div className="flex gap-2">
-                <button 
-                    onClick={exportSettingsOnly} 
+                <button
+                    onClick={exportSettingsOnly}
                     className="flex-1 bg-white/10 hover:bg-white/20 text-white text-xs py-2 rounded transition-colors flex items-center justify-center gap-1"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>
@@ -295,8 +309,8 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                     Import Config
                     <input type="file" className="hidden" accept=".json" ref={settingsFileInputRef} onChange={handleSettingsImport} />
                 </label>
-                <button 
-                    onClick={loadFactoryDefaults} 
+                <button
+                    onClick={loadFactoryDefaults}
                     className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-200 text-xs py-2 rounded transition-colors"
                 >
                     Reset All

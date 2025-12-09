@@ -7,7 +7,7 @@ export const AdContainer = () => {
   useEffect(() => {
     if (ADS_ENABLED) {
       try {
-        // @ts-ignore
+        // @ts-expect-error AdSense global API not typed
         (window.adsbygoogle = window.adsbygoogle || []).push({});
       } catch (e) {
         console.error("AdSense error:", e);

@@ -11,7 +11,7 @@ export interface PomoEvents {
 type Listener<T> = (data: T) => void;
 
 class EventService {
-  private listeners: Record<string, Function[]> = {};
+  private listeners: Record<string, Listener<unknown>[]> = {};
 
   on<K extends keyof PomoEvents>(event: K, fn: Listener<PomoEvents[K]>) {
     if (!this.listeners[event]) this.listeners[event] = [];

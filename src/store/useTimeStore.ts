@@ -88,7 +88,7 @@ export const useTimeStore = create<TimeState>()(
               [mode]: currentStats[mode] + 1 
             } 
           };
-
+          
           if (mode === 'pomodoro') {
              const newCompleted = pomodorosCompleted + 1;
              const nextMode = newCompleted % 4 === 0 ? 'long' : 'short';
@@ -119,10 +119,10 @@ export const useTimeStore = create<TimeState>()(
     { 
       name: 'pomo-time-storage',
       version: 2,
-      migrate: (persistedState: any, version: number) => {
+      migrate: (persistedState: unknown, version: number) => {
         if (version === 0 || version === 1) {
           // Convert old history (number) to new history (object)
-          const newHistory: Record<string, any> = {};
+          const newHistory: Record<string, DailyStats> = {};
           if (persistedState.history) {
             Object.entries(persistedState.history).forEach(([date, count]) => {
               // Assume old counts were all Pomodoros

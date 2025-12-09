@@ -46,24 +46,24 @@ export const PomodoroGuideModal = ({ isOpen, onClose }: Props) => {
         {/* TAB 1: GUIDE (Original Content) */}
         {activeTab === 'guide' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div>
-              <p className="font-semibold text-white mb-2">What is PomoZen?</p>
-              <p>
-                PomoZen is a customizable, privacy-first focus timer designed to help you enter flow state.
+        <div>
+          <p className="font-semibold text-white mb-2">What is PomoZen?</p>
+          <p>
+            PomoZen is a customizable, privacy-first focus timer designed to help you enter flow state.
                 It is inspired by the <a href="https://www.pomodorotechnique.com/" target="_blank" rel="noopener noreferrer" className="text-(--theme-primary) hover:underline font-medium decoration-white/50">Pomodoro Technique®</a>,
-                a time management method developed by Francesco Cirillo.
-              </p>
-            </div>
+            a time management method developed by Francesco Cirillo.
+          </p>
+        </div>
 
-            <div>
-              <p className="font-semibold text-white mb-2">What is the Pomodoro Technique?</p>
-              <p>
-                The Pomodoro Technique is a time management method developed by Francesco Cirillo in the late 1980s. It uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks.
-              </p>
-            </div>
+        <div>
+          <p className="font-semibold text-white mb-2">What is the Pomodoro Technique?</p>
+          <p>
+            The Pomodoro Technique is a time management method developed by Francesco Cirillo in the late 1980s. It uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks.
+          </p>
+        </div>
 
-            <div>
-              <p className="font-semibold text-white mb-2">How to use PomoZen</p>
+        <div>
+          <p className="font-semibold text-white mb-2">How to use PomoZen</p>
               <ul className="space-y-2">
                 <li className="flex gap-2">
                   <span className="text-white font-bold">•</span>
@@ -85,15 +85,15 @@ export const PomodoroGuideModal = ({ isOpen, onClose }: Props) => {
                   <span className="text-white font-bold">•</span>
                   <span><strong className="text-white">Repeat:</strong> After 4 cycles, take a longer 15-minute break.</span>
                 </li>
-              </ul>
-            </div>
+          </ul>
+        </div>
 
-            <div>
-              <p className="font-semibold text-white mb-2">Why choose PomoZen?</p>
-              <p>
-                Unlike other timers, PomoZen works entirely offline. Your data is stored in your browser's Local Storage, ensuring 100% privacy. With built-in features like Zen Mode (Ambient Soundscapes) and History Tracking, it's designed to help you enter a flow state faster.
-              </p>
-            </div>
+        <div>
+          <p className="font-semibold text-white mb-2">Why choose PomoZen?</p>
+          <p>
+            Unlike other timers, PomoZen works entirely offline. Your data is stored in your browser's Local Storage, ensuring 100% privacy. With built-in features like Zen Mode (Ambient Soundscapes) and History Tracking, it's designed to help you enter a flow state faster.
+          </p>
+        </div>
           </div>
         )}
 

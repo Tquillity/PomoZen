@@ -50,7 +50,7 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
             </svg>
           </button>
         </div>
-        
+
         <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
           {children}
         </div>
