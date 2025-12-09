@@ -15,13 +15,15 @@ class EventService {
 
   on<K extends keyof PomoEvents>(event: K, fn: Listener<PomoEvents[K]>) {
     if (!this.listeners[event]) this.listeners[event] = [];
-    this.listeners[event].push(fn);
+    // FIX: Cast fn to Listener<unknown> to satisfy strict type checks
+    this.listeners[event].push(fn as Listener<unknown>);
     return () => this.off(event, fn);
   }
 
   off<K extends keyof PomoEvents>(event: K, fn: Listener<PomoEvents[K]>) {
     if (!this.listeners[event]) return;
-    this.listeners[event] = this.listeners[event].filter(l => l !== fn);
+    // FIX: Cast fn to Listener<unknown> for comparison
+    this.listeners[event] = this.listeners[event].filter(l => l !== (fn as Listener<unknown>));
   }
 
   emit<K extends keyof PomoEvents>(event: K, data: PomoEvents[K]) {

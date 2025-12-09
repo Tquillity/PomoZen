@@ -151,9 +151,13 @@ export const useSettingsStore = create<SettingsState>()(
         presets: state.presets 
       }),
       migrate: (persistedState: unknown, version) => {
+          // FIX: Cast unknown state to any to satisfy TypeScript strictness
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const state = persistedState as any;
+
           // Migration from v3 (single savedPreset) to v4 (array presets)
           if (version === 3) {
-              const oldPreset = persistedState.savedPreset;
+              const oldPreset = state.savedPreset;
               const newPresets = [];
               if (oldPreset) {
                   newPresets.push({
@@ -163,16 +167,16 @@ export const useSettingsStore = create<SettingsState>()(
                   });
               }
               return {
-                  ...persistedState,
+                  ...state,
                   presets: newPresets,
                   savedPreset: undefined // cleanup
               };
           }
           if (version < 3) {
              // Fallback for very old versions
-             return { ...persistedState, presets: [] };
+             return { ...state, presets: [] };
           }
-          return persistedState;
+          return state;
       }
     }
   )

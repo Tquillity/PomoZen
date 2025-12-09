@@ -120,18 +120,22 @@ export const useTimeStore = create<TimeState>()(
       name: 'pomo-time-storage',
       version: 2,
       migrate: (persistedState: unknown, version: number) => {
+        // FIX: Cast unknown state to any to satisfy TypeScript strictness
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const state = persistedState as any;
+
         if (version === 0 || version === 1) {
           // Convert old history (number) to new history (object)
           const newHistory: Record<string, DailyStats> = {};
-          if (persistedState.history) {
-            Object.entries(persistedState.history).forEach(([date, count]) => {
+          if (state.history) {
+            Object.entries(state.history).forEach(([date, count]) => {
               // Assume old counts were all Pomodoros
               newHistory[date] = { pomodoro: count as number, short: 0, long: 0 };
             });
           }
-          return { ...persistedState, history: newHistory };
+          return { ...state, history: newHistory };
         }
-        return persistedState;
+        return state;
       },
     }
   )
