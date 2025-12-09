@@ -4,6 +4,18 @@ import type { TimerMode } from '../types';
 
 export type ZenTrack = 'rain' | 'white_noise' | 'forest';
 
+export interface Preset {
+  id: string;
+  name: string;
+  data: {
+    durations: Record<TimerMode, number>;
+    themeColors: Record<TimerMode, string>;
+    zenTrack: ZenTrack;
+    zenVolume: number;
+    zenStrategy: 'always' | 'break_only';
+  }
+}
+
 interface SettingsState {
   durations: Record<TimerMode, number>;
   themeColors: Record<TimerMode, string>;
@@ -18,13 +30,10 @@ interface SettingsState {
   zenStrategy: 'always' | 'break_only';
 
   // Presets
-  savedPreset: {
-    durations: Record<TimerMode, number>;
-    themeColors: Record<TimerMode, string>;
-    zenTrack: ZenTrack;
-    zenVolume: number;
-    zenStrategy: 'always' | 'break_only';
-  } | null;
+  presets: Preset[]; // Replaces 'savedPreset'
+  
+  // Audio Compliance
+  isAudioUnlocked: boolean;
   
   updateDuration: (mode: TimerMode, minutes: number) => void;
   setThemeColor: (mode: TimerMode, color: string) => void;
@@ -38,9 +47,11 @@ interface SettingsState {
   setZenVolume: (volume: number) => void;
   setZenStrategy: (strategy: 'always' | 'break_only') => void;
 
-  savePreset: () => void;
-  loadPreset: () => void;
+  addPreset: (name: string) => void;
+  deletePreset: (id: string) => void;
+  loadPreset: (id: string) => void;
   loadFactoryDefaults: () => void;
+  unlockAudio: () => void;
 }
 
 const DEFAULT_THEME_COLORS = {
@@ -64,7 +75,8 @@ export const useSettingsStore = create<SettingsState>()(
       zenTrack: 'rain',
       zenVolume: 0.5,
       zenStrategy: 'always',
-      savedPreset: null,
+      presets: [],
+      isAudioUnlocked: false,
 
       updateDuration: (mode, minutes) => set((state) => ({
         durations: { ...state.durations, [mode]: minutes }
@@ -83,22 +95,33 @@ export const useSettingsStore = create<SettingsState>()(
       setZenVolume: (volume) => set({ zenVolume: volume }),
       setZenStrategy: (strategy) => set({ zenStrategy: strategy }),
 
-      savePreset: () => {
+      addPreset: (name) => {
         const { durations, themeColors, zenTrack, zenVolume, zenStrategy } = get();
-        set({ savedPreset: { durations, themeColors, zenTrack, zenVolume, zenStrategy } });
+        const newPreset: Preset = {
+            id: crypto.randomUUID(),
+            name,
+            data: { durations, themeColors, zenTrack, zenVolume, zenStrategy }
+        };
+        set((state) => ({ presets: [...state.presets, newPreset] }));
       },
-      loadPreset: () => {
-        const { savedPreset } = get();
-        if (savedPreset) {
+
+      deletePreset: (id) => set((state) => ({
+        presets: state.presets.filter(p => p.id !== id)
+      })),
+
+      loadPreset: (id) => {
+        const preset = get().presets.find(p => p.id === id);
+        if (preset) {
             set({
-                durations: savedPreset.durations,
-                themeColors: savedPreset.themeColors,
-                zenTrack: savedPreset.zenTrack,
-                zenVolume: savedPreset.zenVolume,
-                zenStrategy: savedPreset.zenStrategy
+                durations: preset.data.durations,
+                themeColors: preset.data.themeColors,
+                zenTrack: preset.data.zenTrack,
+                zenVolume: preset.data.zenVolume,
+                zenStrategy: preset.data.zenStrategy
             });
         }
       },
+
       loadFactoryDefaults: () => {
           set({
               durations: DEFAULT_DURATIONS,
@@ -110,11 +133,12 @@ export const useSettingsStore = create<SettingsState>()(
               soundEnabled: true,
               zenModeEnabled: false
           });
-      }
+      },
+      unlockAudio: () => set({ isAudioUnlocked: true })
     }),
     { 
       name: 'pomo-settings-storage',
-      version: 3,
+      version: 4,
       partialize: (state) => ({ 
         durations: state.durations, 
         themeColors: state.themeColors,
@@ -124,15 +148,29 @@ export const useSettingsStore = create<SettingsState>()(
         zenTrack: state.zenTrack,
         zenVolume: state.zenVolume,
         zenStrategy: state.zenStrategy,
-        savedPreset: state.savedPreset
+        presets: state.presets 
       }),
       migrate: (persistedState: any, version) => {
-          if (version < 3) {
+          // Migration from v3 (single savedPreset) to v4 (array presets)
+          if (version === 3) {
+              const oldPreset = persistedState.savedPreset;
+              const newPresets = [];
+              if (oldPreset) {
+                  newPresets.push({
+                      id: 'migrated-legacy-preset',
+                      name: 'My Saved Preset',
+                      data: oldPreset
+                  });
+              }
               return {
                   ...persistedState,
-                  zenStrategy: 'always',
-                  savedPreset: null
+                  presets: newPresets,
+                  savedPreset: undefined // cleanup
               };
+          }
+          if (version < 3) {
+             // Fallback for very old versions
+             return { ...persistedState, presets: [] };
           }
           return persistedState;
       }

@@ -1,6 +1,7 @@
-// Local assets (Offline-ready)
-const CLICK_SRC = '/sounds/click.mp3';
-const ALARM_SRC = '/sounds/alarm.mp3';
+// Reliable short UI sounds
+// FOR OFFLINE SUPPORT: Download to /public/sounds/ and use '/sounds/click.mp3'
+const CLICK_SRC = 'https://www.gstatic.com/voice_delight/sounds/short/soft_chime.mp3'; // Gentle chime
+const ALARM_SRC = 'https://www.gstatic.com/voice_delight/sounds/short/time_up.mp3';   // Official timer beep
 
 const clickAudio = new Audio(CLICK_SRC);
 const alarmAudio = new Audio(ALARM_SRC);

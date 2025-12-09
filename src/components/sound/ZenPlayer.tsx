@@ -3,15 +3,16 @@ import { useSettingsStore } from '../../store/useSettingsStore';
 import { useTimeStore } from '../../store/useTimeStore';
 import type { ZenTrack } from '../../store/useSettingsStore';
 
-// Local assets (Offline-ready)
+// Using Google's official ambient sounds (Reliable, Hotlink-friendly)
+// FOR OFFLINE SUPPORT: Download these files to /public/sounds/ and change paths to '/sounds/rain.mp3' etc.
 const TRACKS: Record<ZenTrack, string> = {
-  rain: '/sounds/rain.mp3',
-  forest: '/sounds/forest.mp3',
-  white_noise: '/sounds/white_noise.mp3'
+  rain: 'https://www.gstatic.com/voice_delight/sounds/long/rain.mp3',
+  forest: 'https://www.gstatic.com/voice_delight/sounds/long/forest.mp3',
+  white_noise: 'https://www.gstatic.com/voice_delight/sounds/long/pink_noise.mp3' // Google uses pink noise (better for focus)
 };
 
 export const ZenPlayer = () => {
-  const { zenModeEnabled, zenTrack, zenVolume, zenStrategy } = useSettingsStore();
+  const { zenModeEnabled, zenTrack, zenVolume, zenStrategy, isAudioUnlocked } = useSettingsStore();
   const mode = useTimeStore(state => state.mode);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -38,7 +39,7 @@ export const ZenPlayer = () => {
         audio.src = TRACKS[zenTrack];
     }
 
-    const shouldPlay = zenModeEnabled && (
+    const shouldPlay = isAudioUnlocked && zenModeEnabled && (
         zenStrategy === 'always' || 
         (zenStrategy === 'break_only' && mode !== 'pomodoro')
     );
@@ -48,7 +49,7 @@ export const ZenPlayer = () => {
     } else {
       audio.pause();
     }
-  }, [zenModeEnabled, zenTrack, zenStrategy, mode]);
+  }, [zenModeEnabled, zenTrack, zenStrategy, mode, isAudioUnlocked]);
 
   // Handle Volume changes independently
   useEffect(() => {

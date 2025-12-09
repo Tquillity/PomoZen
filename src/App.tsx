@@ -13,6 +13,8 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useFocusMode } from './hooks/useFocusMode';
 import { ZenPlayer } from './components/sound/ZenPlayer';
 import { SEOHelmet } from './components/seo/SEOHelmet';
+import { AudioUnlocker } from './components/common/AudioUnlocker';
+import { useSettingsStore } from './store/useSettingsStore';
 
 import { PomodoroGuideModal } from './components/modals/PomodoroGuideModal';
 
@@ -31,6 +33,8 @@ function App() {
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isColorPsychOpen, setIsColorPsychOpen] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  
+  const { zenModeEnabled, isAudioUnlocked } = useSettingsStore();
 
   useEffect(() => {
     return events.on('timer:complete', (mode) => {
@@ -45,6 +49,7 @@ function App() {
     <div className="h-screen w-full flex flex-col items-center transition-colors duration-500 relative overflow-hidden bg-(--theme-bg)">
 
       <SEOHelmet />
+      <AudioUnlocker />
       <ZenPlayer />
 
       {/* Top Right Navigation */}
@@ -82,6 +87,13 @@ function App() {
       </main>
 
       <Footer />
+
+      {/* Audio Unlock Toast */}
+      {zenModeEnabled && !isAudioUnlocked && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-xs font-medium z-50 animate-bounce cursor-pointer">
+          Click anywhere to enable Zen Audio
+        </div>
+      )}
 
       {/* Modals */}
       <Suspense fallback={null}>

@@ -1,34 +1,40 @@
 import { useEffect } from 'react';
 
+// TOGGLE: Set to true only when you have a real 'data-ad-slot' ID from Google
+const ADS_ENABLED = false; 
+
 export const AdContainer = () => {
   useEffect(() => {
-    try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-      // Ad blocker likely active or script not loaded
+    if (ADS_ENABLED) {
+      try {
+        // @ts-ignore
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (e) {
+        console.error("AdSense error:", e);
+      }
     }
   }, []);
 
   return (
-    <div className="w-full max-w-[728px] mx-auto my-8 min-h-[100px] flex justify-center items-center bg-black/10 rounded-lg overflow-hidden relative">
-        {/* Placeholder for dev mode or when ad hasn't loaded */}
-        <div className="text-white/20 text-xs font-mono absolute pointer-events-none">
-            Advertisement
-        </div>
+    <div className="w-full max-w-[728px] mx-auto my-8 min-h-[100px] flex justify-center items-center bg-black/10 rounded-lg overflow-hidden relative border border-white/5">
         
-        {/* 
-           NOTE: 
-           1. data-ad-client MUST match the ID in index.html
-           2. data-ad-slot: You need to create an "Ad Unit" in AdSense dashboard 
-              and paste that specific number here (replace 1234567890).
-        */}
-        <ins className="adsbygoogle"
-             style={{ display: 'block', width: '100%', height: '100%' }}
-             data-ad-client="ca-pub-5921333037216203"
-             data-ad-slot="1234567890"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
+        {/* Development Placeholder */}
+        {!ADS_ENABLED && (
+            <div className="flex flex-col items-center justify-center text-white/30 p-4 text-center">
+                <span className="text-xs font-mono uppercase tracking-widest mb-1">Ad Space Reserved</span>
+                <span className="text-[10px]">configure ADS_ENABLED in AdContainer.tsx</span>
+            </div>
+        )}
+        
+        {/* Production Ad Unit */}
+        {ADS_ENABLED && (
+            <ins className="adsbygoogle"
+                style={{ display: 'block', width: '100%', height: '100%' }}
+                data-ad-client="ca-pub-5921333037216203"
+                data-ad-slot="YOUR_REAL_AD_SLOT_ID_HERE" 
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+        )}
     </div>
   );
 };
