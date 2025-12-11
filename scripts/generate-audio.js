@@ -10,21 +10,29 @@ if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
 }
 
-// Open Source Sound URLs (Direct MP3 links)
+// Open Source Sound URLs
 const SOUNDS = {
-    'click.mp3': 'https://www.soundjay.com/buttons/sounds/button-30.mp3', // Sharp UI click
-    'alarm.mp3': 'https://www.soundjay.com/clock/sounds/alarm-clock-01.mp3' // Standard digital alarm
+    'click.mp3': 'https://www.soundjay.com/buttons/sounds/button-30.mp3',
+    // CHANGED: Using a calm bell ringing sound instead of microwave bell
+    'alarm.mp3': 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'
 };
 
 async function downloadSounds() {
-    console.log("⬇️  Downloading UI Sounds...");
+    console.log("⬇️  Updating PomoZen Sounds...");
 
+    // 1. Force remove the old aggressive alarm if it exists
+    const alarmPath = path.join(targetDir, 'alarm.mp3');
+    if (fs.existsSync(alarmPath)) {
+        fs.unlinkSync(alarmPath);
+        console.log("🗑️  Deleted old aggressive alarm.");
+    }
+
+    // 2. Download new files
     for (const [filename, url] of Object.entries(SOUNDS)) {
         const filePath = path.join(targetDir, filename);
 
-        // Only download if missing or 0 bytes (to save bandwidth)
-        if (fs.existsSync(filePath) && fs.statSync(filePath).size > 1000) {
-            console.log(`✅ ${filename} already exists.`);
+        // Skip click.mp3 if we already have it (to save time)
+        if (filename === 'click.mp3' && fs.existsSync(filePath)) {
             continue;
         }
 
@@ -36,7 +44,7 @@ async function downloadSounds() {
             const buffer = Buffer.from(arrayBuffer);
 
             fs.writeFileSync(filePath, buffer);
-            console.log(`✅ Downloaded: ${filename}`);
+            console.log(`✅ Downloaded new: ${filename}`);
         } catch (error) {
             console.error(`❌ Error downloading ${filename}:`, error.message);
         }
