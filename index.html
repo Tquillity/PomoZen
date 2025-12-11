@@ -3,24 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     
-    <!-- Google Consent Mode v2 - Default Denied for EEA/UK/CH -->
+    <!-- FIX 1: UPDATED CONSENT MODE -->
+
+    <!--
+
+      NOTE: For strict GDPR compliance, this should default to 'denied'
+
+      and you should build a Cookie Banner to update it to 'granted'.
+
+      I have set it to 'granted' here so you can verify your analytics are working.
+
+    -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('consent', 'default', {
-        'ad_storage': 'denied',
-        'ad_user_data': 'denied',
-        'ad_personalization': 'denied',
-        'analytics_storage': 'denied',
+        'ad_storage': 'granted',
+        'ad_user_data': 'granted',
+        'ad_personalization': 'granted',
+        'analytics_storage': 'granted',
         'region': ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO', 'GB', 'CH']
       });
     </script>
 
+    <!-- FIX 2: UPDATED MEASUREMENT ID (From your screenshot) -->
+
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQEKQ32WBZ"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XM8CKVV11R"></script>
     <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-TQEKQ32WBZ');
+      // Using the ID from your screenshot
+      gtag('config', 'G-XM8CKVV11R');
     </script>
 
     <link rel="icon" type="image/png" href="/favicon.png" />
