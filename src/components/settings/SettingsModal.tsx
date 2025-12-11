@@ -62,6 +62,19 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
       }
   };
 
+  const handleClearCache = () => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(const registration of registrations) {
+          registration.unregister();
+        }
+        window.location.reload();
+      });
+    } else {
+      window.location.reload();
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Settings">
         <div className="space-y-6">
@@ -316,6 +329,10 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                     Reset All
                 </button>
              </div>
+
+             <button onClick={handleClearCache} className="mt-4 w-full text-[10px] text-white/30 hover:text-white/50 uppercase tracking-widest transition-colors">
+               Troubleshoot: Clear Cache & Reload
+             </button>
         </div>
 
       </div>

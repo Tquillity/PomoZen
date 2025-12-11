@@ -2,18 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    
-    <!-- FIX 1: UPDATED CONSENT MODE -->
 
-    <!--
-
-      NOTE: For strict GDPR compliance, this should default to 'denied'
-
-      and you should build a Cookie Banner to update it to 'granted'.
-
-      I have set it to 'granted' here so you can verify your analytics are working.
-
-    -->
+    <!-- Google Consent Mode v2 - EEA/UK/CH/Swiss regions require consent banners -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -26,28 +16,20 @@
       });
     </script>
 
-    <!-- FIX 2: UPDATED MEASUREMENT ID (From your screenshot) -->
-
-    <!-- Google tag (gtag.js) -->
+    <!-- Google Analytics 4 -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XM8CKVV11R"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      // Using the ID from your screenshot
       gtag('config', 'G-XM8CKVV11R');
     </script>
 
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- FIX: SEO META TAGS for PomoZen -->
-    <!-- Brand Name + High Volume Keywords -->
+
     <title>PomoZen - Free Online Pomodoro Timer & Focus Tool</title>
-    
     <meta name="description" content="PomoZen is the best free online Pomodoro timer for studying and work. Features aesthetic themes, white noise, task tracking, and offline mode. No login required.">
-    
-    <!-- FIX: Canonical Tag -->
     <link rel="canonical" href="https://pomozen.online/" />
 
     <!-- Google Tag Manager (GTM) -->

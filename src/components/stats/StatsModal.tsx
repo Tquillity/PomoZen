@@ -142,8 +142,8 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
           <div className="flex justify-between gap-1">
             {last14Days.map((day) => (
               <div key={day.key} className="flex flex-col items-center gap-1 flex-1">
-                <div 
-                  className={cn("w-full aspect-square rounded-sm transition-colors cursor-help", getIntensityClass(day.count))}
+                <div
+                  className={cn("w-full aspect-square rounded-sm transition-colors cursor-default", getIntensityClass(day.count))}
                   title={`${format(day.date, 'MMM d')}: ${day.count} Pomo, ${day.stats.short} Short, ${day.stats.long} Long`}
                 />
                 <div className="text-[9px] text-gray-400">

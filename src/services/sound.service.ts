@@ -7,12 +7,12 @@ const alarmAudio = new Audio(ALARM_SRC);
 
 export const playClick = () => {
   clickAudio.currentTime = 0;
-  clickAudio.play().catch(() => {}); // Ignore auto-play errors
+  clickAudio.play().catch((e) => console.warn("Audio Play Error (Click):", e));
 };
 
 export const playAlarm = () => {
   alarmAudio.currentTime = 0;
-  alarmAudio.play().catch(console.error);
+  alarmAudio.play().catch((e) => console.error("Audio Play Error (Alarm):", e));
 };
 
 export const requestNotificationPermission = () => {
