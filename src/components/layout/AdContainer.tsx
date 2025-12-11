@@ -1,40 +1,53 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
-// TOGGLE: Set to true only when you have a real 'data-ad-slot' ID from Google
-const ADS_ENABLED = false; 
+// TypeScript declaration for Adsterra global variable
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    atOptions?: any;
+  }
+}
+
+// CONFIG: Adsterra 728x90 Banner
+const AD_CONFIG = {
+  key: 'fb7bcfaa0417bc66ad82f8b1afc7e922',
+  format: 'iframe',
+  height: 90,
+  width: 728,
+  params: {}
+};
 
 export const AdContainer = () => {
+  const bannerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    if (ADS_ENABLED) {
-      try {
-        // @ts-expect-error AdSense global API not typed
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
-        console.error("AdSense error:", e);
-      }
-    }
+    if (!bannerRef.current) return;
+
+    // Prevent duplicate banners if component re-renders (React Strict Mode double-invoke)
+    if (bannerRef.current.innerHTML !== '') return;
+
+    // 1. Define options
+    const conf = document.createElement('script');
+    conf.type = 'text/javascript';
+    conf.innerHTML = `
+      atOptions = ${JSON.stringify(AD_CONFIG)};
+    `;
+
+    // 2. Load the invocation script
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = `//www.highperformanceformat.com/${AD_CONFIG.key}/invoke.js`;
+
+    // 3. Append to container
+    // We append the config first, then the script, so atOptions is defined when invoke.js runs
+    bannerRef.current.appendChild(conf);
+    bannerRef.current.appendChild(script);
+
   }, []);
 
   return (
     <div className="w-full max-w-[728px] mx-auto my-8 min-h-[100px] flex justify-center items-center bg-black/10 rounded-lg overflow-hidden relative border border-white/5">
-        
-        {/* Development Placeholder */}
-        {!ADS_ENABLED && (
-            <div className="flex flex-col items-center justify-center text-white/30 p-4 text-center">
-                <span className="text-xs font-mono uppercase tracking-widest mb-1">Ad Space Reserved</span>
-                <span className="text-[10px]">configure ADS_ENABLED in AdContainer.tsx</span>
-            </div>
-        )}
-        
-        {/* Production Ad Unit */}
-        {ADS_ENABLED && (
-            <ins className="adsbygoogle"
-                style={{ display: 'block', width: '100%', height: '100%' }}
-                data-ad-client="ca-pub-5921333037216203"
-                data-ad-slot="YOUR_REAL_AD_SLOT_ID_HERE" 
-                data-ad-format="auto"
-                data-full-width-responsive="true"></ins>
-        )}
+       <div ref={bannerRef} className="flex justify-center items-center" />
     </div>
   );
 };
