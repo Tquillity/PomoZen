@@ -1,4 +1,3 @@
-// Local assets (Offline-ready & CORB-free)
 const CLICK_SRC = '/sounds/click.mp3';
 const ALARM_SRC = '/sounds/alarm.mp3';
 
@@ -7,12 +6,12 @@ const alarmAudio = new Audio(ALARM_SRC);
 
 export const playClick = () => {
   clickAudio.currentTime = 0;
-  clickAudio.play().catch((e) => console.warn("Audio Play Error (Click):", e));
+  clickAudio.play().catch(() => {});
 };
 
 export const playAlarm = () => {
   alarmAudio.currentTime = 0;
-  alarmAudio.play().catch((e) => console.error("Audio Play Error (Alarm):", e));
+  alarmAudio.play().catch(() => {});
 };
 
 export const requestNotificationPermission = () => {

@@ -19,9 +19,7 @@ export const ModeSwitcher = () => {
           key={m}
           onClick={() => handleModeChange(m)}
           className={cn(
-            // ALWAYS bold to prevent width jumping
             "px-2 sm:px-3 md:px-4 py-2 rounded-full capitalize text-xs sm:text-sm font-bold transition-all cursor-pointer",
-            // Active: High opacity, background. Inactive: Lower opacity, hover effect.
             mode === m ? "bg-black/20 text-white shadow-sm" : "text-white/60 hover:text-white hover:bg-black/10"
           )}
         >

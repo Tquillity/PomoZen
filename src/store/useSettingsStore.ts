@@ -22,17 +22,11 @@ interface SettingsState {
   autoStart: boolean;
   soundEnabled: boolean;
   isFocusMode: boolean;
-  
-  // Zen Mode
   zenModeEnabled: boolean;
   zenTrack: ZenTrack;
-  zenVolume: number; // 0 to 1
+  zenVolume: number;
   zenStrategy: 'always' | 'break_only';
-
-  // Presets
-  presets: Preset[]; // Replaces 'savedPreset'
-  
-  // Audio Compliance
+  presets: Preset[];
   isAudioUnlocked: boolean;
   
   updateDuration: (mode: TimerMode, minutes: number) => void;
@@ -151,11 +145,9 @@ export const useSettingsStore = create<SettingsState>()(
         presets: state.presets 
       }),
       migrate: (persistedState: unknown, version) => {
-          // FIX: Cast unknown state to any to satisfy TypeScript strictness
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const state = persistedState as any;
 
-          // Migration from v3 (single savedPreset) to v4 (array presets)
           if (version === 3) {
               const oldPreset = state.savedPreset;
               const newPresets = [];
@@ -169,11 +161,10 @@ export const useSettingsStore = create<SettingsState>()(
               return {
                   ...state,
                   presets: newPresets,
-                  savedPreset: undefined // cleanup
+                  savedPreset: undefined
               };
           }
           if (version < 3) {
-             // Fallback for very old versions
              return { ...state, presets: [] };
           }
           return state;

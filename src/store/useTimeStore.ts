@@ -18,7 +18,7 @@ interface TimeState {
   isRunning: boolean;
   mode: TimerMode;
   pomodorosCompleted: number;
-  history: Record<string, DailyStats>; // Key: YYYY-MM-DD, Value: DailyStats
+  history: Record<string, DailyStats>;
   
   startTimer: () => void;
   pauseTimer: () => void;
@@ -27,7 +27,6 @@ interface TimeState {
   tick: () => void;
 }
 
-// Helper to get duration in seconds from settings
 const getDuration = (mode: TimerMode) => {
   return useSettingsStore.getState().durations[mode] * 60;
 };
@@ -35,7 +34,6 @@ const getDuration = (mode: TimerMode) => {
 export const useTimeStore = create<TimeState>()(
   persist(
     (set, get) => ({
-      // Initialize with default or current settings
       timeLeft: getDuration('pomodoro'),
       isRunning: false,
       mode: 'pomodoro',
@@ -71,13 +69,9 @@ export const useTimeStore = create<TimeState>()(
         if (timeLeft > 0) {
           set({ timeLeft: timeLeft - 1 });
         } else {
-          // Timer Finished
           get().pauseTimer();
-          
-          // Emit event instead of calling side effects directly
           events.emit('timer:complete', mode);
           
-          // Update History
           const todayKey = format(new Date(), 'yyyy-MM-dd');
           const currentStats = history[todayKey] || { pomodoro: 0, short: 0, long: 0 };
           
@@ -100,7 +94,6 @@ export const useTimeStore = create<TimeState>()(
                history: newHistory
              });
           } else {
-             // Break is over, back to work
              set({ 
                mode: 'pomodoro',
                timeLeft: getDuration('pomodoro'),
@@ -108,7 +101,6 @@ export const useTimeStore = create<TimeState>()(
              });
           }
           
-          // Auto-start logic
           const { autoStart } = useSettingsStore.getState();
           if (autoStart) {
             get().startTimer();
@@ -120,16 +112,13 @@ export const useTimeStore = create<TimeState>()(
       name: 'pomo-time-storage',
       version: 2,
       migrate: (persistedState: unknown, version: number) => {
-        // FIX: Cast unknown state to any to satisfy TypeScript strictness
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const state = persistedState as any;
 
         if (version === 0 || version === 1) {
-          // Convert old history (number) to new history (object)
           const newHistory: Record<string, DailyStats> = {};
           if (state.history) {
             Object.entries(state.history).forEach(([date, count]) => {
-              // Assume old counts were all Pomodoros
               newHistory[date] = { pomodoro: count as number, short: 0, long: 0 };
             });
           }

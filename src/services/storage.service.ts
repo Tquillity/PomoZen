@@ -2,7 +2,6 @@ import { useTimeStore } from '../store/useTimeStore';
 import { useTaskStore } from '../store/useTaskStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 
-// Helper for download
 const downloadJSON = (data: unknown, filename: string) => {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -13,14 +12,13 @@ const downloadJSON = (data: unknown, filename: string) => {
   URL.revokeObjectURL(url);
 };
 
-// --- Global Backup ---
 export const exportData = () => {
   const data = {
     timeStore: useTimeStore.getState(),
     taskStore: useTaskStore.getState(),
-    settingsStore: useSettingsStore.getState(), // Added settings to global backup
+    settingsStore: useSettingsStore.getState(),
     timestamp: Date.now(),
-    version: 2 // Bumped version
+    version: 2
   };
   downloadJSON(data, `pomozen-backup-${new Date().toISOString().slice(0, 10)}.json`);
 };
@@ -30,10 +28,8 @@ export const importData = async (file: File): Promise<boolean> => {
     const text = await file.text();
     const data = JSON.parse(text);
     
-    // Support v1 (no settings) and v2 (with settings)
     if (!data.timeStore || !data.taskStore) throw new Error("Invalid Backup File");
 
-    // Hydrate
     useTimeStore.setState({ 
         mode: data.timeStore.mode, 
         pomodorosCompleted: data.timeStore.pomodorosCompleted 
@@ -41,7 +37,6 @@ export const importData = async (file: File): Promise<boolean> => {
     useTaskStore.setState({ tasks: data.taskStore.tasks });
     
     if (data.settingsStore) {
-        // We only import preferences, not the transient state or presets list (optional choice, but safer)
         useSettingsStore.setState({
             durations: data.settingsStore.durations,
             themeColors: data.settingsStore.themeColors,
@@ -50,17 +45,14 @@ export const importData = async (file: File): Promise<boolean> => {
     }
     
     return true;
-  } catch (e) {
-    console.error("Import Failed", e);
+  } catch {
     alert("Failed to import file. It may be corrupt.");
     return false;
   }
 };
 
-// --- Settings Only Export ---
 export const exportSettingsOnly = () => {
     const settings = useSettingsStore.getState();
-    // Strip transient data
     const exportable = {
         durations: settings.durations,
         themeColors: settings.themeColors,

@@ -39,11 +39,9 @@ export const seedDevData = () => {
           long: Math.floor(pomos * 0.2)
         };
       } else {
-        // Empty day
         history[key] = { pomodoro: 0, short: 0, long: 0 };
       }
     } else {
-      // Empty day
       history[key] = { pomodoro: 0, short: 0, long: 0 };
     }
   }

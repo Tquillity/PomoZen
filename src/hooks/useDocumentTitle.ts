@@ -9,10 +9,8 @@ export const useDocumentTitle = () => {
     const timeString = formatTime(timeLeft);
 
     if (isRunning) {
-      // When running, show dynamic countdown
       document.title = `${timeString} - Focusing - PomoZen`;
     } else {
-      // When paused/stopped, show SEO-friendly title with keyword first
       document.title = 'Pomodoro Timer Online | PomoZen Focus Tool';
     }
   }, [timeLeft, isRunning]);

@@ -32,7 +32,6 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
     };
   }, [history]);
 
-  // Calculate the base date for the current view (with offset)
   const baseDate = useMemo(() => {
     const today = new Date();
     
@@ -43,16 +42,13 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
         return addWeeks(weekStart, offset);
       }
       case 'all': {
-        // All time - no offset needed, but we'll use today for consistency
         return today;
       }
       case 'month': {
-        // Start of current month
         const monthStart = startOfMonth(today);
         return addMonths(monthStart, offset);
       }
       case 'year': {
-        // Start of current year
         const yearStart = startOfYear(today);
         return addYears(yearStart, offset);
       }
@@ -61,7 +57,6 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
     }
   }, [range, offset]);
 
-  // Calculate date range display
   const dateRange = useMemo(() => {
     switch (range) {
       case '7d': {
@@ -91,7 +86,6 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
     }
   }, [range, baseDate, history]);
 
-  // --- 2. Graph Data Generation ---
   const graphData = useMemo(() => {
     type DataPoint = {
       label: string;
@@ -134,7 +128,6 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
         dataPoints = months.map(monthDate => {
           const monthKeyPrefix = format(monthDate, 'yyyy-MM');
 
-          // Aggregate all days in this month
           let monthlyWork = 0;
           let monthlyRest = 0;
           Object.entries(history).forEach(([key, stats]) => {
@@ -152,7 +145,6 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
           };
         });
 
-        // Limit to last 24 months for readability
         if (dataPoints.length > 24) {
           dataPoints = dataPoints.slice(-24);
         }
@@ -185,7 +177,6 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
       dataPoints = months.map(monthDate => {
         const monthKeyPrefix = format(monthDate, 'yyyy-MM');
 
-        // Aggregate all days in this month
         let monthlyWork = 0;
         let monthlyRest = 0;
         Object.entries(history).forEach(([key, stats]) => {
@@ -204,14 +195,11 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
       });
     }
 
-    // Calculate Totals for bars
     return dataPoints.map(d => ({ ...d, total: d.work + d.rest }));
   }, [history, range, metric, baseDate]);
 
-  // Dynamic Scale
   const maxVal = Math.max(...graphData.map(d => d.total), range === '7d' ? 60 : range === 'month' ? 100 : range === 'all' ? 500 : 500);
 
-  // Navigation handlers
   const handlePrevious = () => {
     setOffset(prev => prev - 1);
   };

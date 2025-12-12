@@ -16,8 +16,8 @@ export const useFocusMode = () => {
             await document.exitFullscreen();
           }
         }
-      } catch (e) {
-        console.error("Fullscreen toggle failed:", e);
+      } catch {
+        // Silently handle fullscreen API errors
       }
     };
 

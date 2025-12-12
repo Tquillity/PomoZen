@@ -16,9 +16,7 @@ class WorkerMock {
     this.url = stringUrl;
   }
 
-  postMessage(msg: unknown) {
-    // Echo back or mock logic if needed
-    console.log('Worker Message:', msg);
+  postMessage(_msg: unknown) {
   }
 
   terminate() {}

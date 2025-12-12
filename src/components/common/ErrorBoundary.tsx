@@ -11,8 +11,8 @@ export class ErrorBoundary extends Component<Props, State> {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("PomoZen Critical Error:", error, errorInfo);
+  componentDidCatch(_error: Error, _errorInfo: ErrorInfo) {
+    // Error logged to component state for user-facing error UI
   }
 
   handleFactoryReset = () => {

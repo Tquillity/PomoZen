@@ -16,7 +16,6 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
 
-      // A11y: Focus Trap
       if (e.key === 'Tab' && modalRef.current) {
         const focusables = modalRef.current.querySelectorAll(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -36,7 +35,6 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
-      // A11y: Focus the modal container or first element on open
       setTimeout(() => modalRef.current?.focus(), 50);
     }
 
@@ -51,14 +49,14 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
   return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200 cursor-pointer"
-      onClick={onClose} // 1. Click on backdrop closes modal
+      onClick={onClose}
     >
       <div
         ref={modalRef}
         tabIndex={-1}
-        onClick={(e) => e.stopPropagation()} // 2. Click inside modal does NOT close it
+        onClick={(e) => e.stopPropagation()}
         className={cn(
-          "bg-(--theme-primary) brightness-95 text-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-in zoom-in-95 duration-200 mx-2 flex flex-col max-h-[85vh] border border-white/10 cursor-default outline-none", // 3. Reset cursor to default inside, outline-none for programmatic focus
+          "bg-(--theme-primary) brightness-95 text-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-in zoom-in-95 duration-200 mx-2 flex flex-col max-h-[85vh] border border-white/10 cursor-default outline-none",
         )}
       >
         <div className="flex justify-between items-center p-4 border-b border-white/10 bg-black/10">

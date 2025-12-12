@@ -80,14 +80,13 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     }
   };
 
-  // Calculate tooltip position for fixed positioning (to escape overflow container)
   useEffect(() => {
     const updateTooltipPosition = () => {
       if (clearCacheButtonRef.current && isTooltipVisible) {
         const rect = clearCacheButtonRef.current.getBoundingClientRect();
         setTooltipPosition({
-          top: rect.top - 10, // Position above the button with 10px gap
-          left: rect.left + rect.width / 2, // Center horizontally
+          top: rect.top - 10,
+          left: rect.left + rect.width / 2,
         });
       }
     };

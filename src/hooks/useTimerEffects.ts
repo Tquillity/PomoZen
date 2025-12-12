@@ -6,15 +6,11 @@ import { playAlarm, sendNotification, triggerVisualBell } from '../services/soun
 export const useTimerEffects = () => {
   const timeLeft = useTimeStore(state => state.timeLeft);
   const mode = useTimeStore(state => state.mode);
-  
-  // Ref to track if we've already handled the 0 state to prevent duplicate effects
   const hasHandledComplete = useRef(false);
 
   useEffect(() => {
     if (timeLeft === 0 && !hasHandledComplete.current) {
       hasHandledComplete.current = true;
-      
-      // Trigger Side Effects
       const { soundEnabled } = useSettingsStore.getState();
       
       triggerVisualBell();
@@ -30,13 +26,7 @@ export const useTimerEffects = () => {
       }
       
     } else if (timeLeft > 0) {
-      // Reset the flag when time is reset
       hasHandledComplete.current = false;
     }
   }, [timeLeft, mode]);
-
-  // Subscribe to timer complete event for other logic (like Tasks)
-  // This is handled via the Event Bus as requested
-  // Note: The store emits 'timer:complete', we can listen here if needed, 
-  // but App.tsx will handle the task update logic via event bus.
 };

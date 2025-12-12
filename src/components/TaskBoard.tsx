@@ -35,7 +35,6 @@ export const TaskBoard = () => {
   };
 
   return (
-    // Updated container styles for a "Solid Component" look
     <div className="w-full max-w-md bg-black/30 border border-white/10 shadow-2xl p-6 rounded-2xl backdrop-blur-md flex flex-col h-full max-h-[400px] relative overflow-hidden transition-all">
 
       {/* Header */}

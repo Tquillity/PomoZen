@@ -1,7 +1,6 @@
 import * as Comlink from 'comlink';
 import type { TimerWorkerAPI } from '../types/worker-types';
 
-// Singleton instance
 let workerInstance: Comlink.Remote<TimerWorkerAPI> | null = null;
 
 export const getWorker = () => {

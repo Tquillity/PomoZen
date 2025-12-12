@@ -6,12 +6,10 @@ export const AudioUnlocker = () => {
   const isAudioUnlocked = useSettingsStore(state => state.isAudioUnlocked);
 
   useEffect(() => {
-    // If already unlocked, don't set up listeners
     if (isAudioUnlocked) return;
 
     const handleInteraction = () => {
       unlockAudio();
-      // Remove listeners once unlocked
       window.removeEventListener('click', handleInteraction);
       window.removeEventListener('keydown', handleInteraction);
     };
