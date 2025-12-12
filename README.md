@@ -1,73 +1,80 @@
-# React + TypeScript + Vite
+# PomoZen
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![CI](https://github.com/Tquillity/PomoZen/actions/workflows/ci.yml/badge.svg)](https://github.com/Tquillity/PomoZen/actions/workflows/ci.yml)
 
-Currently, two official plugins are available:
+A privacy-first, offline-capable Pomodoro timer with ambient soundscapes. Built with React 19, TypeScript 6, and Tailwind CSS v4.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- **Offline-First**: Works entirely in your browser with no backend required
+- **Privacy-First**: All data stored locally in your browser (localStorage)
+- **Accurate Timing**: Web Worker-based timer prevents UI thread blocking and drift
+- **Zen Mode**: Ambient nature sounds (rain, forest, white noise) for enhanced focus
+- **Task Tracking**: Track your pomodoro sessions per task
+- **Statistics**: Visual progress tracking with daily, weekly, monthly, and yearly views
+- **Customizable**: Adjustable timer durations, theme colors, and presets
+- **PWA Ready**: Installable as a Progressive Web App
+- **Accessible**: WCAG 2.2 AA compliant with keyboard navigation and screen reader support
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- **Runtime/Build**: Node.js 22+, Vite 6
+- **Framework**: React 19
+- **Language**: TypeScript 6.0 (Strict Mode)
+- **Styling**: Tailwind CSS v4 (CSS-first configuration)
+- **State Management**: Zustand with persist middleware
+- **Async Logic**: Web Workers via Comlink
+- **Validation**: Zod for data integrity
+- **Testing**: Vitest with Testing Library
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Architecture
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+**The Golden Rule**: *The UI is a reflection of the Store. The Store is updated by the Worker.*
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Timer Engine**: Runs in a Web Worker (`src/workers/timer.worker.ts`) to prevent UI blocking
+- **State Management**: Zustand stores with localStorage persistence
+- **Data Flow**: Worker → Store → UI (unidirectional)
+- **No Backend**: 100% client-side application
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Run tests
+npm run test
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Lint code
+npm run lint
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Project Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── components/     # React components
+├── hooks/          # Custom React hooks
+├── services/       # Business logic (workers, storage, events)
+├── store/          # Zustand state management
+├── types/          # TypeScript type definitions
+├── utils/          # Utility functions
+└── workers/        # Web Worker scripts
+```
+
+## License
+
+See [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+See [CONTRIBUTING_AI.md](CONTRIBUTING_AI.md) for project guidelines and architecture details.

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTimeStore } from '../../store/useTimeStore';
 import { format, startOfMonth, endOfMonth, eachMonthOfInterval, startOfWeek, endOfWeek, addWeeks, addMonths, addYears, eachDayOfInterval, startOfYear, endOfYear } from 'date-fns';
 import { cn } from '../../utils/cn';
@@ -85,44 +85,108 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
     }
   }, [range, baseDate, history]);
 
-  const graphData = useMemo(() => {
-    type DataPoint = {
-      label: string;
-      fullDate: string;
-      work: number;
-      rest: number;
-      isWeekend?: boolean;
-    };
-    let dataPoints: DataPoint[] = [];
+  type DataPoint = {
+    label: string;
+    fullDate: string;
+    work: number;
+    rest: number;
+    total: number;
+    isWeekend?: boolean;
+  };
 
-    if (range === '7d') {
-      // Weekly view: Monday to Sunday
-      const weekStart = startOfWeek(baseDate, { weekStartsOn: 1 });
-      const weekEnd = endOfWeek(baseDate, { weekStartsOn: 1 });
-      const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
+  const [graphData, setGraphData] = useState<DataPoint[]>([]);
+  const [isCalculating, setIsCalculating] = useState(false);
 
-      dataPoints = days.map(date => {
-        const key = format(date, 'yyyy-MM-dd');
-        const stats = history[key] || { pomodoro: 0, short: 0, long: 0 };
-        const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
-        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-        return {
-          label: format(date, 'EEE'), // Mon, Tue...
-          fullDate: format(date, 'MMM d, yyyy'),
-          work: metric === 'minutes' ? stats.pomodoro * 25 : stats.pomodoro,
-          rest: metric === 'minutes' ? (stats.short * 5) + (stats.long * 15) : (stats.short + stats.long),
-          isWeekend
-        };
-      });
-    } else if (range === 'all') {
-      // All time view: aggregated by month
-      const historyKeys = Object.keys(history).sort();
-      if (historyKeys.length === 0) {
-        dataPoints = [];
-      } else {
-        const firstDate = new Date(historyKeys[0]);
-        const lastDate = new Date(historyKeys[historyKeys.length - 1]);
-        const months = eachMonthOfInterval({ start: startOfMonth(firstDate), end: endOfMonth(lastDate) });
+  useEffect(() => {
+    setIsCalculating(true);
+    
+    const calculateData = () => {
+      let dataPoints: DataPoint[] = [];
+
+      if (range === '7d') {
+        // Weekly view: Monday to Sunday
+        const weekStart = startOfWeek(baseDate, { weekStartsOn: 1 });
+        const weekEnd = endOfWeek(baseDate, { weekStartsOn: 1 });
+        const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
+
+        dataPoints = days.map(date => {
+          const key = format(date, 'yyyy-MM-dd');
+          const stats = history[key] || { pomodoro: 0, short: 0, long: 0 };
+          const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+          const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+          const work = metric === 'minutes' ? stats.pomodoro * 25 : stats.pomodoro;
+          const rest = metric === 'minutes' ? (stats.short * 5) + (stats.long * 15) : (stats.short + stats.long);
+          return {
+            label: format(date, 'EEE'), // Mon, Tue...
+            fullDate: format(date, 'MMM d, yyyy'),
+            work,
+            rest,
+            total: work + rest,
+            isWeekend
+          };
+        });
+      } else if (range === 'all') {
+        // All time view: aggregated by month
+        const historyKeys = Object.keys(history).sort();
+        if (historyKeys.length === 0) {
+          dataPoints = [];
+        } else {
+          const firstDate = new Date(historyKeys[0]);
+          const lastDate = new Date(historyKeys[historyKeys.length - 1]);
+          const months = eachMonthOfInterval({ start: startOfMonth(firstDate), end: endOfMonth(lastDate) });
+
+          dataPoints = months.map(monthDate => {
+            const monthKeyPrefix = format(monthDate, 'yyyy-MM');
+
+            let monthlyWork = 0;
+            let monthlyRest = 0;
+            Object.entries(history).forEach(([key, stats]) => {
+              if (key.startsWith(monthKeyPrefix)) {
+                monthlyWork += metric === 'minutes' ? stats.pomodoro * 25 : stats.pomodoro;
+                monthlyRest += metric === 'minutes' ? (stats.short * 5) + (stats.long * 15) : (stats.short + stats.long);
+              }
+            });
+
+            return {
+              label: format(monthDate, 'MMM'), // Jan, Feb...
+              fullDate: format(monthDate, 'MMMM yyyy'),
+              work: monthlyWork,
+              rest: monthlyRest,
+              total: monthlyWork + monthlyRest
+            };
+          });
+
+          if (dataPoints.length > 24) {
+            dataPoints = dataPoints.slice(-24);
+          }
+        }
+      } else if (range === 'month') {
+        // Monthly view: all days in the selected month
+        const monthStart = startOfMonth(baseDate);
+        const monthEnd = endOfMonth(baseDate);
+        const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+        dataPoints = days.map(date => {
+          const key = format(date, 'yyyy-MM-dd');
+          const stats = history[key] || { pomodoro: 0, short: 0, long: 0 };
+          const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+          const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+          const work = metric === 'minutes' ? stats.pomodoro * 25 : stats.pomodoro;
+          const rest = metric === 'minutes' ? (stats.short * 5) + (stats.long * 15) : (stats.short + stats.long);
+          return {
+            label: format(date, 'd'), // Day number
+            fullDate: format(date, 'MMM d, yyyy'),
+            work,
+            rest,
+            total: work + rest,
+            isWeekend
+          };
+        });
+      } else if (range === 'year') {
+        // Yearly view: aggregated by month
+        const yearStart = startOfYear(baseDate);
+        const yearEnd = endOfYear(baseDate);
+        const months = eachMonthOfInterval({ start: yearStart, end: yearEnd });
 
         dataPoints = months.map(monthDate => {
           const monthKeyPrefix = format(monthDate, 'yyyy-MM');
@@ -140,64 +204,26 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
             label: format(monthDate, 'MMM'), // Jan, Feb...
             fullDate: format(monthDate, 'MMMM yyyy'),
             work: monthlyWork,
-            rest: monthlyRest
+            rest: monthlyRest,
+            total: monthlyWork + monthlyRest
           };
         });
-
-        if (dataPoints.length > 24) {
-          dataPoints = dataPoints.slice(-24);
-        }
       }
-    } else if (range === 'month') {
-      // Monthly view: all days in the selected month
-      const monthStart = startOfMonth(baseDate);
-      const monthEnd = endOfMonth(baseDate);
-      const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-      dataPoints = days.map(date => {
-        const key = format(date, 'yyyy-MM-dd');
-        const stats = history[key] || { pomodoro: 0, short: 0, long: 0 };
-        const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
-        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-        return {
-          label: format(date, 'd'), // Day number
-          fullDate: format(date, 'MMM d, yyyy'),
-          work: metric === 'minutes' ? stats.pomodoro * 25 : stats.pomodoro,
-          rest: metric === 'minutes' ? (stats.short * 5) + (stats.long * 15) : (stats.short + stats.long),
-          isWeekend
-        };
-      });
-    } else if (range === 'year') {
-      // Yearly view: aggregated by month
-      const yearStart = startOfYear(baseDate);
-      const yearEnd = endOfYear(baseDate);
-      const months = eachMonthOfInterval({ start: yearStart, end: yearEnd });
+      setGraphData(dataPoints);
+      setIsCalculating(false);
+    };
 
-      dataPoints = months.map(monthDate => {
-        const monthKeyPrefix = format(monthDate, 'yyyy-MM');
-
-        let monthlyWork = 0;
-        let monthlyRest = 0;
-        Object.entries(history).forEach(([key, stats]) => {
-          if (key.startsWith(monthKeyPrefix)) {
-            monthlyWork += metric === 'minutes' ? stats.pomodoro * 25 : stats.pomodoro;
-            monthlyRest += metric === 'minutes' ? (stats.short * 5) + (stats.long * 15) : (stats.short + stats.long);
-          }
-        });
-
-        return {
-          label: format(monthDate, 'MMM'), // Jan, Feb...
-          fullDate: format(monthDate, 'MMMM yyyy'),
-          work: monthlyWork,
-          rest: monthlyRest
-        };
-      });
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(calculateData, { timeout: 100 });
+    } else {
+      setTimeout(calculateData, 0);
     }
-
-    return dataPoints.map(d => ({ ...d, total: d.work + d.rest }));
   }, [history, range, metric, baseDate]);
 
-  const maxVal = Math.max(...graphData.map(d => d.total), range === '7d' ? 60 : range === 'month' ? 100 : range === 'all' ? 500 : 500);
+  const maxVal = graphData.length > 0 
+    ? Math.max(...graphData.map(d => d.total), range === '7d' ? 60 : range === 'month' ? 100 : range === 'all' ? 500 : 500)
+    : (range === '7d' ? 60 : range === 'month' ? 100 : range === 'all' ? 500 : 500);
 
   const handlePrevious = () => {
     setOffset(prev => prev - 1);
@@ -324,13 +350,19 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
               "h-full flex items-end gap-1 sm:gap-2",
               range === '7d' ? "w-full" : "min-w-fit"
             )}>
-              {graphData.length === 0 && (
+              {isCalculating && (
+                <div className="w-full h-full flex items-center justify-center text-white/30 text-sm">
+                  Calculating...
+                </div>
+              )}
+              
+              {!isCalculating && graphData.length === 0 && (
                 <div className="w-full h-full flex items-center justify-center text-white/30 text-sm">
                   No activity recorded yet.
                 </div>
               )}
 
-              {graphData.map((d, i) => (
+              {!isCalculating && graphData.map((d, i) => (
                 <div key={i} className={cn(
                   "h-full flex flex-col justify-end group relative",
                   range === '7d' ? "flex-1" : "min-w-[20px] shrink-0"
