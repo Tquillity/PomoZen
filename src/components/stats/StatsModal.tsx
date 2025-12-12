@@ -16,9 +16,8 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
   const history = useTimeStore(state => state.history);
   const [metric, setMetric] = useState<ViewMetric>('minutes');
   const [range, setRange] = useState<TimeRange>('7d');
-  const [offset, setOffset] = useState(0); // Navigation offset: 0 = current period, -1 = previous, +1 = next
+  const [offset, setOffset] = useState(0);
 
-  // --- 1. Total Aggregates (Always All Time) ---
   const totals = useMemo(() => {
     const values = Object.values(history);
     const pomoCount = values.reduce((acc, curr) => acc + (curr.pomodoro || 0), 0);

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Task } from '../types';
+import { createSafeStorage } from '../utils/storageWrapper';
 
 interface TaskState {
   tasks: Task[];
@@ -52,7 +53,10 @@ export const useTaskStore = create<TaskState>()(
         activeTaskId: state.activeTaskId && state.tasks.find(t => t.id === state.activeTaskId)?.completed ? null : state.activeTaskId
       }))
     }),
-    { name: 'pomo-tasks-storage' }
+    { 
+      name: 'pomo-tasks-storage',
+      storage: createJSONStorage(() => createSafeStorage())
+    }
   )
 );
 

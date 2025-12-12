@@ -142,6 +142,7 @@ export const TaskBoard = () => {
             <div className="flex items-center gap-3 flex-1 min-w-0">
                <button
                  onClick={(e) => { e.stopPropagation(); toggleTask(task.id); }}
+                 onKeyDown={(e) => { e.stopPropagation(); }}
                  className={clsx(
                    "w-5 h-5 rounded-full border shrink-0 flex items-center justify-center transition-all",
                    task.completed ? "bg-green-500 border-green-500" : "border-white/30 hover:border-white"
@@ -165,6 +166,7 @@ export const TaskBoard = () => {
 
                 <button
                     onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}
+                    onKeyDown={(e) => { e.stopPropagation(); }}
                     className="text-white/20 hover:text-red-400 p-1 rounded transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:text-red-400"
                     aria-label={`Delete task: ${task.title}`}
                 >

@@ -1,5 +1,6 @@
 import { useTimeStore } from '../../store/useTimeStore';
 import { playClick } from '../../services/sound.service';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { cn } from '../../utils/cn';
 
 export const TimerControls = () => {
@@ -7,8 +8,12 @@ export const TimerControls = () => {
   const startTimer = useTimeStore(state => state.startTimer);
   const pauseTimer = useTimeStore(state => state.pauseTimer);
   const resetTimer = useTimeStore(state => state.resetTimer);
+  const { unlockAudio, isAudioUnlocked } = useSettingsStore();
 
   const handleStart = () => {
+    if (!isAudioUnlocked) {
+      unlockAudio();
+    }
     playClick();
     startTimer();
   };
@@ -38,7 +43,8 @@ export const TimerControls = () => {
       <button
           onClick={handleReset}
           className="px-3 sm:px-4 py-3 sm:py-4 text-lg sm:text-xl md:text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 bg-white/20 text-white hover:bg-white/30"
-          aria-label="Reset Timer"
+          aria-label="Reset"
+          title="Reset Timer"
       >
           ↺
       </button>

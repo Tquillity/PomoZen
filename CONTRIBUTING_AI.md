@@ -15,8 +15,8 @@ This application **DOES NOT** have a backend API or database. It runs entirely i
 Do not deviate from these versions or libraries unless explicitly instructed.
 
 *   **Runtime/Build:** Node.js 22+, Vite 6.
-*   **Framework:** React 19 (Leveraging React Compiler).
-    *   *Rule:* Do not manually implement `useMemo` or `useCallback` unless profiling proves it necessary. Trust the Compiler.
+*   **Framework:** React 19.
+    *   *Rule:* Do not manually implement `useMemo` or `useCallback` unless profiling proves it necessary. React 19's performance improvements reduce the need for manual memoization in most cases.
 *   **Language:** TypeScript 6.0.
     *   *Rule:* Strict Mode enabled. No `any`. Define interfaces for all data structures.
 *   **Styling:** Tailwind CSS v4.

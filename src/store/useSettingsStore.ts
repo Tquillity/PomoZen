@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { TimerMode } from '../types';
+import { createSafeStorage } from '../utils/storageWrapper';
 
 export type ZenTrack = 'rain' | 'white_noise' | 'forest';
 
@@ -28,6 +29,7 @@ interface SettingsState {
   zenStrategy: 'always' | 'break_only';
   presets: Preset[];
   isAudioUnlocked: boolean;
+  notificationsEnabled: boolean;
   
   updateDuration: (mode: TimerMode, minutes: number) => void;
   setThemeColor: (mode: TimerMode, color: string) => void;
@@ -40,6 +42,7 @@ interface SettingsState {
   setZenTrack: (track: ZenTrack) => void;
   setZenVolume: (volume: number) => void;
   setZenStrategy: (strategy: 'always' | 'break_only') => void;
+  toggleNotifications: () => void;
 
   addPreset: (name: string) => void;
   deletePreset: (id: string) => void;
@@ -71,6 +74,7 @@ export const useSettingsStore = create<SettingsState>()(
       zenStrategy: 'always',
       presets: [],
       isAudioUnlocked: false,
+      notificationsEnabled: false,
 
       updateDuration: (mode, minutes) => set((state) => ({
         durations: { ...state.durations, [mode]: minutes }
@@ -128,11 +132,22 @@ export const useSettingsStore = create<SettingsState>()(
               zenModeEnabled: false
           });
       },
-      unlockAudio: () => set({ isAudioUnlocked: true })
+      unlockAudio: () => set({ isAudioUnlocked: true }),
+      toggleNotifications: () => {
+        const current = get().notificationsEnabled;
+        if (!current && 'Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission().then((permission) => {
+            set({ notificationsEnabled: permission === 'granted' });
+          });
+        } else {
+          set({ notificationsEnabled: !current });
+        }
+      }
     }),
     { 
       name: 'pomo-settings-storage',
       version: 4,
+      storage: createJSONStorage(() => createSafeStorage()),
       partialize: (state) => ({ 
         durations: state.durations, 
         themeColors: state.themeColors,
@@ -142,7 +157,8 @@ export const useSettingsStore = create<SettingsState>()(
         zenTrack: state.zenTrack,
         zenVolume: state.zenVolume,
         zenStrategy: state.zenStrategy,
-        presets: state.presets 
+        presets: state.presets,
+        notificationsEnabled: state.notificationsEnabled 
       }),
       migrate: (persistedState: unknown, version) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

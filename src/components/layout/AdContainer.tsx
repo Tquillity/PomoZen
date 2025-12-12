@@ -58,12 +58,10 @@ export const AdContainer = () => {
       */}
       <div className="w-full max-w-[728px] h-[90px] bg-black/20 backdrop-blur-md rounded-xl border border-white/10 overflow-hidden relative shadow-lg flex justify-center items-center">
 
-        {/* Loading Pulse Animation */}
         {!isLoaded && (
           <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent animate-pulse z-20" />
         )}
 
-        {/* Placeholder Text */}
         {!isLoaded && (
           <span className="text-[10px] uppercase tracking-widest text-white/30 font-mono absolute z-10">
             Loading Partner...

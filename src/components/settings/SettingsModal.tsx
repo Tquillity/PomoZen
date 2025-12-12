@@ -200,6 +200,25 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
               )} />
             </button>
           </div>
+
+          <div className="flex justify-between items-center">
+            <label htmlFor="toggle-notifications" className="font-medium text-white">Notifications</label>
+            <button
+              id="toggle-notifications"
+              onClick={toggleNotifications}
+              className={cn(
+                "w-12 h-6 rounded-full transition-colors relative cursor-pointer",
+                notificationsEnabled ? "bg-green-500" : "bg-gray-300"
+              )}
+              aria-pressed={notificationsEnabled}
+              aria-label="Toggle Notifications"
+            >
+              <div className={cn(
+                "w-4 h-4 bg-white rounded-full absolute top-1 transition-transform",
+                notificationsEnabled ? "left-7" : "left-1"
+              )} />
+            </button>
+          </div>
         </div>
 
         <hr className="border-white/10" />

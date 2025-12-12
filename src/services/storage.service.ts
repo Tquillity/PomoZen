@@ -1,6 +1,114 @@
+import { z } from 'zod';
 import { useTimeStore } from '../store/useTimeStore';
 import { useTaskStore } from '../store/useTaskStore';
 import { useSettingsStore } from '../store/useSettingsStore';
+import type { TimerMode } from '../types';
+
+const TimerModeSchema = z.enum(['pomodoro', 'short', 'long']);
+
+const TimeStoreSchema = z.object({
+  mode: TimerModeSchema,
+  pomodorosCompleted: z.number().int().min(0).max(10000),
+  timeLeft: z.number().int().min(0).optional(),
+  isRunning: z.boolean().optional(),
+  history: z.record(z.string(), z.object({
+    pomodoro: z.number().int().min(0),
+    short: z.number().int().min(0),
+    long: z.number().int().min(0)
+  })).optional()
+});
+
+const TaskSchema = z.object({
+  id: z.string(),
+  title: z.string().max(100),
+  completed: z.boolean(),
+  estPomodoros: z.number().int().min(1).max(100),
+  actPomodoros: z.number().int().min(0).max(1000)
+});
+
+const TaskStoreSchema = z.object({
+  tasks: z.array(TaskSchema).max(1000),
+  activeTaskId: z.string().nullable().optional()
+});
+
+const SettingsStoreSchema = z.object({
+  durations: z.object({
+    pomodoro: z.number().int().min(1).max(60),
+    short: z.number().int().min(1).max(60),
+    long: z.number().int().min(1).max(60)
+  }).optional(),
+  themeColors: z.object({
+    pomodoro: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+    short: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+    long: z.string().regex(/^#[0-9A-Fa-f]{6}$/)
+  }).optional(),
+  zenTrack: z.enum(['rain', 'white_noise', 'forest']).optional(),
+  zenVolume: z.number().min(0).max(1).optional(),
+  zenStrategy: z.enum(['always', 'break_only']).optional(),
+  presets: z.array(z.object({
+    id: z.string(),
+    name: z.string().max(50),
+    data: z.object({
+      durations: z.object({
+        pomodoro: z.number().int().min(1).max(60),
+        short: z.number().int().min(1).max(60),
+        long: z.number().int().min(1).max(60)
+      }),
+      themeColors: z.object({
+        pomodoro: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+        short: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+        long: z.string().regex(/^#[0-9A-Fa-f]{6}$/)
+      }),
+      zenTrack: z.enum(['rain', 'white_noise', 'forest']),
+      zenVolume: z.number().min(0).max(1),
+      zenStrategy: z.enum(['always', 'break_only'])
+    })
+  })).max(50).optional()
+});
+
+const BackupFileSchema = z.object({
+  timeStore: TimeStoreSchema,
+  taskStore: TaskStoreSchema,
+  settingsStore: SettingsStoreSchema.optional(),
+  timestamp: z.number().optional(),
+  version: z.number().optional()
+});
+
+const SettingsFileSchema = z.object({
+  type: z.literal('pomozen_settings'),
+  durations: z.object({
+    pomodoro: z.number().int().min(1).max(60),
+    short: z.number().int().min(1).max(60),
+    long: z.number().int().min(1).max(60)
+  }),
+  themeColors: z.object({
+    pomodoro: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+    short: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+    long: z.string().regex(/^#[0-9A-Fa-f]{6}$/)
+  }),
+  zenTrack: z.enum(['rain', 'white_noise', 'forest']),
+  zenVolume: z.number().min(0).max(1),
+  zenStrategy: z.enum(['always', 'break_only']),
+  presets: z.array(z.object({
+    id: z.string(),
+    name: z.string().max(50),
+    data: z.object({
+      durations: z.object({
+        pomodoro: z.number().int().min(1).max(60),
+        short: z.number().int().min(1).max(60),
+        long: z.number().int().min(1).max(60)
+      }),
+      themeColors: z.object({
+        pomodoro: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+        short: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+        long: z.string().regex(/^#[0-9A-Fa-f]{6}$/)
+      }),
+      zenTrack: z.enum(['rain', 'white_noise', 'forest']),
+      zenVolume: z.number().min(0).max(1),
+      zenStrategy: z.enum(['always', 'break_only'])
+    })
+  })).max(50)
+});
 
 const downloadJSON = (data: unknown, filename: string) => {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -26,27 +134,33 @@ export const exportData = () => {
 export const importData = async (file: File): Promise<boolean> => {
   try {
     const text = await file.text();
-    const data = JSON.parse(text);
+    const parsed = JSON.parse(text);
     
-    if (!data.timeStore || !data.taskStore) throw new Error("Invalid Backup File");
+    const result = BackupFileSchema.safeParse(parsed);
+    if (!result.success) {
+      throw new Error("Invalid backup file format");
+    }
+
+    const data = result.data;
 
     useTimeStore.setState({ 
-        mode: data.timeStore.mode, 
-        pomodorosCompleted: data.timeStore.pomodorosCompleted 
+      mode: data.timeStore.mode, 
+      pomodorosCompleted: data.timeStore.pomodorosCompleted 
     });
+    
     useTaskStore.setState({ tasks: data.taskStore.tasks });
     
     if (data.settingsStore) {
-        useSettingsStore.setState({
-            durations: data.settingsStore.durations,
-            themeColors: data.settingsStore.themeColors,
-            zenTrack: data.settingsStore.zenTrack
-        });
+      useSettingsStore.setState({
+        durations: data.settingsStore.durations,
+        themeColors: data.settingsStore.themeColors,
+        zenTrack: data.settingsStore.zenTrack
+      });
     }
     
     return true;
   } catch {
-    alert("Failed to import file. It may be corrupt.");
+    alert("Failed to import file. It may be corrupt or invalid.");
     return false;
   }
 };
@@ -60,7 +174,7 @@ export const exportSettingsOnly = () => {
         zenVolume: settings.zenVolume,
         zenStrategy: settings.zenStrategy,
         presets: settings.presets,
-        type: 'pomozen_settings'
+        type: 'pomozen_settings' as const
     };
     downloadJSON(exportable, `pomozen-settings.json`);
 };
@@ -68,8 +182,14 @@ export const exportSettingsOnly = () => {
 export const importSettingsOnly = async (file: File): Promise<boolean> => {
     try {
         const text = await file.text();
-        const data = JSON.parse(text);
-        if (data.type !== 'pomozen_settings') throw new Error("Invalid Settings File");
+        const parsed = JSON.parse(text);
+        
+        const result = SettingsFileSchema.safeParse(parsed);
+        if (!result.success) {
+          throw new Error("Invalid settings file format");
+        }
+
+        const data = result.data;
 
         useSettingsStore.setState({
             durations: data.durations,
@@ -81,7 +201,7 @@ export const importSettingsOnly = async (file: File): Promise<boolean> => {
         });
         return true;
     } catch {
-        alert("Invalid Settings File");
+        alert("Invalid settings file. It may be corrupt or invalid.");
         return false;
     }
 };

@@ -1,20 +1,25 @@
 import { useEffect, useState, Suspense, lazy } from 'react';
+
 import { TaskBoard } from './components/TaskBoard';
 import { Footer } from './components/layout/Footer';
 import { SEOContent } from './components/layout/SEOContent';
-import { useTheme } from './hooks/useTheme';
-import { useTimerEffects } from './hooks/useTimerEffects';
-import { useDocumentTitle } from './hooks/useDocumentTitle';
 import { TimerDisplay } from './components/timer/TimerDisplay';
 import { TimerControls } from './components/timer/TimerControls';
 import { ModeSwitcher } from './components/timer/ModeSwitcher';
-import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
-import { useFocusMode } from './hooks/useFocusMode';
 import { ZenPlayer } from './components/sound/ZenPlayer';
 import { SEOHelmet } from './components/seo/SEOHelmet';
-import { AudioUnlocker } from './components/common/AudioUnlocker';
-import { useSettingsStore } from './store/useSettingsStore';
+import { VisualBell } from './components/common/VisualBell';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
+
+import { useTheme } from './hooks/useTheme';
+import { useTimerEffects } from './hooks/useTimerEffects';
+import { useDocumentTitle } from './hooks/useDocumentTitle';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useFocusMode } from './hooks/useFocusMode';
+
+import { useSettingsStore } from './store/useSettingsStore';
+
+import { setStorageQuotaErrorHandler } from './utils/storageWrapper';
 
 import { PomodoroGuideModal } from './components/modals/PomodoroGuideModal';
 
@@ -33,14 +38,22 @@ function App() {
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isColorPsychOpen, setIsColorPsychOpen] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [storageError, setStorageError] = useState<string | null>(null);
   
   const { zenModeEnabled, isAudioUnlocked } = useSettingsStore();
+
+  useEffect(() => {
+    setStorageQuotaErrorHandler(() => {
+      setStorageError('Storage quota exceeded. Some data may not be saved.');
+      setTimeout(() => setStorageError(null), 5000);
+    });
+  }, []);
 
   return (
     <div className="h-screen w-full flex flex-col items-center transition-colors duration-500 relative overflow-hidden bg-(--theme-bg)">
 
       <SEOHelmet />
-      <AudioUnlocker />
+      <VisualBell />
       <ZenPlayer />
 
       {/* Top Right Navigation */}
@@ -87,6 +100,13 @@ function App() {
       {zenModeEnabled && !isAudioUnlocked && (
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-xs font-medium z-50 animate-bounce cursor-pointer">
           Click anywhere to enable Zen Audio
+        </div>
+      )}
+
+      {/* Storage Error Toast */}
+      {storageError && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-full text-xs font-medium z-50 animate-bounce">
+          {storageError}
         </div>
       )}
 

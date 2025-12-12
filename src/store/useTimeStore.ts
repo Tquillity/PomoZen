@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import * as Comlink from 'comlink';
 import { getWorker } from '../services/worker.service';
 import type { TimerMode } from '../types';
@@ -7,6 +7,7 @@ import { events } from '../services/event.service';
 import { useSettingsStore } from './useSettingsStore';
 import { useTaskStore } from './useTaskStore';
 import { format } from 'date-fns';
+import { createSafeStorage } from '../utils/storageWrapper';
 
 const POMODOROS_PER_SET = 4;
 
@@ -122,6 +123,7 @@ export const useTimeStore = create<TimeState>()(
     { 
       name: 'pomo-time-storage',
       version: 2,
+      storage: createJSONStorage(() => createSafeStorage()),
       migrate: (persistedState: unknown, version: number) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const state = persistedState as any;

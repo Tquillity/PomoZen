@@ -1,10 +1,10 @@
 // Calculate relative luminance (per WCAG definitions)
 export const getLuminance = (hex: string): number => {
-  const c = hex.substring(1);      // strip #
-  const rgb = parseInt(c, 16);   // convert rrggbb to decimal
-  const r = (rgb >> 16) & 0xff;  // extract red
-  const g = (rgb >>  8) & 0xff;  // extract green
-  const b = (rgb >>  0) & 0xff;  // extract blue
+  const c = hex.substring(1);
+  const rgb = parseInt(c, 16);
+  const r = (rgb >> 16) & 0xff;
+  const g = (rgb >>  8) & 0xff;
+  const b = (rgb >>  0) & 0xff;
 
   // sRGB to LinRGB conversion formula
   const sRGB = [r, g, b].map(v => {
@@ -23,10 +23,8 @@ export const getContrastStyle = (bgHex: string) => {
 
   return {
     isLight: isBackgroundLight,
-    // If BG is light, use Black bars. If BG is dark, use White bars.
     primary: isBackgroundLight ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,1)',
     secondary: isBackgroundLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.3)',
-    // Tailwind classes for the text/heatmap
     textClass: isBackgroundLight ? 'text-black/80' : 'text-white',
     subTextClass: isBackgroundLight ? 'text-black/50' : 'text-white/60',
     heatmapClass: (count: number) => {

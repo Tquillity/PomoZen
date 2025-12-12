@@ -28,6 +28,8 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
         const focusables = modalRef.current.querySelectorAll(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         );
+        if (focusables.length === 0) return;
+        
         const first = focusables[0] as HTMLElement;
         const last = focusables[focusables.length - 1] as HTMLElement;
         if (e.shiftKey && document.activeElement === first) {
