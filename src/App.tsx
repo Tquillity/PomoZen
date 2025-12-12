@@ -69,7 +69,7 @@ function App() {
       </div>
 
       {/* Main Layout - Using justify-start and gap to prevent overlap */}
-      <main className="flex-1 w-full flex flex-col items-center justify-start pt-16 sm:pt-20 pb-4 min-h-0 px-4 gap-4 overflow-y-auto custom-scrollbar z-10">
+      <main className="flex-1 w-full flex flex-col items-center justify-start pt-4 sm:pt-6 pb-4 min-h-0 px-4 gap-[13px] overflow-y-auto custom-scrollbar z-10">
         <ModeSwitcher />
         
         <div className="shrink-0">

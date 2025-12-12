@@ -24,7 +24,7 @@ export const TimerControls = () => {
   };
 
   return (
-    <div className="flex gap-2 sm:gap-4 mb-6 sm:mb-8 md:mb-12 z-10">
+    <div className="flex gap-2 sm:gap-4 mb-[10px] sm:mb-[13px] md:mb-[20px] z-10">
       <button
           onClick={isRunning ? handlePause : handleStart}
           className={cn(

@@ -13,7 +13,7 @@ export const ModeSwitcher = () => {
   };
 
   return (
-    <div className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 md:mb-8 bg-black/20 p-1 rounded-full z-10">
+    <div className="flex gap-1 sm:gap-2 mb-[14px] sm:mb-[22px] md:mb-[29px] bg-black/20 p-1 rounded-full z-10">
       {(['pomodoro', 'short', 'long'] as TimerMode[]).map((m) => (
         <button
           key={m}
