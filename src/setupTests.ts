@@ -31,15 +31,18 @@ class WorkerMock {
 globalThis.Worker = WorkerMock;
 
 // Mock Audio (JSDOM doesn't support it)
-globalThis.Audio = vi.fn().mockImplementation(() => ({
-  play: vi.fn().mockResolvedValue(undefined),
-  pause: vi.fn(),
-  load: vi.fn(),
-  currentTime: 0,
-  src: '',
-  volume: 1,
-  loop: false,
-}));
+class AudioMock {
+  play = vi.fn().mockResolvedValue(undefined);
+  pause = vi.fn();
+  load = vi.fn();
+  currentTime = 0;
+  src = '';
+  volume = 1;
+  loop = false;
+}
+
+// @ts-expect-error - Mocking global Audio constructor
+globalThis.Audio = AudioMock;
 
 // Mock Notification API
 Object.defineProperty(globalThis, 'Notification', {
@@ -47,7 +50,8 @@ Object.defineProperty(globalThis, 'Notification', {
     requestPermission: vi.fn().mockResolvedValue('granted'),
     permission: 'granted',
   },
-  writable: true
+  writable: true,
+  configurable: true,
 });
 
 // Mock alert/confirm to silence test warnings

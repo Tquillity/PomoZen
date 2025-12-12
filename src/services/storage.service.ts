@@ -2,6 +2,15 @@ import { z } from 'zod';
 import { useTimeStore } from '../store/useTimeStore';
 import { useTaskStore } from '../store/useTaskStore';
 import { useSettingsStore } from '../store/useSettingsStore';
+import type { TimerMode } from '../types';
+
+const getDuration = (mode: TimerMode) => {
+  // Defensive fallback for invalid backups / test environments.
+  const durations =
+    useSettingsStore.getState?.()?.durations ??
+    ({ pomodoro: 25, short: 5, long: 15 } as Record<TimerMode, number>);
+  return durations[mode] * 60;
+};
 
 const TimerModeSchema = z.enum(['pomodoro', 'short', 'long']);
 
@@ -44,6 +53,10 @@ const SettingsStoreSchema = z.object({
   zenTrack: z.enum(['rain', 'white_noise', 'forest']).optional(),
   zenVolume: z.number().min(0).max(1).optional(),
   zenStrategy: z.enum(['always', 'break_only']).optional(),
+  autoStart: z.boolean().optional(),
+  soundEnabled: z.boolean().optional(),
+  notificationsEnabled: z.boolean().optional(),
+  zenModeEnabled: z.boolean().optional(),
   presets: z.array(z.object({
     id: z.string(),
     name: z.string().max(50),
@@ -142,18 +155,34 @@ export const importData = async (file: File): Promise<boolean> => {
 
     const data = result.data;
 
+    // Restore full time store state (including history, timeLeft, isRunning)
     useTimeStore.setState({ 
       mode: data.timeStore.mode, 
-      pomodorosCompleted: data.timeStore.pomodorosCompleted 
+      pomodorosCompleted: data.timeStore.pomodorosCompleted,
+      timeLeft: data.timeStore.timeLeft ?? getDuration(data.timeStore.mode),
+      isRunning: data.timeStore.isRunning ?? false,
+      history: data.timeStore.history ?? {}
     });
     
-    useTaskStore.setState({ tasks: data.taskStore.tasks });
+    // Restore full task store state (including activeTaskId)
+    useTaskStore.setState({ 
+      tasks: data.taskStore.tasks,
+      activeTaskId: data.taskStore.activeTaskId ?? null
+    });
     
+    // Restore full settings store state (all properties)
     if (data.settingsStore) {
       useSettingsStore.setState({
         durations: data.settingsStore.durations,
         themeColors: data.settingsStore.themeColors,
-        zenTrack: data.settingsStore.zenTrack
+        zenTrack: data.settingsStore.zenTrack,
+        zenVolume: data.settingsStore.zenVolume,
+        zenStrategy: data.settingsStore.zenStrategy,
+        presets: data.settingsStore.presets ?? [],
+        autoStart: data.settingsStore.autoStart,
+        soundEnabled: data.settingsStore.soundEnabled,
+        notificationsEnabled: data.settingsStore.notificationsEnabled,
+        zenModeEnabled: data.settingsStore.zenModeEnabled
       });
     }
     

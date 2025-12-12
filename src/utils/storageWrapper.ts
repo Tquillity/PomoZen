@@ -32,6 +32,8 @@ class MemoryStorage implements Storage {
   }
 }
 
+let storageFallbackWarningShown = false;
+
 class SafeStorage implements Storage {
   private storage: Storage;
 
@@ -44,6 +46,14 @@ class SafeStorage implements Storage {
       this.storage.removeItem(probeKey);
     } catch {
       this.storage = new MemoryStorage();
+      // Show warning once per session
+      if (!storageFallbackWarningShown && typeof window !== 'undefined') {
+        storageFallbackWarningShown = true;
+        // Dispatch custom event that App.tsx can listen to
+        window.dispatchEvent(new CustomEvent('storage-fallback', { 
+          detail: { message: 'Persistence disabled. Data will not be saved between sessions.' }
+        }));
+      }
     }
   }
 
@@ -67,7 +77,12 @@ class SafeStorage implements Storage {
     try {
       this.storage.setItem(key, value);
     } catch (error) {
-      if (error instanceof DOMException && (error.code === 22 || error.code === 1014 || error.name === 'QuotaExceededError')) {
+      const err = error as { code?: number; name?: string } | null;
+      const isQuotaExceeded =
+        !!err &&
+        (err.name === 'QuotaExceededError' || err.code === 22 || err.code === 1014);
+
+      if (isQuotaExceeded) {
         if (quotaErrorHandler) {
           quotaErrorHandler();
         }

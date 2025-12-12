@@ -20,6 +20,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     autoStart,
     soundEnabled,
     notificationsEnabled,
+    isFocusMode,
     zenModeEnabled,
     zenTrack,
     zenVolume,
@@ -31,6 +32,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     toggleAutoStart,
     toggleSound,
     toggleNotifications,
+    toggleFocusMode,
     toggleZenMode,
     setZenTrack,
     setZenVolume,
@@ -219,6 +221,40 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
               <div className={cn(
                 "w-4 h-4 bg-white rounded-full absolute top-1 transition-transform",
                 notificationsEnabled ? "left-7" : "left-1"
+              )} />
+            </button>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <label htmlFor="toggle-focus" className="font-medium text-white">Focus Mode (Fullscreen)</label>
+            <button
+              id="toggle-focus"
+              onClick={async () => {
+                const newValue = !isFocusMode;
+                toggleFocusMode();
+                // Trigger fullscreen with user gesture (button click)
+                if (newValue) {
+                  try {
+                    if (!document.fullscreenElement) {
+                      await document.documentElement.requestFullscreen();
+                    }
+                  } catch (error) {
+                    console.warn('Fullscreen request failed:', error);
+                    // Revert toggle if fullscreen fails
+                    toggleFocusMode();
+                  }
+                }
+              }}
+              className={cn(
+                "w-12 h-6 rounded-full transition-colors relative cursor-pointer",
+                isFocusMode ? "bg-green-500" : "bg-gray-300"
+              )}
+              aria-pressed={isFocusMode}
+              aria-label="Toggle Focus Mode (Fullscreen)"
+            >
+              <div className={cn(
+                "w-4 h-4 bg-white rounded-full absolute top-1 transition-transform",
+                isFocusMode ? "left-7" : "left-1"
               )} />
             </button>
           </div>

@@ -10,7 +10,7 @@ declare global {
 
 // CONFIG: Adsterra 728x90 Banner
 const AD_CONFIG = {
-  key: import.meta.env.VITE_ADSTERRA_KEY || 'fb7bcfaa0417bc66ad82f8b1afc7e922',
+  key: import.meta.env.VITE_ADSTERRA_KEY,
   format: 'iframe',
   height: 90,
   width: 728,
@@ -26,6 +26,12 @@ export const AdContainer = () => {
 
     // Prevent duplicate banners
     if (bannerRef.current.innerHTML !== '') return;
+
+    // Do not load ads if key is missing (no fallback keys in production)
+    if (!AD_CONFIG.key) {
+      console.warn('Ad key not configured. Ads disabled.');
+      return;
+    }
 
     let onloadTimeoutId: number | null = null;
     let fallbackTimeoutId: number | null = null;

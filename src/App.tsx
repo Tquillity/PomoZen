@@ -40,13 +40,29 @@ function App() {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
   
-  const { zenModeEnabled, isAudioUnlocked } = useSettingsStore();
+  const { zenModeEnabled, isAudioUnlocked, unlockAudio } = useSettingsStore();
 
   useEffect(() => {
+    let timeoutId: number | null = null;
     setStorageQuotaErrorHandler(() => {
       setStorageError('Storage quota exceeded. Some data may not be saved.');
-      setTimeout(() => setStorageError(null), 5000);
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => setStorageError(null), 5000);
     });
+
+    // Listen for storage fallback warnings
+    const handleStorageFallback = (e: Event) => {
+      const customEvent = e as CustomEvent<{ message: string }>;
+      setStorageError(customEvent.detail.message);
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => setStorageError(null), 5000);
+    };
+    window.addEventListener('storage-fallback', handleStorageFallback);
+
+    return () => {
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
+      window.removeEventListener('storage-fallback', handleStorageFallback);
+    };
   }, []);
 
   return (
@@ -98,9 +114,13 @@ function App() {
 
       {/* Audio Unlock Toast */}
       {zenModeEnabled && !isAudioUnlocked && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-xs font-medium z-50 animate-bounce cursor-pointer">
+        <button
+          onClick={unlockAudio}
+          className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-xs font-medium z-50 animate-bounce hover:bg-black/90 focus:outline-none focus:ring-2 focus:ring-white/50 transition-colors"
+          aria-label="Click to enable Zen Audio"
+        >
           Click anywhere to enable Zen Audio
-        </div>
+        </button>
       )}
 
       {/* Storage Error Toast */}

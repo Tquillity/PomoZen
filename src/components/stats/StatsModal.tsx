@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTimeStore } from '../../store/useTimeStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { format, startOfMonth, endOfMonth, eachMonthOfInterval, startOfWeek, endOfWeek, addWeeks, addMonths, addYears, eachDayOfInterval, startOfYear, endOfYear } from 'date-fns';
+import { format, parseISO, startOfMonth, endOfMonth, eachMonthOfInterval, startOfWeek, endOfWeek, addWeeks, addMonths, addYears, eachDayOfInterval, startOfYear, endOfYear } from 'date-fns';
 import { cn } from '../../utils/cn';
 import { Modal } from '../common/Modal';
 
@@ -71,8 +71,8 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
       case 'all': {
         const historyKeys = Object.keys(history).sort();
         if (historyKeys.length === 0) return 'No data';
-        const firstDate = new Date(historyKeys[0]);
-        const lastDate = new Date(historyKeys[historyKeys.length - 1]);
+        const firstDate = parseISO(historyKeys[0]);
+        const lastDate = parseISO(historyKeys[historyKeys.length - 1]);
         return `${format(firstDate, 'MMM d, yyyy')} - ${format(lastDate, 'MMM d, yyyy')}`;
       }
       case 'month': {
@@ -190,8 +190,8 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
     // 'all': aggregated by month (last 24 months)
     const historyKeys = Object.keys(history).sort();
     if (historyKeys.length === 0) return [];
-    const firstDate = new Date(historyKeys[0]);
-    const lastDate = new Date(historyKeys[historyKeys.length - 1]);
+    const firstDate = parseISO(historyKeys[0]);
+    const lastDate = parseISO(historyKeys[historyKeys.length - 1]);
     const months = eachMonthOfInterval({ start: startOfMonth(firstDate), end: endOfMonth(lastDate) });
     const data = months.map((monthDate) => {
       const monthKey = format(monthDate, 'yyyy-MM');
@@ -209,9 +209,19 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
     return data.length > 24 ? data.slice(-24) : data;
   }, [baseDate, durations.long, durations.pomodoro, durations.short, history, metric, monthlyAgg, range]);
 
-  const maxVal = graphData.length > 0
-    ? Math.max(...graphData.map(d => d.total), range === '7d' ? 60 : range === 'month' ? 100 : 500)
-    : (range === '7d' ? 60 : range === 'month' ? 100 : 500);
+  // Calculate max value from actual data, with sensible fallbacks based on durations
+  const maxVal = useMemo(() => {
+    if (graphData.length === 0) {
+      // Fallback: estimate max based on range and durations
+      const maxPomosPerDay = 20; // Reasonable upper bound
+      const maxWork = maxPomosPerDay * durations.pomodoro;
+      const maxRest = maxPomosPerDay * Math.max(durations.short, durations.long);
+      return metric === 'minutes' ? (maxWork + maxRest) : maxPomosPerDay * 2;
+    }
+    const dataMax = Math.max(...graphData.map(d => d.total));
+    // Use data max, but ensure minimum visibility (at least 10% of max)
+    return Math.max(dataMax, dataMax * 0.1);
+  }, [graphData, durations.pomodoro, durations.short, durations.long, metric]);
 
   const handlePrevious = () => {
     setOffset(prev => prev - 1);

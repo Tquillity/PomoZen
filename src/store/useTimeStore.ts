@@ -1,3 +1,12 @@
+/**
+ * @fileoverview Timer state management store using Zustand with persistence.
+ * 
+ * Manages timer state including time remaining, running status, mode, completion history,
+ * and automatic mode switching based on Pomodoro technique rules.
+ * 
+ * @module useTimeStore
+ */
+
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import * as Comlink from 'comlink';
@@ -11,12 +20,30 @@ import { createSafeStorage } from '../utils/storageWrapper';
 
 const POMODOROS_PER_SET = 4;
 
+/**
+ * Daily statistics tracking pomodoros and breaks completed.
+ */
 interface DailyStats {
   pomodoro: number;
   short: number;
   long: number;
 }
 
+/**
+ * Timer state interface.
+ * 
+ * @interface TimeState
+ * @property {number} timeLeft - Remaining time in seconds
+ * @property {boolean} isRunning - Whether timer is currently running
+ * @property {TimerMode} mode - Current timer mode (pomodoro, short, long)
+ * @property {number} pomodorosCompleted - Total pomodoros completed in current session
+ * @property {Record<string, DailyStats>} history - Daily completion history keyed by date (YYYY-MM-DD)
+ * @property {() => Promise<void>} startTimer - Start the timer
+ * @property {() => void} pauseTimer - Pause the timer
+ * @property {() => void} resetTimer - Reset timer to initial duration for current mode
+ * @property {(mode: TimerMode) => void} setMode - Change timer mode and reset
+ * @property {() => void} tick - Decrement timer (called by worker)
+ */
 interface TimeState {
   timeLeft: number;
   isRunning: boolean;
@@ -31,8 +58,18 @@ interface TimeState {
   tick: () => void;
 }
 
+/**
+ * Get duration in seconds for a timer mode.
+ * 
+ * @param {TimerMode} mode - Timer mode to get duration for
+ * @returns {number} Duration in seconds
+ */
 const getDuration = (mode: TimerMode) => {
-  return useSettingsStore.getState().durations[mode] * 60;
+  // Defensive fallback for test environments / corrupted persisted state.
+  const durations =
+    useSettingsStore.getState?.()?.durations ??
+    ({ pomodoro: 25, short: 5, long: 15 } as Record<TimerMode, number>);
+  return durations[mode] * 60;
 };
 
 export const useTimeStore = create<TimeState>()(

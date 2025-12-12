@@ -4,8 +4,28 @@ import { useTimeStore } from '../store/useTimeStore';
 import { useTaskStore } from '../store/useTaskStore';
 
 // Mock the stores to avoid actual localStorage writes during test
-vi.mock('../store/useTimeStore');
-vi.mock('../store/useTaskStore');
+vi.mock('../store/useTimeStore', () => ({
+  useTimeStore: {
+    getState: vi.fn(),
+    setState: vi.fn(),
+  }
+}));
+
+vi.mock('../store/useTaskStore', () => ({
+  useTaskStore: {
+    getState: vi.fn(),
+    setState: vi.fn(),
+  }
+}));
+
+vi.mock('../store/useSettingsStore', () => ({
+  useSettingsStore: {
+    getState: vi.fn(() => ({
+      durations: { pomodoro: 25, short: 5, long: 15 }
+    })),
+    setState: vi.fn(),
+  }
+}));
 
 // Polyfill File.prototype.text which is missing in jsdom
 if (!File.prototype.text) {
@@ -38,19 +58,31 @@ describe('storage.service', () => {
 
   it('accepts valid backup file', async () => {
     const validData = JSON.stringify({
-      timeStore: { mode: 'short', pomodorosCompleted: 2 },
-      taskStore: { tasks: [] }
+      timeStore: { mode: 'short', pomodorosCompleted: 2, timeLeft: 300, isRunning: false, history: {} },
+      taskStore: { tasks: [], activeTaskId: null }
     });
     const goodFile = new File([validData], 'backup.json', { type: 'application/json' });
     
     // Mock the setState functions
     useTimeStore.setState = vi.fn();
     useTaskStore.setState = vi.fn();
+    
+    // Mock useSettingsStore.getState before importData is called
+    const { useSettingsStore } = await import('../store/useSettingsStore');
+    useSettingsStore.getState = vi.fn().mockReturnValue({ 
+      durations: { pomodoro: 25, short: 5, long: 15 } 
+    });
 
     const result = await importData(goodFile);
     
     expect(result).toBe(true);
-    expect(useTimeStore.setState).toHaveBeenCalledWith({ mode: 'short', pomodorosCompleted: 2 });
+    expect(useTimeStore.setState).toHaveBeenCalledWith({ 
+      mode: 'short', 
+      pomodorosCompleted: 2,
+      timeLeft: 300,
+      isRunning: false,
+      history: {}
+    });
   });
 });
 

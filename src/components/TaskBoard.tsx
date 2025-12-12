@@ -60,6 +60,9 @@ export const TaskBoard = () => {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="text-white/70 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
             aria-label="Task Options"
+            aria-expanded={isMenuOpen}
+            aria-controls="task-options-menu"
+            aria-haspopup="true"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
@@ -67,16 +70,22 @@ export const TaskBoard = () => {
           </button>
 
           {isMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50 overflow-hidden text-gray-800 ring-1 ring-black/5">
+            <div 
+              id="task-options-menu"
+              role="menu"
+              className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50 overflow-hidden text-gray-800 ring-1 ring-black/5"
+            >
               <button
                 onClick={() => { clearCompletedTasks(); setIsMenuOpen(false); }}
                 className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition-colors"
+                role="menuitem"
               >
                 Clear Completed
               </button>
               <button
                 onClick={() => { clearTasks(); setIsMenuOpen(false); }}
                 className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 text-sm transition-colors border-t border-gray-100"
+                role="menuitem"
               >
                 Clear All
               </button>
@@ -120,24 +129,16 @@ export const TaskBoard = () => {
             </div>
         )}
         {tasks.map(task => (
-          <div
+          <button
             key={task.id}
             onClick={() => setActiveTask(task.id)}
             className={clsx(
-              "group w-full text-left p-3 rounded-lg cursor-pointer border transition-all flex justify-between items-center outline-none focus-within:ring-2 focus-within:ring-white/50",
+              "group w-full text-left p-3 rounded-lg border transition-all flex justify-between items-center outline-none focus:ring-2 focus:ring-white/50",
               activeTaskId === task.id
                 ? "bg-(--theme-primary)/40 border-white/30 shadow-lg translate-x-1"
                 : "bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10"
             )}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setActiveTask(task.id);
-              }
-            }}
-            aria-label={`Task: ${task.title}`}
+            aria-label={`Task: ${task.title}. Click to set as active task.`}
           >
             <div className="flex items-center gap-3 flex-1 min-w-0">
                <button
@@ -175,7 +176,7 @@ export const TaskBoard = () => {
                     </svg>
                 </button>
             </div>
-          </div>
+          </button>
         ))}
       </div>
     </div>
