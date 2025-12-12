@@ -23,7 +23,7 @@ export const useTaskStore = create<TaskState>()(
       addTask: (title, est) => set((state) => ({
         tasks: [...state.tasks, {
           id: crypto.randomUUID(),
-          title,
+          title: title.trim().slice(0, 100),
           completed: false,
           estPomodoros: est,
           actPomodoros: 0

@@ -11,6 +11,14 @@ interface ModalProps {
 
 export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const triggerElementRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      // Capture the element that had focus before modal opened
+      triggerElementRef.current = document.activeElement as HTMLElement;
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -41,6 +49,12 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
+      
+      // Return focus to the element that triggered the modal
+      if (triggerElementRef.current) {
+        triggerElementRef.current.focus();
+        triggerElementRef.current = null;
+      }
     };
   }, [isOpen, onClose]);
 

@@ -1,10 +1,19 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTimeStore } from '../store/useTimeStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 
 export const useKeyboardShortcuts = () => {
   const { startTimer, pauseTimer, resetTimer, isRunning } = useTimeStore();
   const { toggleSound, toggleFocusMode } = useSettingsStore();
+  
+  // Use refs to access latest values without causing effect re-runs
+  const actionsRef = useRef({ startTimer, pauseTimer, resetTimer, toggleSound, toggleFocusMode });
+  const isRunningRef = useRef(isRunning);
+  
+  useEffect(() => {
+    actionsRef.current = { startTimer, pauseTimer, resetTimer, toggleSound, toggleFocusMode };
+    isRunningRef.current = isRunning;
+  }, [startTimer, pauseTimer, resetTimer, toggleSound, toggleFocusMode, isRunning]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -16,23 +25,23 @@ export const useKeyboardShortcuts = () => {
       switch (e.key.toLowerCase()) {
         case ' ':
           e.preventDefault(); // Prevent scrolling
-          if (isRunning) pauseTimer();
-          else startTimer();
+          if (isRunningRef.current) actionsRef.current.pauseTimer();
+          else actionsRef.current.startTimer();
           break;
         case 'r':
-          resetTimer();
+          actionsRef.current.resetTimer();
           break;
         case 'm':
-          toggleSound();
+          actionsRef.current.toggleSound();
           break;
         case 'f':
-          toggleFocusMode();
+          actionsRef.current.toggleFocusMode();
           break;
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isRunning, startTimer, pauseTimer, resetTimer, toggleSound, toggleFocusMode]);
+  }, []); // Empty deps - handler uses refs for latest values
 };
 

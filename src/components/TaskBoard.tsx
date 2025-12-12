@@ -23,9 +23,23 @@ export const TaskBoard = () => {
         setIsMenuOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isMenuOpen]);
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,7 +103,8 @@ export const TaskBoard = () => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="New task..."
-          className="flex-1 bg-black/20 text-white placeholder-white/30 px-3 py-2 rounded-lg text-sm border border-transparent focus:border-white/30 focus:outline-none focus:bg-black/40 transition-all"
+          maxLength={100}
+          className="flex-1 bg-black/20 text-white placeholder-white/70 px-3 py-2 rounded-lg text-sm border border-transparent focus:border-white/30 focus:outline-none focus:bg-black/40 transition-all"
         />
         <button type="submit" aria-label="Add Task" className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium cursor-pointer text-sm transition-colors border border-white/5">
           +
@@ -105,16 +120,24 @@ export const TaskBoard = () => {
             </div>
         )}
         {tasks.map(task => (
-          <button
+          <div
             key={task.id}
             onClick={() => setActiveTask(task.id)}
-            type="button"
             className={clsx(
-              "group w-full text-left p-3 rounded-lg cursor-pointer border transition-all flex justify-between items-center outline-none focus-visible:ring-2 focus-visible:ring-white/50",
+              "group w-full text-left p-3 rounded-lg cursor-pointer border transition-all flex justify-between items-center outline-none focus-within:ring-2 focus-within:ring-white/50",
               activeTaskId === task.id
                 ? "bg-(--theme-primary)/40 border-white/30 shadow-lg translate-x-1"
                 : "bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10"
             )}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setActiveTask(task.id);
+              }
+            }}
+            aria-label={`Task: ${task.title}`}
           >
             <div className="flex items-center gap-3 flex-1 min-w-0">
                <button
@@ -123,6 +146,7 @@ export const TaskBoard = () => {
                    "w-5 h-5 rounded-full border shrink-0 flex items-center justify-center transition-all",
                    task.completed ? "bg-green-500 border-green-500" : "border-white/30 hover:border-white"
                  )}
+                 aria-label={task.completed ? `Mark ${task.title} as incomplete` : `Mark ${task.title} as complete`}
                >
                  {task.completed && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>}
                </button>
@@ -149,7 +173,7 @@ export const TaskBoard = () => {
                     </svg>
                 </button>
             </div>
-          </button>
+          </div>
         ))}
       </div>
     </div>

@@ -7,7 +7,6 @@ import { cn } from '../../utils/cn';
 import type { TimerMode } from '../../types';
 import { Modal } from '../common/Modal';
 import { exportSettingsOnly, importSettingsOnly } from '../../services/storage.service';
-import { seedDevData } from '../../utils/devSeeder';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -389,7 +388,13 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
              </div>
 
              {import.meta.env.DEV && (
-                <button onClick={seedDevData} className="mt-2 w-full text-[10px] text-green-300/50 hover:text-green-300 uppercase tracking-widest transition-colors">
+                <button 
+                  onClick={async () => {
+                    const { seedDevData } = await import('../../utils/devSeeder');
+                    seedDevData();
+                  }} 
+                  className="mt-2 w-full text-[10px] text-green-300/50 hover:text-green-300 uppercase tracking-widest transition-colors"
+                >
                   [DEV] Seed Dummy Data
                 </button>
              )}

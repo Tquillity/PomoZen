@@ -1,7 +1,7 @@
 export const SEOContent = () => {
   return (
     <article className="w-full max-w-2xl mx-auto mt-12 mb-8 px-6 text-white/40 text-xs sm:text-sm leading-relaxed space-y-4">
-      <h1 className="text-white/60 font-bold text-base">Free Online Pomodoro Timer</h1>
+      <h2 className="text-white/60 font-bold text-base">Free Online Pomodoro Timer</h2>
       <p>
         PomoZen is a simple, aesthetic <strong>Pomodoro timer</strong> designed to help you study and work more effectively. 
         Unlike other <strong>online timers</strong>, PomoZen runs entirely in your browser, meaning it works 

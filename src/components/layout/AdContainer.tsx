@@ -10,7 +10,7 @@ declare global {
 
 // CONFIG: Adsterra 728x90 Banner
 const AD_CONFIG = {
-  key: 'fb7bcfaa0417bc66ad82f8b1afc7e922',
+  key: import.meta.env.VITE_ADSTERRA_KEY || 'fb7bcfaa0417bc66ad82f8b1afc7e922',
   format: 'iframe',
   height: 90,
   width: 728,
@@ -60,7 +60,7 @@ export const AdContainer = () => {
 
         {/* Loading Pulse Animation */}
         {!isLoaded && (
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse z-20" />
+          <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent animate-pulse z-20" />
         )}
 
         {/* Placeholder Text */}

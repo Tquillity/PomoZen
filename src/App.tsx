@@ -8,14 +8,13 @@ import { useDocumentTitle } from './hooks/useDocumentTitle';
 import { TimerDisplay } from './components/timer/TimerDisplay';
 import { TimerControls } from './components/timer/TimerControls';
 import { ModeSwitcher } from './components/timer/ModeSwitcher';
-import { useTaskStore } from './store/useTaskStore';
-import { events } from './services/event.service';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useFocusMode } from './hooks/useFocusMode';
 import { ZenPlayer } from './components/sound/ZenPlayer';
 import { SEOHelmet } from './components/seo/SEOHelmet';
 import { AudioUnlocker } from './components/common/AudioUnlocker';
 import { useSettingsStore } from './store/useSettingsStore';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 import { PomodoroGuideModal } from './components/modals/PomodoroGuideModal';
 
@@ -36,15 +35,6 @@ function App() {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   
   const { zenModeEnabled, isAudioUnlocked } = useSettingsStore();
-
-  useEffect(() => {
-    return events.on('timer:complete', (mode) => {
-       if (mode === 'pomodoro') {
-         const activeId = useTaskStore.getState().activeTaskId;
-         if (activeId) useTaskStore.getState().updateActPomo(activeId);
-       }
-    });
-  }, []);
 
   return (
     <div className="h-screen w-full flex flex-col items-center transition-colors duration-500 relative overflow-hidden bg-(--theme-bg)">
@@ -102,10 +92,18 @@ function App() {
 
       {/* Modals */}
       <Suspense fallback={null}>
-        <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
-        <StatsModal isOpen={isStatsOpen} onClose={() => setIsStatsOpen(false)} />
-        <ColorPsychologyModal isOpen={isColorPsychOpen} onClose={() => setIsColorPsychOpen(false)} />
-        <PomodoroGuideModal isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
+        <ErrorBoundary>
+          <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <StatsModal isOpen={isStatsOpen} onClose={() => setIsStatsOpen(false)} />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <ColorPsychologyModal isOpen={isColorPsychOpen} onClose={() => setIsColorPsychOpen(false)} />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <PomodoroGuideModal isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
+        </ErrorBoundary>
       </Suspense>
     </div>
   );

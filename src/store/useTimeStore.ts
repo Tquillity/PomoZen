@@ -5,7 +5,10 @@ import { getWorker } from '../services/worker.service';
 import type { TimerMode } from '../types';
 import { events } from '../services/event.service';
 import { useSettingsStore } from './useSettingsStore';
+import { useTaskStore } from './useTaskStore';
 import { format } from 'date-fns';
+
+const POMODOROS_PER_SET = 4;
 
 interface DailyStats {
   pomodoro: number;
@@ -72,6 +75,14 @@ export const useTimeStore = create<TimeState>()(
           get().pauseTimer();
           events.emit('timer:complete', mode);
           
+          // Update task pomodoro count when pomodoro completes
+          if (mode === 'pomodoro') {
+            const activeId = useTaskStore.getState().activeTaskId;
+            if (activeId) {
+              useTaskStore.getState().updateActPomo(activeId);
+            }
+          }
+          
           const todayKey = format(new Date(), 'yyyy-MM-dd');
           const currentStats = history[todayKey] || { pomodoro: 0, short: 0, long: 0 };
           
@@ -85,7 +96,7 @@ export const useTimeStore = create<TimeState>()(
           
           if (mode === 'pomodoro') {
              const newCompleted = pomodorosCompleted + 1;
-             const nextMode = newCompleted % 4 === 0 ? 'long' : 'short';
+             const nextMode = newCompleted % POMODOROS_PER_SET === 0 ? 'long' : 'short';
              
              set({ 
                pomodorosCompleted: newCompleted, 
