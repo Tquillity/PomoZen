@@ -2,19 +2,22 @@ import { useEffect } from 'react';
 
 export const SEOHelmet = () => {
   useEffect(() => {
-    // Note: Title is now managed by useDocumentTitle hook
-    // Remove any existing meta tags we want to control (but not title)
+    // Only update meta tags, do NOT update title here
+    // (useDocumentTitle hook handles all title updates)
+    
+    // Remove old tags to prevent duplicates
     const existingMetaTags = document.querySelectorAll('meta[name="description"], meta[name="keywords"], meta[property^="og:"], script[type="application/ld+json"]');
     existingMetaTags.forEach(tag => tag.remove());
 
-    // Create and append meta tags
     const metaTags = [
-      { name: 'description', content: 'Boost productivity with PomoZen. A free, privacy-first online Pomodoro timer with tasks, ambient sounds, and statistics. Works offline.' },
-      { name: 'keywords', content: 'pomodoro timer, online timer, focus timer, aesthetic timer, study timer, offline pomodoro, productivity tool, pomozen' },
+      // STRATEGY: Put "Pomodoro Timer" first. Brand name second.
+      { name: 'description', content: 'The best free online Pomodoro timer. Boost focus with aesthetic themes, ambient nature sounds (Zen Mode), and task tracking. Works 100% offline.' },
+      // STRATEGY: Add "study timer" and "focus timer"
+      { name: 'keywords', content: 'pomodoro timer, online timer, study timer, focus timer, tomato timer, pomodoro technique app, productivity tool, pomozen' },
       { property: 'og:type', content: 'website' },
-      { property: 'og:title', content: 'PomoZen - Master Your Focus' },
+      { property: 'og:title', content: 'Pomodoro Timer Online - PomoZen' },
       { property: 'og:url', content: 'https://pomozen.online' },
-      { property: 'og:description', content: 'The Zen way to focus. Offline-first Pomodoro timer with tasks and soundscapes.' },
+      { property: 'og:description', content: 'Free aesthetic Pomodoro timer with white noise and tasks.' },
     ];
 
     metaTags.forEach(tag => {
@@ -25,22 +28,22 @@ export const SEOHelmet = () => {
       document.head.appendChild(meta);
     });
 
-    // Add JSON-LD structured data
+    // Enhanced JSON-LD with "SoftwareApplication" for better Google understanding
     const schema = {
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "PomoZen",
       "url": "https://pomozen.online",
       "applicationCategory": "ProductivityApplication",
-      "operatingSystem": "Web",
+      "genre": "productivity",
+      "operatingSystem": "Web Browser",
       "offers": {
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "USD"
       },
-      "description": "A privacy-first, offline-capable Pomodoro timer with ambient soundscapes and usage statistics.",
-      "keywords": "Pomodoro Technique, Timer, Productivity, Study Tool, Focus App",
-      "featureList": "Offline Mode, Task Tracking, White Noise, Custom Timer",
+      "description": "A privacy-first, offline-capable Pomodoro timer with ambient soundscapes.",
+      "featureList": "Offline Mode, Task Tracking, White Noise, Custom Timer, Dark Mode",
       "isAccessibleForFree": true
     };
 
@@ -49,13 +52,11 @@ export const SEOHelmet = () => {
     script.textContent = JSON.stringify(schema);
     document.head.appendChild(script);
 
-    // Cleanup function
     return () => {
-      // Remove our added meta tags and script
       const addedMetaTags = document.querySelectorAll('meta[name="description"], meta[name="keywords"], meta[property^="og:"], script[type="application/ld+json"]');
       addedMetaTags.forEach(tag => tag.remove());
     };
   }, []);
 
-  return null; // This component doesn't render anything
+  return null;
 };

@@ -25,11 +25,16 @@
       gtag('config', 'G-TQEKQ32WBZ');
     </script>
 
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <!-- FIX: SPECIFIC FAVICONS FOR GOOGLE SEARCH -->
+    <!-- Google prefers 48x48, 96x96, or 192x192 -->
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" /> 
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>PomoZen - Free Online Pomodoro Timer & Focus Tool</title>
-    <meta name="description" content="PomoZen is the best free online Pomodoro timer for studying and work. Features aesthetic themes, white noise, task tracking, and offline mode. No login required.">
+    <!-- Initial Title (Will be overwritten by React, but good for crawlers) -->
+    <title>Pomodoro Timer Online - PomoZen Focus Tool</title>
+    <meta name="description" content="Free online Pomodoro timer to boost productivity. Features aesthetic themes, ambient background noise, task tracking, and works offline.">
     <link rel="canonical" href="https://pomozen.online/" />
 
     <!-- Google Tag Manager (GTM) -->

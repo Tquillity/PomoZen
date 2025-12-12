@@ -2,17 +2,11 @@ import { useEffect } from 'react';
 import { useTimeStore } from '../store/useTimeStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 
-const formatTime = (seconds: number) => {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-};
-
 export const useTheme = () => {
-  const { mode, timeLeft, isRunning } = useTimeStore();
+  const { mode } = useTimeStore();
   const themeColors = useSettingsStore((state) => state.themeColors);
 
-  // 1. Handle Colors
+  // Handle Colors
   useEffect(() => {
     const primaryColor = themeColors[mode];
     const root = document.documentElement;
@@ -24,11 +18,4 @@ export const useTheme = () => {
     // Darker variant for backgrounds
     root.style.setProperty('--theme-bg', primaryColor); 
   }, [mode, themeColors]);
-
-  // 2. Handle Title
-  useEffect(() => {
-    const timeString = formatTime(timeLeft);
-    const status = isRunning ? 'Focusing' : 'Paused';
-    document.title = `${timeString} - ${status}`;
-  }, [timeLeft, isRunning]);
 };

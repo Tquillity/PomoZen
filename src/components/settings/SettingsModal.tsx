@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import type { ZenTrack } from '../../store/useSettingsStore';
 import { useTimeStore } from '../../store/useTimeStore';
@@ -42,6 +43,9 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   const resetTimer = useTimeStore(state => state.resetTimer);
   const [presetName, setPresetName] = useState('');
   const settingsFileInputRef = useRef<HTMLInputElement>(null);
+  const clearCacheButtonRef = useRef<HTMLButtonElement>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(null);
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
 
   const handleDurationChange = (mode: TimerMode, value: number) => {
     const minutes = Math.min(60, Math.max(1, value));
@@ -75,6 +79,30 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
       window.location.reload();
     }
   };
+
+  // Calculate tooltip position for fixed positioning (to escape overflow container)
+  useEffect(() => {
+    const updateTooltipPosition = () => {
+      if (clearCacheButtonRef.current && isTooltipVisible) {
+        const rect = clearCacheButtonRef.current.getBoundingClientRect();
+        setTooltipPosition({
+          top: rect.top - 10, // Position above the button with 10px gap
+          left: rect.left + rect.width / 2, // Center horizontally
+        });
+      }
+    };
+
+    if (isTooltipVisible) {
+      updateTooltipPosition();
+      window.addEventListener('scroll', updateTooltipPosition, true);
+      window.addEventListener('resize', updateTooltipPosition);
+    }
+
+    return () => {
+      window.removeEventListener('scroll', updateTooltipPosition, true);
+      window.removeEventListener('resize', updateTooltipPosition);
+    };
+  }, [isTooltipVisible]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Settings">
@@ -331,20 +359,34 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 </button>
              </div>
 
-             <div className="mt-4 relative group">
+             <div className="mt-4 relative">
                <button 
+                 ref={clearCacheButtonRef}
+                 onMouseEnter={() => setIsTooltipVisible(true)}
+                 onMouseLeave={() => setIsTooltipVisible(false)}
                  onClick={handleClearCache} 
                  className="w-full text-[10px] text-white/30 hover:text-white/50 uppercase tracking-widest transition-colors"
                >
                  Troubleshoot: Clear Cache & Reload
                </button>
-               {/* Tooltip */}
-               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-[10px] p-2 rounded whitespace-normal max-w-[220px] z-10 pointer-events-none shadow-xl border border-white/20">
-                 Use this if the app seems outdated, features aren't working, or you're seeing cached content. Clears service worker cache and reloads.
-                 <div className="mt-1.5 pt-1.5 border-t border-white/20 text-white/80">
-                   💡 Tip: You can also press <kbd className="bg-white/20 px-1 py-0.5 rounded text-[9px] font-mono">Ctrl+Shift+R</kbd> (or <kbd className="bg-white/20 px-1 py-0.5 rounded text-[9px] font-mono">Cmd+Shift+R</kbd> on Mac) for a hard refresh.
-                 </div>
-               </div>
+               {/* Tooltip - Rendered in portal with fixed positioning to escape overflow container */}
+               {isTooltipVisible && tooltipPosition && createPortal(
+                 <div 
+                   className="fixed bg-black text-white text-[10px] p-2 rounded whitespace-normal max-w-[220px] z-60 pointer-events-none shadow-xl border border-white/20 transition-opacity"
+                   style={{
+                     top: `${tooltipPosition.top}px`,
+                     left: `${tooltipPosition.left}px`,
+                     transform: 'translate(-50%, -100%)',
+                     marginTop: '-8px',
+                   }}
+                 >
+                   Use this if the app seems outdated, features aren't working, or you're seeing cached content. Clears service worker cache and reloads.
+                   <div className="mt-1.5 pt-1.5 border-t border-white/20 text-white/80">
+                     💡 Tip: You can also press <kbd className="bg-white/20 px-1 py-0.5 rounded text-[9px] font-mono">Ctrl+Shift+R</kbd> (or <kbd className="bg-white/20 px-1 py-0.5 rounded text-[9px] font-mono">Cmd+Shift+R</kbd> on Mac) for a hard refresh.
+                   </div>
+                 </div>,
+                 document.body
+               )}
              </div>
 
              {/* DEV ONLY SEEDER */}

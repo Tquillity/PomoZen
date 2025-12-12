@@ -1,6 +1,7 @@
 import { useEffect, useState, Suspense, lazy } from 'react';
 import { TaskBoard } from './components/TaskBoard';
 import { Footer } from './components/layout/Footer';
+import { SEOContent } from './components/layout/SEOContent';
 import { useTheme } from './hooks/useTheme';
 import { useTimerEffects } from './hooks/useTimerEffects';
 import { useDocumentTitle } from './hooks/useDocumentTitle';
@@ -83,6 +84,11 @@ function App() {
         {/* Task Board Wrapper - Flexible but limited height */}
         <div className="w-full flex justify-center shrink-0 mb-4">
           <TaskBoard />
+        </div>
+
+        {/* ADD THIS HERE: Visible text for Google to crawl */}
+        <div className="shrink-0 w-full">
+          <SEOContent />
         </div>
       </main>
 
