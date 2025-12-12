@@ -6,6 +6,7 @@ import { cn } from '../../utils/cn';
 import type { TimerMode } from '../../types';
 import { Modal } from '../common/Modal';
 import { exportSettingsOnly, importSettingsOnly } from '../../services/storage.service';
+import { seedDevData } from '../../utils/devSeeder';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -333,6 +334,13 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
              <button onClick={handleClearCache} className="mt-4 w-full text-[10px] text-white/30 hover:text-white/50 uppercase tracking-widest transition-colors">
                Troubleshoot: Clear Cache & Reload
              </button>
+
+             {/* DEV ONLY SEEDER */}
+             {import.meta.env.DEV && (
+                <button onClick={seedDevData} className="mt-2 w-full text-[10px] text-green-300/50 hover:text-green-300 uppercase tracking-widest transition-colors">
+                  [DEV] Seed Dummy Data
+                </button>
+             )}
         </div>
 
       </div>
