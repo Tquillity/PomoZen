@@ -16,7 +16,7 @@ class WorkerMock {
     this.url = stringUrl;
   }
 
-  postMessage(_msg: unknown) {
+  postMessage() {
   }
 
   terminate() {}
@@ -49,3 +49,7 @@ Object.defineProperty(globalThis, 'Notification', {
   },
   writable: true
 });
+
+// Mock alert/confirm to silence test warnings
+globalThis.alert = vi.fn();
+globalThis.confirm = vi.fn().mockReturnValue(true);

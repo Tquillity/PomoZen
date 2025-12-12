@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../utils/cn';
 
@@ -12,6 +12,8 @@ interface ModalProps {
 export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const triggerElementRef = useRef<HTMLElement | null>(null);
+  const titleId = useId();
+  const focusTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -45,12 +47,31 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
-      setTimeout(() => modalRef.current?.focus(), 50);
+
+      // Prevent screen readers from navigating the background content.
+      const root = document.getElementById('root');
+      root?.setAttribute('inert', '');
+
+      // Focus the first focusable element (fallback to modal container).
+      focusTimeoutRef.current = window.setTimeout(() => {
+        const focusables = modalRef.current?.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        (focusables?.[0] ?? modalRef.current)?.focus();
+      }, 0);
     }
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
+
+      const root = document.getElementById('root');
+      root?.removeAttribute('inert');
+
+      if (focusTimeoutRef.current !== null) {
+        window.clearTimeout(focusTimeoutRef.current);
+        focusTimeoutRef.current = null;
+      }
       
       // Return focus to the element that triggered the modal
       if (triggerElementRef.current) {
@@ -70,13 +91,16 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
       <div
         ref={modalRef}
         tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         onClick={(e) => e.stopPropagation()}
         className={cn(
           "bg-(--theme-primary) brightness-95 text-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-in zoom-in-95 duration-200 mx-2 flex flex-col max-h-[85vh] border border-white/10 cursor-default outline-none",
         )}
       >
         <div className="flex justify-between items-center p-4 border-b border-white/10 bg-black/10">
-          <h2 className="text-xl font-bold tracking-tight">{title}</h2>
+          <h2 id={titleId} className="text-xl font-bold tracking-tight">{title}</h2>
           <button
             onClick={onClose}
             className="text-white/70 hover:text-white transition-colors p-1 hover:bg-white/10 rounded-full"

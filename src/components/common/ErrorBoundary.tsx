@@ -1,5 +1,5 @@
 import { Component } from "react";
-import type { ErrorInfo, ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface Props { children: ReactNode }
 interface State { hasError: boolean }
@@ -11,13 +11,23 @@ export class ErrorBoundary extends Component<Props, State> {
     return { hasError: true };
   }
 
-  componentDidCatch(_error: Error, _errorInfo: ErrorInfo) {
+  componentDidCatch() {
     // Error logged to component state for user-facing error UI
   }
 
   handleFactoryReset = () => {
     if (confirm("This will wipe all data and reset the app. Are you sure?")) {
-      localStorage.clear();
+      // Clear only app-owned keys; do not wipe unrelated origin storage.
+      try {
+        const keysToRemove = [
+          'pomo-settings-storage',
+          'pomo-time-storage',
+          'pomo-tasks-storage',
+        ];
+        keysToRemove.forEach((k) => localStorage.removeItem(k));
+      } catch {
+        // Ignore storage errors (private mode / blocked storage)
+      }
       window.location.reload();
     }
   };

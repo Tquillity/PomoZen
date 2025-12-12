@@ -27,25 +27,37 @@ export const AdContainer = () => {
     // Prevent duplicate banners
     if (bannerRef.current.innerHTML !== '') return;
 
+    let onloadTimeoutId: number | null = null;
+    let fallbackTimeoutId: number | null = null;
+
     // 1. Define options
     const conf = document.createElement('script');
     conf.type = 'text/javascript';
-    conf.innerHTML = `atOptions = ${JSON.stringify(AD_CONFIG)};`;
+    // Avoid innerHTML sinks; set script text content directly.
+    conf.text = `atOptions = ${JSON.stringify(AD_CONFIG)};`;
 
     // 2. Load the invocation script
     const script = document.createElement('script');
     script.type = 'text/javascript';
-    script.src = `//www.highperformanceformat.com/${AD_CONFIG.key}/invoke.js`;
+    script.src = `https://www.highperformanceformat.com/${AD_CONFIG.key}/invoke.js`;
 
     // Simple timeout to force state update since Adsterra scripts don't always fire onload perfectly
-    script.onload = () => setTimeout(() => setIsLoaded(true), 1000);
+    script.onload = () => {
+      onloadTimeoutId = window.setTimeout(() => setIsLoaded(true), 1000);
+    };
     // Fallback: if onload doesn't fire, show it anyway after 2 seconds
-    setTimeout(() => setIsLoaded(true), 2000);
+    fallbackTimeoutId = window.setTimeout(() => setIsLoaded(true), 2000);
 
     // 3. Append to container
     bannerRef.current.appendChild(conf);
     bannerRef.current.appendChild(script);
 
+    return () => {
+      if (onloadTimeoutId !== null) window.clearTimeout(onloadTimeoutId);
+      if (fallbackTimeoutId !== null) window.clearTimeout(fallbackTimeoutId);
+      conf.remove();
+      script.remove();
+    };
   }, []);
 
   return (

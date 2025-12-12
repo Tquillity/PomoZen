@@ -14,7 +14,7 @@ This application **DOES NOT** have a backend API or database. It runs entirely i
 ## 2. The Tech Stack (Strict Enforcement)
 Do not deviate from these versions or libraries unless explicitly instructed.
 
-*   **Runtime/Build:** Node.js 22+, Vite 6.
+*   **Runtime/Build:** Node.js 22+, Vite 7.
 *   **Framework:** React 19.
     *   *Rule:* Do not manually implement `useMemo` or `useCallback` unless profiling proves it necessary. React 19's performance improvements reduce the need for manual memoization in most cases.
 *   **Language:** TypeScript 6.0.

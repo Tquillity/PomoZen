@@ -19,6 +19,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     themeColors,
     autoStart,
     soundEnabled,
+    notificationsEnabled,
     zenModeEnabled,
     zenTrack,
     zenVolume,
@@ -29,6 +30,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     resetThemeColors,
     toggleAutoStart,
     toggleSound,
+    toggleNotifications,
     toggleZenMode,
     setZenTrack,
     setZenVolume,
@@ -45,6 +47,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   const clearCacheButtonRef = useRef<HTMLButtonElement>(null);
   const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(null);
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const tooltipId = 'clear-cache-tooltip';
 
   const handleDurationChange = (mode: TimerMode, value: number) => {
     const minutes = Math.min(60, Math.max(1, value));
@@ -381,14 +384,19 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                  ref={clearCacheButtonRef}
                  onMouseEnter={() => setIsTooltipVisible(true)}
                  onMouseLeave={() => setIsTooltipVisible(false)}
+                  onFocus={() => setIsTooltipVisible(true)}
+                  onBlur={() => setIsTooltipVisible(false)}
                  onClick={handleClearCache} 
                  className="w-full text-[10px] text-white/30 hover:text-white/50 uppercase tracking-widest transition-colors"
+                  aria-describedby={isTooltipVisible ? tooltipId : undefined}
                >
                  Troubleshoot: Clear Cache & Reload
                </button>
                {/* Tooltip - Rendered in portal with fixed positioning to escape overflow container */}
                {isTooltipVisible && tooltipPosition && createPortal(
                  <div 
+                  id={tooltipId}
+                  role="tooltip"
                    className="fixed bg-black text-white text-[10px] p-2 rounded whitespace-normal max-w-[220px] z-60 pointer-events-none shadow-xl border border-white/20 transition-opacity"
                    style={{
                      top: `${tooltipPosition.top}px`,

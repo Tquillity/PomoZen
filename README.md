@@ -18,7 +18,7 @@ A privacy-first, offline-capable Pomodoro timer with ambient soundscapes. Built 
 
 ## Tech Stack
 
-- **Runtime/Build**: Node.js 22+, Vite 6
+- **Runtime/Build**: Node.js 22+, Vite 7
 - **Framework**: React 19
 - **Language**: TypeScript 6.0 (Strict Mode)
 - **Styling**: Tailwind CSS v4 (CSS-first configuration)

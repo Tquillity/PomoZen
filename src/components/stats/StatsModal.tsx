@@ -1,5 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useTimeStore } from '../../store/useTimeStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { format, startOfMonth, endOfMonth, eachMonthOfInterval, startOfWeek, endOfWeek, addWeeks, addMonths, addYears, eachDayOfInterval, startOfYear, endOfYear } from 'date-fns';
 import { cn } from '../../utils/cn';
 import { Modal } from '../common/Modal';
@@ -14,6 +15,7 @@ type TimeRange = '7d' | 'all' | 'month' | 'year';
 
 export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
   const history = useTimeStore(state => state.history);
+  const durations = useSettingsStore(state => state.durations);
   const [metric, setMetric] = useState<ViewMetric>('minutes');
   const [range, setRange] = useState<TimeRange>('7d');
   const [offset, setOffset] = useState(0);
@@ -23,13 +25,16 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
     const pomoCount = values.reduce((acc, curr) => acc + (curr.pomodoro || 0), 0);
     const shortCount = values.reduce((acc, curr) => acc + (curr.short || 0), 0);
     const longCount = values.reduce((acc, curr) => acc + (curr.long || 0), 0);
+
+    const pomoMins = pomoCount * durations.pomodoro;
+    const breakMins = (shortCount * durations.short) + (longCount * durations.long);
     return {
       pomoCount,
-      pomoMins: pomoCount * 25,
-      breakMins: (shortCount * 5) + (longCount * 15),
+      pomoMins,
+      breakMins,
       totalSessions: pomoCount + shortCount + longCount
     };
-  }, [history]);
+  }, [history, durations.pomodoro, durations.short, durations.long]);
 
   const baseDate = useMemo(() => {
     const today = new Date();
@@ -94,136 +99,119 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
     isWeekend?: boolean;
   };
 
-  const [graphData, setGraphData] = useState<DataPoint[]>([]);
-  const [isCalculating, setIsCalculating] = useState(false);
-
-  useEffect(() => {
-    setIsCalculating(true);
-    
-    const calculateData = () => {
-      let dataPoints: DataPoint[] = [];
-
-      if (range === '7d') {
-        // Weekly view: Monday to Sunday
-        const weekStart = startOfWeek(baseDate, { weekStartsOn: 1 });
-        const weekEnd = endOfWeek(baseDate, { weekStartsOn: 1 });
-        const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
-
-        dataPoints = days.map(date => {
-          const key = format(date, 'yyyy-MM-dd');
-          const stats = history[key] || { pomodoro: 0, short: 0, long: 0 };
-          const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
-          const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-          const work = metric === 'minutes' ? stats.pomodoro * 25 : stats.pomodoro;
-          const rest = metric === 'minutes' ? (stats.short * 5) + (stats.long * 15) : (stats.short + stats.long);
-          return {
-            label: format(date, 'EEE'), // Mon, Tue...
-            fullDate: format(date, 'MMM d, yyyy'),
-            work,
-            rest,
-            total: work + rest,
-            isWeekend
-          };
-        });
-      } else if (range === 'all') {
-        // All time view: aggregated by month
-        const historyKeys = Object.keys(history).sort();
-        if (historyKeys.length === 0) {
-          dataPoints = [];
-        } else {
-          const firstDate = new Date(historyKeys[0]);
-          const lastDate = new Date(historyKeys[historyKeys.length - 1]);
-          const months = eachMonthOfInterval({ start: startOfMonth(firstDate), end: endOfMonth(lastDate) });
-
-          dataPoints = months.map(monthDate => {
-            const monthKeyPrefix = format(monthDate, 'yyyy-MM');
-
-            let monthlyWork = 0;
-            let monthlyRest = 0;
-            Object.entries(history).forEach(([key, stats]) => {
-              if (key.startsWith(monthKeyPrefix)) {
-                monthlyWork += metric === 'minutes' ? stats.pomodoro * 25 : stats.pomodoro;
-                monthlyRest += metric === 'minutes' ? (stats.short * 5) + (stats.long * 15) : (stats.short + stats.long);
-              }
-            });
-
-            return {
-              label: format(monthDate, 'MMM'), // Jan, Feb...
-              fullDate: format(monthDate, 'MMMM yyyy'),
-              work: monthlyWork,
-              rest: monthlyRest,
-              total: monthlyWork + monthlyRest
-            };
-          });
-
-          if (dataPoints.length > 24) {
-            dataPoints = dataPoints.slice(-24);
-          }
-        }
-      } else if (range === 'month') {
-        // Monthly view: all days in the selected month
-        const monthStart = startOfMonth(baseDate);
-        const monthEnd = endOfMonth(baseDate);
-        const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
-
-        dataPoints = days.map(date => {
-          const key = format(date, 'yyyy-MM-dd');
-          const stats = history[key] || { pomodoro: 0, short: 0, long: 0 };
-          const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
-          const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-          const work = metric === 'minutes' ? stats.pomodoro * 25 : stats.pomodoro;
-          const rest = metric === 'minutes' ? (stats.short * 5) + (stats.long * 15) : (stats.short + stats.long);
-          return {
-            label: format(date, 'd'), // Day number
-            fullDate: format(date, 'MMM d, yyyy'),
-            work,
-            rest,
-            total: work + rest,
-            isWeekend
-          };
-        });
-      } else if (range === 'year') {
-        // Yearly view: aggregated by month
-        const yearStart = startOfYear(baseDate);
-        const yearEnd = endOfYear(baseDate);
-        const months = eachMonthOfInterval({ start: yearStart, end: yearEnd });
-
-        dataPoints = months.map(monthDate => {
-          const monthKeyPrefix = format(monthDate, 'yyyy-MM');
-
-          let monthlyWork = 0;
-          let monthlyRest = 0;
-          Object.entries(history).forEach(([key, stats]) => {
-            if (key.startsWith(monthKeyPrefix)) {
-              monthlyWork += metric === 'minutes' ? stats.pomodoro * 25 : stats.pomodoro;
-              monthlyRest += metric === 'minutes' ? (stats.short * 5) + (stats.long * 15) : (stats.short + stats.long);
-            }
-          });
-
-          return {
-            label: format(monthDate, 'MMM'), // Jan, Feb...
-            fullDate: format(monthDate, 'MMMM yyyy'),
-            work: monthlyWork,
-            rest: monthlyRest,
-            total: monthlyWork + monthlyRest
-          };
-        });
-      }
-
-      setGraphData(dataPoints);
-      setIsCalculating(false);
-    };
-
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(calculateData, { timeout: 100 });
-    } else {
-      setTimeout(calculateData, 0);
+  // Pre-aggregate history once for efficient month-based views.
+  const monthlyAgg = useMemo(() => {
+    const agg: Record<string, { pomodoro: number; short: number; long: number }> = {};
+    for (const [dayKey, stats] of Object.entries(history)) {
+      const monthKey = dayKey.slice(0, 7); // yyyy-MM
+      const existing = agg[monthKey] ?? { pomodoro: 0, short: 0, long: 0 };
+      existing.pomodoro += stats.pomodoro || 0;
+      existing.short += stats.short || 0;
+      existing.long += stats.long || 0;
+      agg[monthKey] = existing;
     }
-  }, [history, range, metric, baseDate]);
+    return agg;
+  }, [history]);
 
-  const maxVal = graphData.length > 0 
-    ? Math.max(...graphData.map(d => d.total), range === '7d' ? 60 : range === 'month' ? 100 : range === 'all' ? 500 : 500)
-    : (range === '7d' ? 60 : range === 'month' ? 100 : range === 'all' ? 500 : 500);
+  const graphData = useMemo<DataPoint[]>(() => {
+    const workMinsPer = durations.pomodoro;
+    const shortMinsPer = durations.short;
+    const longMinsPer = durations.long;
+
+    const toWork = (p: number) => metric === 'minutes' ? p * workMinsPer : p;
+    const toRest = (s: number, l: number) => metric === 'minutes' ? (s * shortMinsPer) + (l * longMinsPer) : (s + l);
+
+    if (range === '7d') {
+      const weekStart = startOfWeek(baseDate, { weekStartsOn: 1 });
+      const weekEnd = endOfWeek(baseDate, { weekStartsOn: 1 });
+      const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
+
+      return days.map(date => {
+        const key = format(date, 'yyyy-MM-dd');
+        const stats = history[key] || { pomodoro: 0, short: 0, long: 0 };
+        const dayOfWeek = date.getDay();
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const work = toWork(stats.pomodoro);
+        const rest = toRest(stats.short, stats.long);
+        return {
+          label: format(date, 'EEE'),
+          fullDate: format(date, 'MMM d, yyyy'),
+          work,
+          rest,
+          total: work + rest,
+          isWeekend
+        };
+      });
+    }
+
+    if (range === 'month') {
+      const monthStart = startOfMonth(baseDate);
+      const monthEnd = endOfMonth(baseDate);
+      const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+      return days.map(date => {
+        const key = format(date, 'yyyy-MM-dd');
+        const stats = history[key] || { pomodoro: 0, short: 0, long: 0 };
+        const dayOfWeek = date.getDay();
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const work = toWork(stats.pomodoro);
+        const rest = toRest(stats.short, stats.long);
+        return {
+          label: format(date, 'd'),
+          fullDate: format(date, 'MMM d, yyyy'),
+          work,
+          rest,
+          total: work + rest,
+          isWeekend
+        };
+      });
+    }
+
+    if (range === 'year') {
+      const yearStart = startOfYear(baseDate);
+      const yearEnd = endOfYear(baseDate);
+      const months = eachMonthOfInterval({ start: yearStart, end: yearEnd });
+
+      return months.map((monthDate) => {
+        const monthKey = format(monthDate, 'yyyy-MM');
+        const stats = monthlyAgg[monthKey] ?? { pomodoro: 0, short: 0, long: 0 };
+        const work = toWork(stats.pomodoro);
+        const rest = toRest(stats.short, stats.long);
+        return {
+          label: format(monthDate, 'MMM'),
+          fullDate: format(monthDate, 'MMMM yyyy'),
+          work,
+          rest,
+          total: work + rest
+        };
+      });
+    }
+
+    // 'all': aggregated by month (last 24 months)
+    const historyKeys = Object.keys(history).sort();
+    if (historyKeys.length === 0) return [];
+    const firstDate = new Date(historyKeys[0]);
+    const lastDate = new Date(historyKeys[historyKeys.length - 1]);
+    const months = eachMonthOfInterval({ start: startOfMonth(firstDate), end: endOfMonth(lastDate) });
+    const data = months.map((monthDate) => {
+      const monthKey = format(monthDate, 'yyyy-MM');
+      const stats = monthlyAgg[monthKey] ?? { pomodoro: 0, short: 0, long: 0 };
+      const work = toWork(stats.pomodoro);
+      const rest = toRest(stats.short, stats.long);
+      return {
+        label: format(monthDate, 'MMM'),
+        fullDate: format(monthDate, 'MMMM yyyy'),
+        work,
+        rest,
+        total: work + rest
+      };
+    });
+    return data.length > 24 ? data.slice(-24) : data;
+  }, [baseDate, durations.long, durations.pomodoro, durations.short, history, metric, monthlyAgg, range]);
+
+  const maxVal = graphData.length > 0
+    ? Math.max(...graphData.map(d => d.total), range === '7d' ? 60 : range === 'month' ? 100 : 500)
+    : (range === '7d' ? 60 : range === 'month' ? 100 : 500);
 
   const handlePrevious = () => {
     setOffset(prev => prev - 1);
@@ -350,19 +338,13 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
               "h-full flex items-end gap-1 sm:gap-2",
               range === '7d' ? "w-full" : "min-w-fit"
             )}>
-              {isCalculating && (
-                <div className="w-full h-full flex items-center justify-center text-white/30 text-sm">
-                  Calculating...
-                </div>
-              )}
-              
-              {!isCalculating && graphData.length === 0 && (
+              {graphData.length === 0 && (
                 <div className="w-full h-full flex items-center justify-center text-white/30 text-sm">
                   No activity recorded yet.
                 </div>
               )}
 
-              {!isCalculating && graphData.map((d, i) => (
+              {graphData.map((d, i) => (
                 <div key={i} className={cn(
                   "h-full flex flex-col justify-end group relative",
                   range === '7d' ? "flex-1" : "min-w-[20px] shrink-0"

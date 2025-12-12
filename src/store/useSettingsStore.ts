@@ -135,7 +135,17 @@ export const useSettingsStore = create<SettingsState>()(
       unlockAudio: () => set({ isAudioUnlocked: true }),
       toggleNotifications: () => {
         const current = get().notificationsEnabled;
-        if (!current && 'Notification' in window && Notification.permission === 'default') {
+        if (!('Notification' in window)) {
+          set({ notificationsEnabled: false });
+          return;
+        }
+
+        if (Notification.permission === 'denied') {
+          set({ notificationsEnabled: false });
+          return;
+        }
+
+        if (!current && Notification.permission === 'default') {
           Notification.requestPermission().then((permission) => {
             set({ notificationsEnabled: permission === 'granted' });
           });

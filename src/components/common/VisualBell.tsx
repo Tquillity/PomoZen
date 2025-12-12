@@ -5,12 +5,18 @@ export const VisualBell = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    let timeoutId: number | null = null;
     const handleTimerComplete = () => {
       setIsVisible(true);
-      setTimeout(() => setIsVisible(false), 1000);
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => setIsVisible(false), 1000);
     };
 
-    return events.on('timer:complete', handleTimerComplete);
+    const unsubscribe = events.on('timer:complete', handleTimerComplete);
+    return () => {
+      unsubscribe();
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
+    };
   }, []);
 
   if (!isVisible) return null;

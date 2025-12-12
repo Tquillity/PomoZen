@@ -4,11 +4,47 @@ export const setStorageQuotaErrorHandler = (handler: () => void) => {
   quotaErrorHandler = handler;
 };
 
+class MemoryStorage implements Storage {
+  private map = new Map<string, string>();
+
+  get length(): number {
+    return this.map.size;
+  }
+
+  clear(): void {
+    this.map.clear();
+  }
+
+  getItem(key: string): string | null {
+    return this.map.has(key) ? this.map.get(key)! : null;
+  }
+
+  key(index: number): string | null {
+    return Array.from(this.map.keys())[index] ?? null;
+  }
+
+  removeItem(key: string): void {
+    this.map.delete(key);
+  }
+
+  setItem(key: string, value: string): void {
+    this.map.set(key, value);
+  }
+}
+
 class SafeStorage implements Storage {
   private storage: Storage;
 
   constructor() {
-    this.storage = localStorage;
+    try {
+      this.storage = localStorage;
+      // Probe write to detect restricted environments early.
+      const probeKey = '__pomozen_storage_probe__';
+      this.storage.setItem(probeKey, '1');
+      this.storage.removeItem(probeKey);
+    } catch {
+      this.storage = new MemoryStorage();
+    }
   }
 
   get length(): number {
@@ -35,8 +71,11 @@ class SafeStorage implements Storage {
         if (quotaErrorHandler) {
           quotaErrorHandler();
         }
+        // Swallow quota errors so persistence failure doesn't crash the app.
+        return;
       }
-      throw error;
+      // Other errors should not crash the app; degrade gracefully.
+      return;
     }
   }
 

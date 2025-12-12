@@ -70,9 +70,16 @@ export const useTimeStore = create<TimeState>()(
       tick: () => {
         const { timeLeft, mode, pomodorosCompleted, history } = get();
         
-        if (timeLeft > 0) {
+        if (timeLeft > 1) {
           set({ timeLeft: timeLeft - 1 });
-        } else {
+          return;
+        }
+
+        if (timeLeft === 1) {
+          set({ timeLeft: 0 });
+        }
+
+        if (timeLeft <= 1) {
           get().pauseTimer();
           events.emit('timer:complete', mode);
           

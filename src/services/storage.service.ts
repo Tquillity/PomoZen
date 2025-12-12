@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { useTimeStore } from '../store/useTimeStore';
 import { useTaskStore } from '../store/useTaskStore';
 import { useSettingsStore } from '../store/useSettingsStore';
-import type { TimerMode } from '../types';
 
 const TimerModeSchema = z.enum(['pomodoro', 'short', 'long']);
 
