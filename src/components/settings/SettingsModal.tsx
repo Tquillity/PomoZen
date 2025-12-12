@@ -331,9 +331,21 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 </button>
              </div>
 
-             <button onClick={handleClearCache} className="mt-4 w-full text-[10px] text-white/30 hover:text-white/50 uppercase tracking-widest transition-colors">
-               Troubleshoot: Clear Cache & Reload
-             </button>
+             <div className="mt-4 relative group">
+               <button 
+                 onClick={handleClearCache} 
+                 className="w-full text-[10px] text-white/30 hover:text-white/50 uppercase tracking-widest transition-colors"
+               >
+                 Troubleshoot: Clear Cache & Reload
+               </button>
+               {/* Tooltip */}
+               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-[10px] p-2 rounded whitespace-normal max-w-[220px] z-10 pointer-events-none shadow-xl border border-white/20">
+                 Use this if the app seems outdated, features aren't working, or you're seeing cached content. Clears service worker cache and reloads.
+                 <div className="mt-1.5 pt-1.5 border-t border-white/20 text-white/80">
+                   💡 Tip: You can also press <kbd className="bg-white/20 px-1 py-0.5 rounded text-[9px] font-mono">Ctrl+Shift+R</kbd> (or <kbd className="bg-white/20 px-1 py-0.5 rounded text-[9px] font-mono">Cmd+Shift+R</kbd> on Mac) for a hard refresh.
+                 </div>
+               </div>
+             </div>
 
              {/* DEV ONLY SEEDER */}
              {import.meta.env.DEV && (

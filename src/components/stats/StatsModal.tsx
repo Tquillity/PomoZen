@@ -346,7 +346,7 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
               {graphData.map((d, i) => (
                 <div key={i} className={cn(
                   "h-full flex flex-col justify-end group relative",
-                  range === '7d' ? "flex-1" : "min-w-[20px] flex-shrink-0"
+                  range === '7d' ? "flex-1" : "min-w-[20px] shrink-0"
                 )}>
                   {/* Tooltip */}
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-[10px] p-2 rounded whitespace-nowrap z-10 pointer-events-none shadow-xl border border-white/20">
