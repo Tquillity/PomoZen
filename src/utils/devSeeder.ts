@@ -47,6 +47,6 @@ export const seedDevData = () => {
   }
 
   useTimeStore.setState({ history });
-  alert("🌱 Seeded 2 years (730 days) of realistic dev data!");
+  alert("Seeded 2 years (730 days) of realistic dev data.");
   window.location.reload();
 };

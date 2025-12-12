@@ -1,5 +1,3 @@
-// src/utils/themeUtils.ts
-
 // Calculate relative luminance (per WCAG definitions)
 export const getLuminance = (hex: string): number => {
   const c = hex.substring(1);      // strip #

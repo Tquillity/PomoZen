@@ -388,7 +388,6 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                )}
              </div>
 
-             {/* DEV ONLY SEEDER */}
              {import.meta.env.DEV && (
                 <button onClick={seedDevData} className="mt-2 w-full text-[10px] text-green-300/50 hover:text-green-300 uppercase tracking-widest transition-colors">
                   [DEV] Seed Dummy Data

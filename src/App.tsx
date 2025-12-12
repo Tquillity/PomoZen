@@ -86,7 +86,6 @@ function App() {
           <TaskBoard />
         </div>
 
-        {/* ADD THIS HERE: Visible text for Google to crawl */}
         <div className="shrink-0 w-full">
           <SEOContent />
         </div>
