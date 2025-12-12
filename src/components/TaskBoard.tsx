@@ -106,11 +106,12 @@ export const TaskBoard = () => {
             </div>
         )}
         {tasks.map(task => (
-          <div
+          <button
             key={task.id}
             onClick={() => setActiveTask(task.id)}
+            type="button"
             className={clsx(
-              "group p-3 rounded-lg cursor-pointer border transition-all flex justify-between items-center",
+              "group w-full text-left p-3 rounded-lg cursor-pointer border transition-all flex justify-between items-center outline-none focus-visible:ring-2 focus-visible:ring-white/50",
               activeTaskId === task.id
                 ? "bg-(--theme-primary)/40 border-white/30 shadow-lg translate-x-1"
                 : "bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10"
@@ -149,7 +150,7 @@ export const TaskBoard = () => {
                     </svg>
                 </button>
             </div>
-          </div>
+          </button>
         ))}
       </div>
     </div>

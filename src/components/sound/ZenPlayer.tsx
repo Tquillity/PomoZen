@@ -17,25 +17,33 @@ export const ZenPlayer = () => {
 
   // Create audio element on mount
   useEffect(() => {
+    // Initialize
     const audio = new Audio();
     audio.loop = true;
     audioRef.current = audio;
 
     return () => {
+      // Robust cleanup
       audio.pause();
       audio.src = '';
+      audio.load(); // Hints to browser to release memory buffer
+      audioRef.current = null;
     };
   }, []);
 
   // Handle Track & Playback changes
   useEffect(() => {
-    if (!audioRef.current) return;
-
     const audio = audioRef.current;
+    if (!audio) return;
 
-    // Only update source if it changed to avoid restarting track
-    if (!audio.src.includes(TRACKS[zenTrack])) {
-        audio.src = TRACKS[zenTrack];
+    const targetSrc = TRACKS[zenTrack];
+
+    // Check if src actually needs changing to prevent audio gaps
+    // We use endsWith to safely compare relative vs absolute URLs
+    if (!audio.src || !audio.src.endsWith(targetSrc)) {
+        audio.src = targetSrc;
+        // Preload immediately when track changes
+        audio.load();
     }
 
     const shouldPlay = isAudioUnlocked && zenModeEnabled && (
@@ -44,14 +52,13 @@ export const ZenPlayer = () => {
     );
 
     if (shouldPlay) {
+      // Prevent "The play() request was interrupted" errors
       const playPromise = audio.play();
       if (playPromise !== undefined) {
         playPromise.catch(error => {
-            if (error.name === 'NotSupportedError') {
-                console.warn('PomoZen Audio Error: Missing audio file. Please run "node scripts/generate-audio.js" or check public/sounds/');
-            } else if (error.name !== 'NotAllowedError') {
-                // Ignore NotAllowedError as AudioUnlocker handles it, log others
-                console.error("Zen play failed:", error);
+            // Only log if it's not the user-interaction error (handled by Unlocker)
+            if (error.name !== 'NotAllowedError') {
+                console.warn("Zen playback issue:", error);
             }
         });
       }

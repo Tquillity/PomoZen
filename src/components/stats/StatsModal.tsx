@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTimeStore } from '../../store/useTimeStore';
-import { format, subDays } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachMonthOfInterval, startOfWeek, endOfWeek, addWeeks, addMonths, addYears, eachDayOfInterval, startOfYear, endOfYear } from 'date-fns';
 import { cn } from '../../utils/cn';
 import { Modal } from '../common/Modal';
 
@@ -9,235 +9,385 @@ interface StatsModalProps {
   onClose: () => void;
 }
 
-type ViewMode = 'minutes' | 'count';
+type ViewMetric = 'minutes' | 'count';
+type TimeRange = '7d' | 'all' | 'month' | 'year';
 
 export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
   const history = useTimeStore(state => state.history);
-  const [viewMode, setViewMode] = useState<ViewMode>('minutes');
+  const [metric, setMetric] = useState<ViewMetric>('minutes');
+  const [range, setRange] = useState<TimeRange>('7d');
+  const [offset, setOffset] = useState(0); // Navigation offset: 0 = current period, -1 = previous, +1 = next
 
-  // --- Aggregate Totals ---
+  // --- 1. Total Aggregates (Always All Time) ---
   const totals = useMemo(() => {
     const values = Object.values(history);
     const pomoCount = values.reduce((acc, curr) => acc + (curr.pomodoro || 0), 0);
     const shortCount = values.reduce((acc, curr) => acc + (curr.short || 0), 0);
     const longCount = values.reduce((acc, curr) => acc + (curr.long || 0), 0);
-    const pomoMins = pomoCount * 25;
-    const shortMins = shortCount * 5;
-    const longMins = longCount * 15;
     return {
       pomoCount,
-      shortCount,
-      longCount,
-      pomoMins,
-      shortMins,
-      longMins,
-      totalFocusMinutes: pomoMins, // Changed from Hours to Minutes
-      totalBreakMins: shortMins + longMins,
+      pomoMins: pomoCount * 25,
+      breakMins: (shortCount * 5) + (longCount * 15),
       totalSessions: pomoCount + shortCount + longCount
     };
   }, [history]);
 
-  // --- Graph Data (Last 14 Days) ---
-  const last14DaysGraph = useMemo(() => {
-    return Array.from({ length: 14 }).map((_, i) => {
-      const date = subDays(new Date(), 13 - i);
-      const key = format(date, 'yyyy-MM-dd');
-      const stats = history[key] || { pomodoro: 0, short: 0, long: 0 };
+  // Calculate the base date for the current view (with offset)
+  const baseDate = useMemo(() => {
+    const today = new Date();
+    
+    switch (range) {
+      case '7d': {
+        // Start of current week (Monday)
+        const weekStart = startOfWeek(today, { weekStartsOn: 1 });
+        return addWeeks(weekStart, offset);
+      }
+      case 'all': {
+        // All time - no offset needed, but we'll use today for consistency
+        return today;
+      }
+      case 'month': {
+        // Start of current month
+        const monthStart = startOfMonth(today);
+        return addMonths(monthStart, offset);
+      }
+      case 'year': {
+        // Start of current year
+        const yearStart = startOfYear(today);
+        return addYears(yearStart, offset);
+      }
+      default:
+        return today;
+    }
+  }, [range, offset]);
 
-      // Data for "Minutes" Mode
-      const workMinutes = stats.pomodoro * 25;
-      const restMinutes = (stats.short * 5) + (stats.long * 15);
-      const totalMinutes = workMinutes + restMinutes;
+  // Calculate date range display
+  const dateRange = useMemo(() => {
+    switch (range) {
+      case '7d': {
+        const weekStart = startOfWeek(baseDate, { weekStartsOn: 1 });
+        const weekEnd = endOfWeek(baseDate, { weekStartsOn: 1 });
+        return `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d, yyyy')}`;
+      }
+      case 'all': {
+        const historyKeys = Object.keys(history).sort();
+        if (historyKeys.length === 0) return 'No data';
+        const firstDate = new Date(historyKeys[0]);
+        const lastDate = new Date(historyKeys[historyKeys.length - 1]);
+        return `${format(firstDate, 'MMM d, yyyy')} - ${format(lastDate, 'MMM d, yyyy')}`;
+      }
+      case 'month': {
+        const monthStart = startOfMonth(baseDate);
+        const monthEnd = endOfMonth(baseDate);
+        return `${format(monthStart, 'MMM d')} - ${format(monthEnd, 'MMM d, yyyy')}`;
+      }
+      case 'year': {
+        const yearStart = startOfYear(baseDate);
+        const yearEnd = endOfYear(baseDate);
+        return `${format(yearStart, 'MMM d, yyyy')} - ${format(yearEnd, 'MMM d, yyyy')}`;
+      }
+      default:
+        return '';
+    }
+  }, [range, baseDate, history]);
 
-      // Data for "Count" Mode
-      const workCount = stats.pomodoro;
-      const restCount = stats.short + stats.long;
-      const totalCount = workCount + restCount;
+  // --- 2. Graph Data Generation ---
+  const graphData = useMemo(() => {
+    type DataPoint = {
+      label: string;
+      fullDate: string;
+      work: number;
+      rest: number;
+      isWeekend?: boolean;
+    };
+    let dataPoints: DataPoint[] = [];
 
-      return {
-        key,
-        dayName: format(date, 'EEE'),
-        // Dynamic accessors based on viewMode
-        minutes: { work: workMinutes, rest: restMinutes, total: totalMinutes },
-        count: { work: workCount, rest: restCount, total: totalCount }
-      };
-    });
-  }, [history]);
+    if (range === '7d') {
+      // Weekly view: Monday to Sunday
+      const weekStart = startOfWeek(baseDate, { weekStartsOn: 1 });
+      const weekEnd = endOfWeek(baseDate, { weekStartsOn: 1 });
+      const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
-  // Calculate Max Scale for Graph Height
-  const maxValue = useMemo(() => {
-    const values = last14DaysGraph.map(d => d[viewMode].total);
-    // Ensure minimum scale so graph isn't flat if data is 0 (60 mins or 5 sessions)
-    const minScale = viewMode === 'minutes' ? 60 : 5;
-    return Math.max(...values, minScale);
-  }, [last14DaysGraph, viewMode]);
+      dataPoints = days.map(date => {
+        const key = format(date, 'yyyy-MM-dd');
+        const stats = history[key] || { pomodoro: 0, short: 0, long: 0 };
+        const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        return {
+          label: format(date, 'EEE'), // Mon, Tue...
+          fullDate: format(date, 'MMM d, yyyy'),
+          work: metric === 'minutes' ? stats.pomodoro * 25 : stats.pomodoro,
+          rest: metric === 'minutes' ? (stats.short * 5) + (stats.long * 15) : (stats.short + stats.long),
+          isWeekend
+        };
+      });
+    } else if (range === 'all') {
+      // All time view: aggregated by month
+      const historyKeys = Object.keys(history).sort();
+      if (historyKeys.length === 0) {
+        dataPoints = [];
+      } else {
+        const firstDate = new Date(historyKeys[0]);
+        const lastDate = new Date(historyKeys[historyKeys.length - 1]);
+        const months = eachMonthOfInterval({ start: startOfMonth(firstDate), end: endOfMonth(lastDate) });
 
-  // --- Heatmap Data (Last 14 Days) ---
-  const last14Days = useMemo(() => {
-    return Array.from({ length: 14 }).map((_, i) => {
-      const date = subDays(new Date(), 13 - i);
-      const key = format(date, 'yyyy-MM-dd');
-      const stats = history[key] || { pomodoro: 0, short: 0, long: 0 };
-      return {
-        date,
-        key,
-        count: stats.pomodoro,
-        stats
-      };
-    });
-  }, [history]);
+        dataPoints = months.map(monthDate => {
+          const monthKeyPrefix = format(monthDate, 'yyyy-MM');
 
-  const getHeatmapClass = (count: number) => {
-    if (count === 0) return "bg-white/10";
-    if (count <= 2) return "bg-white/30";
-    if (count <= 5) return "bg-white/60";
-    return "bg-white";
+          // Aggregate all days in this month
+          let monthlyWork = 0;
+          let monthlyRest = 0;
+          Object.entries(history).forEach(([key, stats]) => {
+            if (key.startsWith(monthKeyPrefix)) {
+              monthlyWork += metric === 'minutes' ? stats.pomodoro * 25 : stats.pomodoro;
+              monthlyRest += metric === 'minutes' ? (stats.short * 5) + (stats.long * 15) : (stats.short + stats.long);
+            }
+          });
+
+          return {
+            label: format(monthDate, 'MMM'), // Jan, Feb...
+            fullDate: format(monthDate, 'MMMM yyyy'),
+            work: monthlyWork,
+            rest: monthlyRest
+          };
+        });
+
+        // Limit to last 24 months for readability
+        if (dataPoints.length > 24) {
+          dataPoints = dataPoints.slice(-24);
+        }
+      }
+    } else if (range === 'month') {
+      // Monthly view: all days in the selected month
+      const monthStart = startOfMonth(baseDate);
+      const monthEnd = endOfMonth(baseDate);
+      const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+      dataPoints = days.map(date => {
+        const key = format(date, 'yyyy-MM-dd');
+        const stats = history[key] || { pomodoro: 0, short: 0, long: 0 };
+        const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        return {
+          label: format(date, 'd'), // Day number
+          fullDate: format(date, 'MMM d, yyyy'),
+          work: metric === 'minutes' ? stats.pomodoro * 25 : stats.pomodoro,
+          rest: metric === 'minutes' ? (stats.short * 5) + (stats.long * 15) : (stats.short + stats.long),
+          isWeekend
+        };
+      });
+    } else if (range === 'year') {
+      // Yearly view: aggregated by month
+      const yearStart = startOfYear(baseDate);
+      const yearEnd = endOfYear(baseDate);
+      const months = eachMonthOfInterval({ start: yearStart, end: yearEnd });
+
+      dataPoints = months.map(monthDate => {
+        const monthKeyPrefix = format(monthDate, 'yyyy-MM');
+
+        // Aggregate all days in this month
+        let monthlyWork = 0;
+        let monthlyRest = 0;
+        Object.entries(history).forEach(([key, stats]) => {
+          if (key.startsWith(monthKeyPrefix)) {
+            monthlyWork += metric === 'minutes' ? stats.pomodoro * 25 : stats.pomodoro;
+            monthlyRest += metric === 'minutes' ? (stats.short * 5) + (stats.long * 15) : (stats.short + stats.long);
+          }
+        });
+
+        return {
+          label: format(monthDate, 'MMM'), // Jan, Feb...
+          fullDate: format(monthDate, 'MMMM yyyy'),
+          work: monthlyWork,
+          rest: monthlyRest
+        };
+      });
+    }
+
+    // Calculate Totals for bars
+    return dataPoints.map(d => ({ ...d, total: d.work + d.rest }));
+  }, [history, range, metric, baseDate]);
+
+  // Dynamic Scale
+  const maxVal = Math.max(...graphData.map(d => d.total), range === '7d' ? 60 : range === 'month' ? 100 : range === 'all' ? 500 : 500);
+
+  // Navigation handlers
+  const handlePrevious = () => {
+    setOffset(prev => prev - 1);
+  };
+
+  const handleNext = () => {
+    setOffset(prev => prev + 1);
+  };
+
+  const handleRangeChange = (newRange: TimeRange) => {
+    setRange(newRange);
+    setOffset(0); // Reset offset when changing range
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Your Progress">
-      <div className="space-y-8 text-white">
+      <div className="space-y-6 text-white">
 
-        {/* 1. High Level Summary */}
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="bg-black/10 rounded-lg p-2 border border-white/5">
-            <div className="text-2xl font-bold">{totals.totalFocusMinutes}</div>
-            <div className="text-[10px] uppercase tracking-wider text-white/60">Focus Mins</div>
+        {/* Totals Cards */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-white/5 rounded-lg p-3 border border-white/5 text-center">
+            <div className="text-2xl font-bold">{totals.pomoMins}</div>
+            <div className="text-[10px] uppercase tracking-wider text-white/50">Focus Mins</div>
           </div>
-          <div className="bg-black/10 rounded-lg p-2 border border-white/5">
+
+          <div className="bg-white/5 rounded-lg p-3 border border-white/5 text-center">
             <div className="text-2xl font-bold">{totals.totalSessions}</div>
-            <div className="text-[10px] uppercase tracking-wider text-white/60">Sessions</div>
+            <div className="text-[10px] uppercase tracking-wider text-white/50">Sessions</div>
           </div>
-          <div className="bg-black/10 rounded-lg p-2 border border-white/5">
-            <div className="text-2xl font-bold">{totals.totalBreakMins}</div>
-            <div className="text-[10px] uppercase tracking-wider text-white/60">Break Mins</div>
+
+          <div className="bg-white/5 rounded-lg p-3 border border-white/5 text-center">
+            <div className="text-2xl font-bold">{totals.breakMins}</div>
+            <div className="text-[10px] uppercase tracking-wider text-white/50">Break Mins</div>
           </div>
         </div>
 
-        {/* 2. Detailed Breakdown Table */}
-        <div>
-            <h3 className="font-semibold uppercase text-xs tracking-wider mb-2 opacity-80">Detailed Breakdown</h3>
-            <div className="grid grid-cols-3 gap-px bg-white/10 rounded-lg overflow-hidden border border-white/10 text-sm">
-                {/* Header */}
-                <div className="bg-white/10 p-2 text-[10px] sm:text-xs font-bold text-center">Pomodoro</div>
-                <div className="bg-white/10 p-2 text-[10px] sm:text-xs font-bold text-center">Short Break</div>
-                <div className="bg-white/10 p-2 text-[10px] sm:text-xs font-bold text-center">Long Break</div>
+        {/* Controls */}
+        <div className="flex flex-col gap-3">
+          {/* Time Range Selector */}
+          <div className="flex bg-black/20 p-1 rounded-lg">
+            <button
+              onClick={() => handleRangeChange('7d')}
+              className={cn("px-3 py-1 text-xs font-medium rounded transition-colors", range === '7d' ? "bg-white text-black" : "text-white/50 hover:text-white")}
+            >
+              7 Days
+            </button>
+            <button
+              onClick={() => handleRangeChange('month')}
+              className={cn("px-3 py-1 text-xs font-medium rounded transition-colors", range === 'month' ? "bg-white text-black" : "text-white/50 hover:text-white")}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => handleRangeChange('year')}
+              className={cn("px-3 py-1 text-xs font-medium rounded transition-colors", range === 'year' ? "bg-white text-black" : "text-white/50 hover:text-white")}
+            >
+              Yearly
+            </button>
+            <button
+              onClick={() => handleRangeChange('all')}
+              className={cn("px-3 py-1 text-xs font-medium rounded transition-colors", range === 'all' ? "bg-white text-black" : "text-white/50 hover:text-white")}
+            >
+              All Time
+            </button>
+          </div>
 
-                {/* Time */}
-                <div className="bg-black/10 p-2 text-center">{totals.pomoMins}m</div>
-                <div className="bg-black/10 p-2 text-center">{totals.shortMins}m</div>
-                <div className="bg-black/10 p-2 text-center">{totals.longMins}m</div>
-                {/* Counts */}
-                <div className="bg-black/10 p-2 text-center text-xs opacity-50">{totals.pomoCount}x</div>
-                <div className="bg-black/10 p-2 text-center text-xs opacity-50">{totals.shortCount}x</div>
-                <div className="bg-black/10 p-2 text-center text-xs opacity-50">{totals.longCount}x</div>
-            </div>
-        </div>
-
-        {/* 3. Interactive Graph */}
-        <div>
-            <div className="flex justify-between items-end mb-4">
-                <h3 className="font-semibold uppercase text-xs tracking-wider opacity-80">
-                    Activity (Last 14 Days)
-                </h3>
-                {/* Toggle Switch */}
-                <div className="flex bg-black/20 p-0.5 rounded-lg border border-white/10">
-                    <button
-                        onClick={() => setViewMode('minutes')}
-                        className={cn(
-                            "px-3 py-1 text-[10px] font-bold rounded-md transition-all",
-                            viewMode === 'minutes' ? "bg-white text-black shadow-sm" : "text-white/50 hover:text-white"
-                        )}
-                    >
-                        Time
-                    </button>
-                    <button
-                        onClick={() => setViewMode('count')}
-                        className={cn(
-                            "px-3 py-1 text-[10px] font-bold rounded-md transition-all",
-                            viewMode === 'count' ? "bg-white text-black shadow-sm" : "text-white/50 hover:text-white"
-                        )}
-                    >
-                        Count
-                    </button>
-                </div>
-            </div>
-            <div className="h-40 flex items-end justify-between gap-2 px-2 border-b border-white/10 pb-1">
-                {last14DaysGraph.map((day) => {
-                    const data = day[viewMode];
-                    const workHeight = (data.work / maxValue) * 100;
-                    const restHeight = (data.rest / maxValue) * 100;
-
-                    return (
-                        <div key={day.key} className="flex-1 flex flex-col items-center gap-1 group relative h-full justify-end">
-                            {/* Tooltip */}
-                            <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 text-white text-[10px] p-2 rounded pointer-events-none whitespace-nowrap z-20 shadow-xl border border-white/20 text-center backdrop-blur-sm">
-                                <div className="font-bold mb-1 text-white/90 border-b border-white/20 pb-1">{day.dayName}</div>
-                                <div className="flex items-center gap-2 justify-between">
-                                    <span className="w-2 h-2 rounded-full bg-white inline-block"></span>
-                                    <span>Work: {data.work}{viewMode === 'minutes' ? 'm' : 'x'}</span>
-                                </div>
-                                <div className="flex items-center gap-2 justify-between mt-0.5">
-                                    <span className="w-2 h-2 rounded-full bg-white/40 inline-block"></span>
-                                    <span>Rest: {data.rest}{viewMode === 'minutes' ? 'm' : 'x'}</span>
-                                </div>
-                            </div>
-
-                            {/* The Bar Stack */}
-                            {/* FIX: Added 'h-full' here so the container fills the 160px height */}
-                            <div className="w-full h-full flex flex-col-reverse justify-start rounded-sm overflow-hidden relative min-h-[4px] bg-white/5">
-                                {(data.total > 0) ? (
-                                    <>
-                                        <div
-                                            style={{ height: `${Math.max(workHeight, 0)}%` }}
-                                            className="w-full bg-white transition-all duration-500"
-                                        />
-                                        <div
-                                            style={{ height: `${Math.max(restHeight, 0)}%` }}
-                                            className="w-full bg-white/40 transition-all duration-500"
-                                        />
-                                    </>
-                                ) : (
-                                    <div className="h-full w-full bg-transparent" />
-                                )}
-                            </div>
-                            <span className="text-[10px] text-white/50 font-mono">{day.dayName.charAt(0)}</span>
-                        </div>
-                    );
-                })}
-            </div>
-
-            {/* Legend */}
-            <div className="flex justify-center gap-4 mt-2">
-                <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-white" />
-                    <span className="text-[10px] text-white/70">Work</span>
-                </div>
-                <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-white/40" />
-                    <span className="text-[10px] text-white/70">Rest</span>
-                </div>
-            </div>
-        </div>
-
-        {/* 4. Heatmap */}
-        <div>
-          <h3 className="font-semibold uppercase text-xs tracking-wider mb-3 opacity-80">Consistency (Last 14 Days)</h3>
-          <div className="flex justify-between gap-1">
-            {last14Days.map((day) => (
-              <div key={day.key} className="flex flex-col items-center gap-1 flex-1">
-                <div
-                  className={cn("w-full aspect-square rounded-sm transition-colors cursor-default border border-white/5", getHeatmapClass(day.count))}
-                  title={`${format(day.date, 'MMM d')}: ${day.count} Sessions`}
-                />
-                <div className="text-[8px] text-white/40 font-mono">
-                  {format(day.date, 'd')}
-                </div>
+          {/* Navigation and Date Range */}
+          <div className="flex items-center justify-between gap-2">
+            {/* Navigation Arrows - Hidden for All Time */}
+            {range !== 'all' && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handlePrevious}
+                  className="p-1.5 rounded-lg bg-black/20 hover:bg-black/30 text-white/70 hover:text-white transition-colors"
+                  aria-label="Previous period"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                  </svg>
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="p-1.5 rounded-lg bg-black/20 hover:bg-black/30 text-white/70 hover:text-white transition-colors"
+                  aria-label="Next period"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                </button>
               </div>
-            ))}
+            )}
+            {range === 'all' && <div />} {/* Spacer when arrows are hidden */}
+
+            {/* Date Range Display */}
+            <div className="text-xs text-white/70 font-medium">
+              {dateRange}
+            </div>
+
+            {/* Metric Toggle */}
+            <div className="flex bg-black/20 p-1 rounded-lg">
+              <button
+                onClick={() => setMetric('minutes')}
+                className={cn("px-3 py-1 text-xs font-medium rounded transition-colors", metric === 'minutes' ? "bg-white text-black" : "text-white/50 hover:text-white")}
+              >
+                Time
+              </button>
+              <button
+                onClick={() => setMetric('count')}
+                className={cn("px-3 py-1 text-xs font-medium rounded transition-colors", metric === 'count' ? "bg-white text-black" : "text-white/50 hover:text-white")}
+              >
+                Count
+              </button>
+            </div>
           </div>
         </div>
 
+        {/* The Graph */}
+        <div className="border-b border-white/10 pb-2">
+          <div className={cn(
+            "h-48 overflow-y-visible pt-4",
+            range === '7d' ? "" : "overflow-x-auto custom-scrollbar"
+          )}>
+            <div className={cn(
+              "h-full flex items-end gap-1 sm:gap-2",
+              range === '7d' ? "w-full" : "min-w-fit"
+            )}>
+              {graphData.length === 0 && (
+                <div className="w-full h-full flex items-center justify-center text-white/30 text-sm">
+                  No activity recorded yet.
+                </div>
+              )}
+
+              {graphData.map((d, i) => (
+                <div key={i} className={cn(
+                  "h-full flex flex-col justify-end group relative",
+                  range === '7d' ? "flex-1" : "min-w-[20px] flex-shrink-0"
+                )}>
+                  {/* Tooltip */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-[10px] p-2 rounded whitespace-nowrap z-10 pointer-events-none shadow-xl border border-white/20">
+                    <div className="font-bold border-b border-white/20 pb-1 mb-1">{d.fullDate}</div>
+                    <div>Focus: {d.work} {metric === 'minutes' ? 'm' : 'x'}</div>
+                    <div>Rest: {d.rest} {metric === 'minutes' ? 'm' : 'x'}</div>
+                  </div>
+
+                  {/* Bars */}
+                  <div className={cn(
+                    "w-full rounded-t-sm overflow-hidden flex flex-col-reverse h-full relative",
+                    d.isWeekend ? "bg-white/10 border-l border-r border-white/30" : "bg-white/5"
+                  )}>
+                    {d.isWeekend && (
+                      <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_3px,rgba(255,255,255,0.1)_3px,rgba(255,255,255,0.1)_6px)] pointer-events-none z-10" />
+                    )}
+                    <div 
+                      style={{ height: `${(d.work / maxVal) * 100}%` }} 
+                      className={cn(
+                        "w-full transition-all duration-500 relative z-0",
+                        d.isWeekend ? "bg-white/70" : "bg-white"
+                      )} 
+                    />
+                    <div 
+                      style={{ height: `${(d.rest / maxVal) * 100}%` }} 
+                      className={cn(
+                        "w-full transition-all duration-500 relative z-0",
+                        d.isWeekend ? "bg-white/30" : "bg-white/40"
+                      )} 
+                    />
+                  </div>
+
+                  {/* Label */}
+                  <div className="text-[10px] text-center text-white/50 mt-1 truncate w-full">
+                    {d.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </Modal>
   );
