@@ -19,7 +19,7 @@ export default defineConfig({
         'pwa-512x512.png'
       ],
       workbox: {
-        navigateFallbackDenylist: [/^\/adsterra-enclosure\.html/],
+        navigateFallbackDenylist: [/adsterra-enclosure\.html/],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
