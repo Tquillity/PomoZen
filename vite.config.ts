@@ -20,8 +20,15 @@ export default defineConfig({
       ],
       workbox: {
         navigateFallbackDenylist: [/^\/adsterra-enclosure\.html/],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname === '/adsterra-enclosure.html',
+            handler: 'NetworkOnly',
+          },
           {
             urlPattern: ({ url }) => url.pathname.startsWith('/sounds/') && url.pathname.endsWith('.mp3'),
             handler: 'CacheFirst',
