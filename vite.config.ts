@@ -16,8 +16,7 @@ export default defineConfig({
         'favicon.png', 
         'apple-touch-icon.png', 
         'pwa-192x192.png', 
-        'pwa-512x512.png',
-        'adsterra-enclosure.html'
+        'pwa-512x512.png'
       ],
       workbox: {
         navigateFallbackDenylist: [/^\/adsterra-enclosure\.html/],
