@@ -72,6 +72,22 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (zenModeEnabled && !isAudioUnlocked) {
+      const handleAnyClick = () => {
+        unlockAudio();
+      };
+      
+      document.addEventListener('click', handleAnyClick, { once: true });
+      document.addEventListener('touchstart', handleAnyClick, { once: true });
+      
+      return () => {
+        document.removeEventListener('click', handleAnyClick);
+        document.removeEventListener('touchstart', handleAnyClick);
+      };
+    }
+  }, [zenModeEnabled, isAudioUnlocked, unlockAudio]);
+
   return (
     <div className="h-screen w-full flex flex-col items-center transition-colors duration-500 relative overflow-hidden bg-(--theme-bg)">
 
@@ -117,13 +133,12 @@ function App() {
       <Footer />
 
       {zenModeEnabled && !isAudioUnlocked && (
-        <button
-          onClick={unlockAudio}
-          className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-xs font-medium z-50 animate-bounce hover:bg-black/90 focus:outline-none focus:ring-2 focus:ring-white/50 transition-colors"
-          aria-label="Click to enable Zen Audio"
+        <div
+          className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-full text-xs font-medium z-50 animate-bounce pointer-events-none"
+          aria-label="Click anywhere to enable Zen Audio"
         >
           Click anywhere to enable Zen Audio
-        </button>
+        </div>
       )}
 
       {storageError && (
