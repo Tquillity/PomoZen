@@ -18,7 +18,12 @@ export default defineConfig({
         name: 'PomoZen',
         short_name: 'PomoZen',
         description: 'Free Online Pomodoro Timer',
+        start_url: '/',
+        display: 'standalone',
+        background_color: '#c15c5c',
         theme_color: '#ba4949',
+        scope: '/',
+        id: '/',
         icons: [
           {
             src: 'pwa-192x192.png',
@@ -35,6 +40,9 @@ export default defineConfig({
     }),
     sitemap({ hostname: 'https://pomozen.online' })
   ],
+  // Note: CSP is set via meta tag in index.html
+  // frame-ancestors cannot be enforced via meta tag, so for production
+  // you should configure it via your hosting provider (Render) headers
   test: {
     globals: true,
     environment: 'jsdom',

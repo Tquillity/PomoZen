@@ -6,7 +6,6 @@ export const useKeyboardShortcuts = () => {
   const { startTimer, pauseTimer, resetTimer, isRunning } = useTimeStore();
   const { toggleSound, toggleFocusMode } = useSettingsStore();
   
-  // Use refs to access latest values without causing effect re-runs
   const actionsRef = useRef({ startTimer, pauseTimer, resetTimer, toggleSound, toggleFocusMode });
   const isRunningRef = useRef(isRunning);
   
@@ -20,7 +19,6 @@ export const useKeyboardShortcuts = () => {
       const active = document.activeElement as HTMLElement | null;
       const tag = active?.tagName?.toLowerCase();
 
-      // Ignore while interacting with form controls / interactive elements.
       if (
         tag === 'input' ||
         tag === 'textarea' ||
@@ -34,7 +32,7 @@ export const useKeyboardShortcuts = () => {
 
       switch (e.key.toLowerCase()) {
         case ' ':
-          e.preventDefault(); // Prevent scrolling
+          e.preventDefault();
           if (isRunningRef.current) actionsRef.current.pauseTimer();
           else actionsRef.current.startTimer();
           break;
@@ -52,6 +50,6 @@ export const useKeyboardShortcuts = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []); // Empty deps - handler uses refs for latest values
+  }, []);
 };
 

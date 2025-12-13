@@ -16,6 +16,8 @@ export const TaskBoard = () => {
   const [input, setInput] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuItemsRef = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -24,20 +26,49 @@ export const TaskBoard = () => {
       }
     };
 
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isMenuOpen) {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!isMenuOpen) return;
+
+      if (event.key === 'Escape') {
         setIsMenuOpen(false);
+        menuButtonRef.current?.focus();
+        return;
+      }
+
+      const menuItems = menuItemsRef.current.filter(Boolean) as HTMLButtonElement[];
+      if (menuItems.length === 0) return;
+
+      const currentIndex = menuItems.findIndex(item => item === document.activeElement);
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        const nextIndex = currentIndex < menuItems.length - 1 ? currentIndex + 1 : 0;
+        menuItems[nextIndex]?.focus();
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        const prevIndex = currentIndex > 0 ? currentIndex - 1 : menuItems.length - 1;
+        menuItems[prevIndex]?.focus();
+      } else if (event.key === 'Home') {
+        event.preventDefault();
+        menuItems[0]?.focus();
+      } else if (event.key === 'End') {
+        event.preventDefault();
+        menuItems[menuItems.length - 1]?.focus();
       }
     };
 
     if (isMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener('keydown', handleKeyDown);
+      setTimeout(() => {
+        const firstItem = menuItemsRef.current[0];
+        if (firstItem) firstItem.focus();
+      }, 0);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isMenuOpen]);
 
@@ -57,8 +88,9 @@ export const TaskBoard = () => {
 
         <div ref={menuRef} className="relative">
           <button
+            ref={menuButtonRef}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="text-white/70 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+            className="text-white/70 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label="Task Options"
             aria-expanded={isMenuOpen}
             aria-controls="task-options-menu"
@@ -76,16 +108,20 @@ export const TaskBoard = () => {
               className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50 overflow-hidden text-gray-800 ring-1 ring-black/5"
             >
               <button
+                ref={(el) => { menuItemsRef.current[0] = el; }}
                 onClick={() => { clearCompletedTasks(); setIsMenuOpen(false); }}
-                className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition-colors"
+                className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition-colors focus:outline-none focus:bg-gray-100"
                 role="menuitem"
+                tabIndex={0}
               >
                 Clear Completed
               </button>
               <button
+                ref={(el) => { menuItemsRef.current[1] = el; }}
                 onClick={() => { clearTasks(); setIsMenuOpen(false); }}
-                className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 text-sm transition-colors border-t border-gray-100"
+                className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 text-sm transition-colors border-t border-gray-100 focus:outline-none focus:bg-red-50"
                 role="menuitem"
+                tabIndex={0}
               >
                 Clear All
               </button>
@@ -129,35 +165,36 @@ export const TaskBoard = () => {
             </div>
         )}
         {tasks.map(task => (
-          <button
+          <div
             key={task.id}
-            onClick={() => setActiveTask(task.id)}
             className={clsx(
-              "group w-full text-left p-3 rounded-lg border transition-all flex justify-between items-center outline-none focus:ring-2 focus:ring-white/50",
+              "group w-full p-3 rounded-lg border transition-all flex justify-between items-center",
               activeTaskId === task.id
                 ? "bg-(--theme-primary)/40 border-white/30 shadow-lg translate-x-1"
                 : "bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10"
             )}
-            aria-label={`Task: ${task.title}. Click to set as active task.`}
           >
             <div className="flex items-center gap-3 flex-1 min-w-0">
                <button
-                 onClick={(e) => { e.stopPropagation(); toggleTask(task.id); }}
-                 onKeyDown={(e) => { e.stopPropagation(); }}
+                 onClick={() => toggleTask(task.id)}
                  className={clsx(
-                   "w-5 h-5 rounded-full border shrink-0 flex items-center justify-center transition-all",
+                   "w-5 h-5 rounded-full border shrink-0 flex items-center justify-center transition-all focus:outline-none focus:ring-2 focus:ring-white/50",
                    task.completed ? "bg-green-500 border-green-500" : "border-white/30 hover:border-white"
                  )}
                  aria-label={task.completed ? `Mark ${task.title} as incomplete` : `Mark ${task.title} as complete`}
                >
                  {task.completed && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>}
                </button>
-               <span className={clsx(
-                   "truncate text-sm transition-colors",
+               <button
+                 onClick={() => setActiveTask(task.id)}
+                 className={clsx(
+                   "flex-1 text-left truncate text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 rounded px-1 -mx-1",
                    task.completed ? "line-through text-white/40" : "text-white/90"
-               )}>
+                 )}
+                 aria-label={`Task: ${task.title}. Click to set as active task.`}
+               >
                  {task.title}
-               </span>
+               </button>
             </div>
 
             <div className="flex items-center gap-3 pl-2">
@@ -166,9 +203,8 @@ export const TaskBoard = () => {
                 </div>
 
                 <button
-                    onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}
-                    onKeyDown={(e) => { e.stopPropagation(); }}
-                    className="text-white/20 hover:text-red-400 p-1 rounded transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:text-red-400"
+                    onClick={() => deleteTask(task.id)}
+                    className="text-white/20 hover:text-red-400 p-1 rounded transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:text-red-400 focus:outline-none focus:ring-2 focus:ring-white/50"
                     aria-label={`Delete task: ${task.title}`}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
@@ -176,7 +212,7 @@ export const TaskBoard = () => {
                     </svg>
                 </button>
             </div>
-          </button>
+          </div>
         ))}
       </div>
     </div>

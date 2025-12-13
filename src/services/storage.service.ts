@@ -5,7 +5,6 @@ import { useSettingsStore } from '../store/useSettingsStore';
 import type { TimerMode } from '../types';
 
 const getDuration = (mode: TimerMode) => {
-  // Defensive fallback for invalid backups / test environments.
   const durations =
     useSettingsStore.getState?.()?.durations ??
     ({ pomodoro: 25, short: 5, long: 15 } as Record<TimerMode, number>);
@@ -129,7 +128,9 @@ const downloadJSON = (data: unknown, filename: string) => {
   a.href = url;
   a.download = filename;
   a.click();
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 100);
 };
 
 export const exportData = () => {
@@ -155,22 +156,6 @@ export const importData = async (file: File): Promise<boolean> => {
 
     const data = result.data;
 
-    // Restore full time store state (including history, timeLeft, isRunning)
-    useTimeStore.setState({ 
-      mode: data.timeStore.mode, 
-      pomodorosCompleted: data.timeStore.pomodorosCompleted,
-      timeLeft: data.timeStore.timeLeft ?? getDuration(data.timeStore.mode),
-      isRunning: data.timeStore.isRunning ?? false,
-      history: data.timeStore.history ?? {}
-    });
-    
-    // Restore full task store state (including activeTaskId)
-    useTaskStore.setState({ 
-      tasks: data.taskStore.tasks,
-      activeTaskId: data.taskStore.activeTaskId ?? null
-    });
-    
-    // Restore full settings store state (all properties)
     if (data.settingsStore) {
       useSettingsStore.setState({
         durations: data.settingsStore.durations,
@@ -185,6 +170,24 @@ export const importData = async (file: File): Promise<boolean> => {
         zenModeEnabled: data.settingsStore.zenModeEnabled
       });
     }
+
+    const importedDurations = data.settingsStore?.durations;
+    const fallbackDuration = importedDurations 
+      ? importedDurations[data.timeStore.mode] * 60
+      : getDuration(data.timeStore.mode);
+
+    useTimeStore.setState({ 
+      mode: data.timeStore.mode, 
+      pomodorosCompleted: data.timeStore.pomodorosCompleted,
+      timeLeft: data.timeStore.timeLeft ?? fallbackDuration,
+      isRunning: false,
+      history: data.timeStore.history ?? {}
+    });
+    
+    useTaskStore.setState({ 
+      tasks: data.taskStore.tasks,
+      activeTaskId: data.taskStore.activeTaskId ?? null
+    });
     
     return true;
   } catch {

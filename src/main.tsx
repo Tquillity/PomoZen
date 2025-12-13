@@ -5,7 +5,6 @@ import App from './App.tsx'
 import { ErrorBoundary } from './components/common/ErrorBoundary'
 import { initWebVitals } from './utils/performance'
 
-// Initialize performance monitoring
 initWebVitals()
 
 createRoot(document.getElementById('root')!).render(

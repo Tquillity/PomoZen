@@ -1,4 +1,3 @@
-// Calculate relative luminance (per WCAG definitions)
 export const getLuminance = (hex: string): number => {
   const c = hex.substring(1);
   const rgb = parseInt(c, 16);
@@ -6,7 +5,6 @@ export const getLuminance = (hex: string): number => {
   const g = (rgb >>  8) & 0xff;
   const b = (rgb >>  0) & 0xff;
 
-  // sRGB to LinRGB conversion formula
   const sRGB = [r, g, b].map(v => {
     v /= 255;
     return v <= 0.03928 ? v / 12.92 : Math.pow(((v + 0.055) / 1.055), 2.4);
@@ -15,10 +13,8 @@ export const getLuminance = (hex: string): number => {
   return 0.2126 * sRGB[0] + 0.7152 * sRGB[1] + 0.0722 * sRGB[2];
 };
 
-// Returns 'dark' or 'light' content style based on background
 export const getContrastStyle = (bgHex: string) => {
   const lum = getLuminance(bgHex);
-  // Threshold can be tweaked. 0.5 is standard, but 0.6 feels safer for legibility.
   const isBackgroundLight = lum > 0.6;
 
   return {

@@ -33,21 +33,7 @@ function getRating(name: string, value: number): 'good' | 'needs-improvement' | 
   return 'poor';
 }
 
-/**
- * Report Web Vital metric
- */
 function reportMetric(metric: WebVitalMetric) {
-  // Log to console in development
-  if (import.meta.env.DEV) {
-    console.log(`[Web Vital] ${metric.name}:`, {
-      value: metric.value.toFixed(2),
-      rating: metric.rating,
-      unit: metric.name === 'CLS' ? '' : 'ms',
-    });
-  }
-
-  // In production, you could send to analytics service
-  // Example: sendToAnalytics(metric);
 }
 
 /**

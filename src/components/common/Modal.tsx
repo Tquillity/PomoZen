@@ -14,10 +14,10 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
   const triggerElementRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
   const focusTimeoutRef = useRef<number | null>(null);
+  const previousOverflowRef = useRef<string>('');
 
   useEffect(() => {
     if (isOpen) {
-      // Capture the element that had focus before modal opened
       triggerElementRef.current = document.activeElement as HTMLElement;
     }
   }, [isOpen]);
@@ -46,13 +46,12 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
 
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
+      previousOverflowRef.current = document.body.style.overflow || '';
       document.body.style.overflow = 'hidden';
 
-      // Prevent screen readers from navigating the background content.
       const root = document.getElementById('root');
       root?.setAttribute('inert', '');
 
-      // Focus the first focusable element (fallback to modal container).
       focusTimeoutRef.current = window.setTimeout(() => {
         const focusables = modalRef.current?.querySelectorAll<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -63,7 +62,7 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = previousOverflowRef.current;
 
       const root = document.getElementById('root');
       root?.removeAttribute('inert');
@@ -73,7 +72,6 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
         focusTimeoutRef.current = null;
       }
       
-      // Return focus to the element that triggered the modal
       if (triggerElementRef.current) {
         triggerElementRef.current.focus();
         triggerElementRef.current = null;

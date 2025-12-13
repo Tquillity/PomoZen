@@ -48,7 +48,6 @@ class EventService {
     if (!this.listeners[event]) {
       this.listeners[event] = [];
     }
-    // TypeScript now knows this push is safe
     this.listeners[event]!.push(fn);
     return () => this.off(event, fn);
   }
@@ -63,13 +62,10 @@ class EventService {
   off<K extends keyof PomoEvents>(event: K, fn: Listener<K>) {
     const listeners = this.listeners[event];
     if (!listeners) return;
-    // Filter and reassign - TypeScript requires type assertion for mapped type assignment
-    // This is safe because we're filtering the same array type we started with
     const filtered = listeners.filter(l => l !== fn);
     if (filtered.length === 0) {
       delete this.listeners[event];
     } else {
-      // Type assertion needed due to TypeScript's conservative handling of mapped types
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (this.listeners as any)[event] = filtered;
     }

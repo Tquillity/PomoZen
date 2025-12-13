@@ -12,12 +12,10 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch() {
-    // Error logged to component state for user-facing error UI
   }
 
   handleFactoryReset = () => {
     if (confirm("This will wipe all data and reset the app. Are you sure?")) {
-      // Clear only app-owned keys; do not wipe unrelated origin storage.
       try {
         const keysToRemove = [
           'pomo-settings-storage',
@@ -26,7 +24,6 @@ export class ErrorBoundary extends Component<Props, State> {
         ];
         keysToRemove.forEach((k) => localStorage.removeItem(k));
       } catch {
-        // Ignore storage errors (private mode / blocked storage)
       }
       window.location.reload();
     }

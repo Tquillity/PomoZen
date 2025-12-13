@@ -22,9 +22,9 @@ export const ColorPsychologyModal = ({ isOpen, onClose }: Props) => {
         <div className="pt-4 border-t border-white/10">
           <p className="font-semibold mb-2 text-white/80">Scientific sources:</p>
           <ul className="text-xs space-y-1 text-white/60">
-            <li>• Elliot & Maier (2012). <a href="https://www.sciencedirect.com/science/article/abs/pii/B9780123942869000020" className="text-blue-600 underline hover:text-blue-800" target="_blank" rel="noopener noreferrer">Color-in-Context Theory</a></li>
-            <li>• Gnambs et al. (2015). <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2015.00368/full" className="text-blue-600 underline hover:text-blue-800" target="_blank" rel="noopener noreferrer">Color and psychological functioning review</a></li>
-            <li>• YesColours (2024). <a href="https://yescolours.com/blogs/news/science-behind-colours-for-focus-and-calm" className="text-blue-600 underline hover:text-blue-800" target="_blank" rel="noopener noreferrer">The Science Behind Colours That Boost Focus and Calm</a></li>
+            <li>• Elliot & Maier (2012). <a href="https://www.sciencedirect.com/science/article/abs/pii/B9780123942869000020" className="text-white underline hover:text-white/80" target="_blank" rel="noopener noreferrer">Color-in-Context Theory</a></li>
+            <li>• Gnambs et al. (2015). <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2015.00368/full" className="text-white underline hover:text-white/80" target="_blank" rel="noopener noreferrer">Color and psychological functioning review</a></li>
+            <li>• YesColours (2024). <a href="https://yescolours.com/blogs/news/science-behind-colours-for-focus-and-calm" className="text-white underline hover:text-white/80" target="_blank" rel="noopener noreferrer">The Science Behind Colours That Boost Focus and Calm</a></li>
           </ul>
         </div>
       </div>

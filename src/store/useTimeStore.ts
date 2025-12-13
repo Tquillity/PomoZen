@@ -65,7 +65,6 @@ interface TimeState {
  * @returns {number} Duration in seconds
  */
 const getDuration = (mode: TimerMode) => {
-  // Defensive fallback for test environments / corrupted persisted state.
   const durations =
     useSettingsStore.getState?.()?.durations ??
     ({ pomodoro: 25, short: 5, long: 15 } as Record<TimerMode, number>);
@@ -85,7 +84,11 @@ export const useTimeStore = create<TimeState>()(
         const { isRunning } = get();
         if (isRunning) return;
         set({ isRunning: true });
-        await getWorker().start(Comlink.proxy(() => get().tick()));
+        try {
+          await getWorker().start(Comlink.proxy(() => get().tick()));
+        } catch {
+          set({ isRunning: false });
+        }
       },
 
       pauseTimer: () => {
@@ -104,63 +107,59 @@ export const useTimeStore = create<TimeState>()(
         getWorker().reset();
       },
 
-      tick: () => {
+      tick: (elapsedSeconds: number = 1) => {
         const { timeLeft, mode, pomodorosCompleted, history } = get();
         
-        if (timeLeft > 1) {
-          set({ timeLeft: timeLeft - 1 });
+        const newTimeLeft = Math.max(0, timeLeft - elapsedSeconds);
+        
+        if (newTimeLeft > 0) {
+          set({ timeLeft: newTimeLeft });
           return;
         }
 
-        if (timeLeft === 1) {
-          set({ timeLeft: 0 });
+        set({ timeLeft: 0 });
+        get().pauseTimer();
+        events.emit('timer:complete', mode);
+        
+        if (mode === 'pomodoro') {
+          const activeId = useTaskStore.getState().activeTaskId;
+          if (activeId) {
+            useTaskStore.getState().updateActPomo(activeId);
+          }
         }
-
-        if (timeLeft <= 1) {
-          get().pauseTimer();
-          events.emit('timer:complete', mode);
-          
-          // Update task pomodoro count when pomodoro completes
-          if (mode === 'pomodoro') {
-            const activeId = useTaskStore.getState().activeTaskId;
-            if (activeId) {
-              useTaskStore.getState().updateActPomo(activeId);
-            }
-          }
-          
-          const todayKey = format(new Date(), 'yyyy-MM-dd');
-          const currentStats = history[todayKey] || { pomodoro: 0, short: 0, long: 0 };
-          
-          const newHistory = { 
-            ...history, 
-            [todayKey]: { 
-              ...currentStats, 
-              [mode]: currentStats[mode] + 1 
-            } 
-          };
-          
-          if (mode === 'pomodoro') {
-             const newCompleted = pomodorosCompleted + 1;
-             const nextMode = newCompleted % POMODOROS_PER_SET === 0 ? 'long' : 'short';
-             
-             set({ 
-               pomodorosCompleted: newCompleted, 
-               mode: nextMode,
-               timeLeft: getDuration(nextMode),
-               history: newHistory
-             });
-          } else {
-             set({ 
-               mode: 'pomodoro',
-               timeLeft: getDuration('pomodoro'),
-               history: newHistory
-             });
-          }
-          
-          const { autoStart } = useSettingsStore.getState();
-          if (autoStart) {
-            get().startTimer();
-          }
+        
+        const todayKey = format(new Date(), 'yyyy-MM-dd');
+        const currentStats = history[todayKey] || { pomodoro: 0, short: 0, long: 0 };
+        
+        const newHistory = { 
+          ...history, 
+          [todayKey]: { 
+            ...currentStats, 
+            [mode]: currentStats[mode] + 1 
+          } 
+        };
+        
+        if (mode === 'pomodoro') {
+           const newCompleted = pomodorosCompleted + 1;
+           const nextMode = newCompleted % POMODOROS_PER_SET === 0 ? 'long' : 'short';
+           
+           set({ 
+             pomodorosCompleted: newCompleted, 
+             mode: nextMode,
+             timeLeft: getDuration(nextMode),
+             history: newHistory
+           });
+        } else {
+           set({ 
+             mode: 'pomodoro',
+             timeLeft: getDuration('pomodoro'),
+             history: newHistory
+           });
+        }
+        
+        const { autoStart } = useSettingsStore.getState();
+        if (autoStart) {
+          get().startTimer();
         }
       }
     }),

@@ -41,7 +41,6 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
     
     switch (range) {
       case '7d': {
-        // Start of current week (Monday)
         const weekStart = startOfWeek(today, { weekStartsOn: 1 });
         return addWeeks(weekStart, offset);
       }
@@ -99,7 +98,6 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
     isWeekend?: boolean;
   };
 
-  // Pre-aggregate history once for efficient month-based views.
   const monthlyAgg = useMemo(() => {
     const agg: Record<string, { pomodoro: number; short: number; long: number }> = {};
     for (const [dayKey, stats] of Object.entries(history)) {
@@ -187,7 +185,6 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
       });
     }
 
-    // 'all': aggregated by month (last 24 months)
     const historyKeys = Object.keys(history).sort();
     if (historyKeys.length === 0) return [];
     const firstDate = parseISO(historyKeys[0]);
@@ -209,18 +206,15 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
     return data.length > 24 ? data.slice(-24) : data;
   }, [baseDate, durations.long, durations.pomodoro, durations.short, history, metric, monthlyAgg, range]);
 
-  // Calculate max value from actual data, with sensible fallbacks based on durations
   const maxVal = useMemo(() => {
     if (graphData.length === 0) {
-      // Fallback: estimate max based on range and durations
-      const maxPomosPerDay = 20; // Reasonable upper bound
+      const maxPomosPerDay = 20;
       const maxWork = maxPomosPerDay * durations.pomodoro;
       const maxRest = maxPomosPerDay * Math.max(durations.short, durations.long);
       return metric === 'minutes' ? (maxWork + maxRest) : maxPomosPerDay * 2;
     }
     const dataMax = Math.max(...graphData.map(d => d.total));
-    // Use data max, but ensure minimum visibility (at least 10% of max)
-    return Math.max(dataMax, dataMax * 0.1);
+    return Math.max(1, Math.max(dataMax, dataMax * 0.1));
   }, [graphData, durations.pomodoro, durations.short, durations.long, metric]);
 
   const handlePrevious = () => {

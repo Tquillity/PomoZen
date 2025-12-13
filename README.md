@@ -14,7 +14,7 @@ A privacy-first, offline-capable Pomodoro timer with ambient soundscapes. Built 
 - **Statistics**: Visual progress tracking with daily, weekly, monthly, and yearly views
 - **Customizable**: Adjustable timer durations, theme colors, and presets
 - **PWA Ready**: Installable as a Progressive Web App
-- **Accessible**: WCAG 2.2 AA compliant with keyboard navigation and screen reader support
+- **Accessible**: Designed for WCAG 2.2 AA compliance with keyboard navigation, screen reader support, and proper ARIA attributes
 
 ## Tech Stack
 

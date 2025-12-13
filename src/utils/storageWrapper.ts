@@ -1,4 +1,5 @@
 let quotaErrorHandler: (() => void) | null = null;
+let storageErrorWarningShown = false;
 
 export const setStorageQuotaErrorHandler = (handler: () => void) => {
   quotaErrorHandler = handler;
@@ -40,16 +41,13 @@ class SafeStorage implements Storage {
   constructor() {
     try {
       this.storage = localStorage;
-      // Probe write to detect restricted environments early.
       const probeKey = '__pomozen_storage_probe__';
       this.storage.setItem(probeKey, '1');
       this.storage.removeItem(probeKey);
     } catch {
       this.storage = new MemoryStorage();
-      // Show warning once per session
       if (!storageFallbackWarningShown && typeof window !== 'undefined') {
         storageFallbackWarningShown = true;
-        // Dispatch custom event that App.tsx can listen to
         window.dispatchEvent(new CustomEvent('storage-fallback', { 
           detail: { message: 'Persistence disabled. Data will not be saved between sessions.' }
         }));
@@ -86,10 +84,14 @@ class SafeStorage implements Storage {
         if (quotaErrorHandler) {
           quotaErrorHandler();
         }
-        // Swallow quota errors so persistence failure doesn't crash the app.
         return;
       }
-      // Other errors should not crash the app; degrade gracefully.
+      if (!storageErrorWarningShown && typeof window !== 'undefined') {
+        storageErrorWarningShown = true;
+        window.dispatchEvent(new CustomEvent('storage-error', { 
+          detail: { message: 'Storage write failed. Data may not be saved.', error: err?.name || 'Unknown error' }
+        }));
+      }
       return;
     }
   }
@@ -98,7 +100,6 @@ class SafeStorage implements Storage {
     try {
       this.storage.removeItem(key);
     } catch {
-      // Ignore errors on remove
     }
   }
 
@@ -106,7 +107,6 @@ class SafeStorage implements Storage {
     try {
       this.storage.clear();
     } catch {
-      // Ignore errors on clear
     }
   }
 }

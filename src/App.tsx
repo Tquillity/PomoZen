@@ -50,7 +50,6 @@ function App() {
       timeoutId = window.setTimeout(() => setStorageError(null), 5000);
     });
 
-    // Listen for storage fallback warnings
     const handleStorageFallback = (e: Event) => {
       const customEvent = e as CustomEvent<{ message: string }>;
       setStorageError(customEvent.detail.message);
@@ -72,7 +71,6 @@ function App() {
       <VisualBell />
       <ZenPlayer />
 
-      {/* Top Right Navigation */}
       <div className="absolute top-4 sm:top-6 right-4 sm:right-6 z-30 flex flex-col sm:flex-row items-end sm:items-center gap-2">
         <div className="flex flex-col sm:flex-row gap-2">
           <button onClick={() => setIsColorPsychOpen(true)} className="bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm font-medium px-3 sm:px-4 py-2 rounded-full transition-colors cursor-pointer whitespace-nowrap">Color Psychology</button>
@@ -88,7 +86,6 @@ function App() {
         </div>
       </div>
 
-      {/* Main Layout - Using justify-start and gap to prevent overlap */}
       <main className="flex-1 w-full flex flex-col items-center justify-start pt-4 sm:pt-6 pb-4 min-h-0 px-4 gap-[13px] overflow-y-auto custom-scrollbar z-10">
         <ModeSwitcher />
         
@@ -100,7 +97,6 @@ function App() {
           <TimerControls />
         </div>
 
-        {/* Task Board Wrapper - Flexible but limited height */}
         <div className="w-full flex justify-center shrink-0 mb-4">
           <TaskBoard />
         </div>
@@ -112,7 +108,6 @@ function App() {
 
       <Footer />
 
-      {/* Audio Unlock Toast */}
       {zenModeEnabled && !isAudioUnlocked && (
         <button
           onClick={unlockAudio}
@@ -123,14 +118,12 @@ function App() {
         </button>
       )}
 
-      {/* Storage Error Toast */}
       {storageError && (
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-full text-xs font-medium z-50 animate-bounce">
           {storageError}
         </div>
       )}
 
-      {/* Modals */}
       <Suspense fallback={null}>
         <ErrorBoundary>
           <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />

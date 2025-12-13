@@ -232,15 +232,12 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
               onClick={async () => {
                 const newValue = !isFocusMode;
                 toggleFocusMode();
-                // Trigger fullscreen with user gesture (button click)
                 if (newValue) {
                   try {
                     if (!document.fullscreenElement) {
                       await document.documentElement.requestFullscreen();
                     }
-                  } catch (error) {
-                    console.warn('Fullscreen request failed:', error);
-                    // Revert toggle if fullscreen fails
+                  } catch {
                     toggleFocusMode();
                   }
                 }
@@ -294,7 +291,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                   name="zen-track"
                   value={zenTrack}
                   onChange={(e) => setZenTrack(e.target.value as ZenTrack)}
-                  className="border border-white/30 bg-white/10 text-black rounded p-2 focus:ring-2 focus:ring-white/50 focus:outline-none"
+                  className="border border-white/30 bg-white/10 text-white rounded p-2 focus:ring-2 focus:ring-white/50 focus:outline-none"
                 >
                   <option value="rain">Heavy Rain</option>
                   <option value="forest">Forest Morning</option>

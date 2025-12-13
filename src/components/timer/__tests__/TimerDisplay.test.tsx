@@ -10,8 +10,11 @@ vi.mock('../../../store/useTimeStore', () => ({
 
 describe('TimerDisplay', () => {
   it('renders formatted time correctly', () => {
-    // Mock selector return value
-    (useTimeStore as unknown as ReturnType<typeof vi.fn>).mockReturnValue(1500); // 25 * 60
+    // Mock selector pattern: useTimeStore(selector) => selector(state)
+    const mockState = { timeLeft: 1500, isRunning: false };
+    (useTimeStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (selector: (state: typeof mockState) => unknown) => selector(mockState)
+    );
 
     render(<TimerDisplay />);
 
@@ -21,7 +24,10 @@ describe('TimerDisplay', () => {
   });
 
   it('renders zero correctly', () => {
-    (useTimeStore as unknown as ReturnType<typeof vi.fn>).mockReturnValue(0);
+    const mockState = { timeLeft: 0, isRunning: false };
+    (useTimeStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (selector: (state: typeof mockState) => unknown) => selector(mockState)
+    );
 
     render(<TimerDisplay />);
     expect(screen.getByText('00:00')).toBeInTheDocument();

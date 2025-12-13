@@ -1,0 +1,10 @@
+# ads.txt file for PomoZen
+# This file authorizes ad networks to sell inventory on this domain
+# 
+# Format: <Domain>, <Publisher Account ID>, <Relationship>, <Certification Authority ID>
+#
+# Example entries (replace with actual values from your ad network):
+# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+# 
+# For Adsterra (highperformanceformat.com), add your publisher ID here:
+# highperformanceformat.com, YOUR_PUBLISHER_ID, DIRECT

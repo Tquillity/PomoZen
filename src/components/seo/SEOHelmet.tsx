@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 export const SEOHelmet = () => {
   useEffect(() => {
-    const existingMetaTags = document.querySelectorAll('meta[name="description"], meta[name="keywords"], meta[property^="og:"], script[type="application/ld+json"]');
+    const existingMetaTags = document.querySelectorAll('meta[name="description"], meta[name="keywords"], meta[property^="og:"], meta[name^="twitter:"], script[type="application/ld+json"]');
     existingMetaTags.forEach(tag => tag.remove());
 
     const metaTags = [
@@ -12,6 +12,13 @@ export const SEOHelmet = () => {
       { property: 'og:title', content: 'Pomodoro Timer Online - PomoZen' },
       { property: 'og:url', content: 'https://pomozen.online' },
       { property: 'og:description', content: 'Free aesthetic Pomodoro timer with white noise and tasks.' },
+      { property: 'og:image', content: 'https://pomozen.online/PomoZen.png' },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: 'Pomodoro Timer Online - PomoZen' },
+      { name: 'twitter:description', content: 'Free aesthetic Pomodoro timer with white noise and tasks.' },
+      { name: 'twitter:image', content: 'https://pomozen.online/PomoZen.png' },
     ];
 
     metaTags.forEach(tag => {
@@ -46,7 +53,7 @@ export const SEOHelmet = () => {
     document.head.appendChild(script);
 
     return () => {
-      const addedMetaTags = document.querySelectorAll('meta[name="description"], meta[name="keywords"], meta[property^="og:"], script[type="application/ld+json"]');
+      const addedMetaTags = document.querySelectorAll('meta[name="description"], meta[name="keywords"], meta[property^="og:"], meta[name^="twitter:"], script[type="application/ld+json"]');
       addedMetaTags.forEach(tag => tag.remove());
     };
   }, []);
