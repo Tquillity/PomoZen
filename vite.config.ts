@@ -12,8 +12,18 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      // Includes all mp3s in public/sounds/ to guarantee offline availability
-      includeAssets: ['favicon.png', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png', 'sounds/*.mp3'],
+      includeAssets: [
+        'favicon.png', 
+        'apple-touch-icon.png', 
+        'pwa-192x192.png', 
+        'pwa-512x512.png', 
+        'sounds/*.mp3',
+        'adsterra-enclosure.html'
+      ],
+      workbox: {
+        navigateFallbackDenylist: [/^\/adsterra-enclosure\.html/],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,mp3}']
+      },
       manifest: {
         name: 'PomoZen',
         short_name: 'PomoZen',
