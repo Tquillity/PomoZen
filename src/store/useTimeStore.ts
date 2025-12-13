@@ -17,6 +17,7 @@ import { useSettingsStore } from './useSettingsStore';
 import { useTaskStore } from './useTaskStore';
 import { format } from 'date-fns';
 import { createSafeStorage } from '../utils/storageWrapper';
+import { getDuration } from '../utils/timerDefaults';
 
 const POMODOROS_PER_SET = 4;
 
@@ -57,19 +58,6 @@ interface TimeState {
   setMode: (mode: TimerMode) => void;
   tick: () => void;
 }
-
-/**
- * Get duration in seconds for a timer mode.
- * 
- * @param {TimerMode} mode - Timer mode to get duration for
- * @returns {number} Duration in seconds
- */
-const getDuration = (mode: TimerMode) => {
-  const durations =
-    useSettingsStore.getState?.()?.durations ??
-    ({ pomodoro: 25, short: 5, long: 15 } as Record<TimerMode, number>);
-  return durations[mode] * 60;
-};
 
 export const useTimeStore = create<TimeState>()(
   persist(

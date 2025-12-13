@@ -3,12 +3,9 @@
   <head>
     <meta charset="UTF-8" />
 
-    <!-- Google Consent Mode v2 - EEA/UK/CH/Swiss regions require consent banners -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      // Default to denied for EEA/UK/CH regions (GDPR/ePrivacy compliance)
-      // Consent should be requested via a consent banner before granting
       gtag('consent', 'default', {
         'ad_storage': 'denied',
         'ad_user_data': 'denied',
@@ -16,7 +13,6 @@
         'analytics_storage': 'denied',
         'region': ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO', 'GB', 'CH']
       });
-      // For non-EEA regions, grant by default (can be customized based on actual requirements)
       gtag('consent', 'default', {
         'ad_storage': 'granted',
         'ad_user_data': 'granted',
@@ -25,7 +21,6 @@
       });
     </script>
 
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQEKQ32WBZ"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -34,8 +29,6 @@
       gtag('config', 'G-TQEKQ32WBZ');
     </script>
 
-    <!-- FIX: SPECIFIC FAVICONS FOR GOOGLE SEARCH -->
-    <!-- Google prefers 48x48, 96x96, or 192x192 -->
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" /> 
     <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -46,7 +39,7 @@
         default-src 'self';
         base-uri 'self';
         object-src 'none';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://www.highperformanceformat.com;
+        script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://www.highperformanceformat.com;
         style-src 'self' 'unsafe-inline';
         img-src 'self' data: https:;
         font-src 'self' data:;
@@ -59,24 +52,19 @@
       "
     >
 
-    <!-- Initial Title (Will be overwritten by React, but good for crawlers) -->
     <title>Pomodoro Timer Online - PomoZen Focus Tool</title>
     <meta name="description" content="Free online Pomodoro timer to boost productivity. Features aesthetic themes, ambient background noise, task tracking, and works offline.">
     <link rel="canonical" href="https://pomozen.online/" />
 
-    <!-- Google Tag Manager (GTM) -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-P7W5JCW8');</script>
-    <!-- End Google Tag Manager -->
   </head>
   <body>
-    <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P7W5JCW8"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

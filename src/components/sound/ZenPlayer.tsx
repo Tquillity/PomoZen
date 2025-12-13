@@ -13,6 +13,7 @@ export const ZenPlayer = () => {
   const { zenModeEnabled, zenTrack, zenVolume, zenStrategy, isAudioUnlocked } = useSettingsStore();
   const mode = useTimeStore(state => state.mode);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playPromiseRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
     const audio = new Audio();
@@ -20,10 +21,19 @@ export const ZenPlayer = () => {
     audioRef.current = audio;
 
     return () => {
-      audio.pause();
+      if (playPromiseRef.current) {
+        playPromiseRef.current.then(() => {
+          audio.pause();
+        }).catch(() => {
+          audio.pause();
+        });
+      } else {
+        audio.pause();
+      }
       audio.src = '';
       audio.load();
       audioRef.current = null;
+      playPromiseRef.current = null;
     };
   }, []);
 
@@ -44,12 +54,30 @@ export const ZenPlayer = () => {
     );
 
     if (shouldPlay) {
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {});
+      if (playPromiseRef.current) {
+        playPromiseRef.current.then(() => {
+          playPromiseRef.current = audio.play();
+          playPromiseRef.current?.catch(() => {});
+        }).catch(() => {
+          playPromiseRef.current = audio.play();
+          playPromiseRef.current?.catch(() => {});
+        });
+      } else {
+        playPromiseRef.current = audio.play();
+        playPromiseRef.current?.catch(() => {});
       }
     } else {
-      audio.pause();
+      if (playPromiseRef.current) {
+        playPromiseRef.current.then(() => {
+          audio.pause();
+          playPromiseRef.current = null;
+        }).catch(() => {
+          audio.pause();
+          playPromiseRef.current = null;
+        });
+      } else {
+        audio.pause();
+      }
     }
   }, [zenModeEnabled, zenTrack, zenStrategy, mode, isAudioUnlocked]);
 

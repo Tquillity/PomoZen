@@ -2,14 +2,6 @@ import { z } from 'zod';
 import { useTimeStore } from '../store/useTimeStore';
 import { useTaskStore } from '../store/useTaskStore';
 import { useSettingsStore } from '../store/useSettingsStore';
-import type { TimerMode } from '../types';
-
-const getDuration = (mode: TimerMode) => {
-  const durations =
-    useSettingsStore.getState?.()?.durations ??
-    ({ pomodoro: 25, short: 5, long: 15 } as Record<TimerMode, number>);
-  return durations[mode] * 60;
-};
 
 const TimerModeSchema = z.enum(['pomodoro', 'short', 'long']);
 
@@ -156,9 +148,14 @@ export const importData = async (file: File): Promise<boolean> => {
 
     const data = result.data;
 
+    const currentDurations = useSettingsStore.getState().durations;
+    const importedDurations = data.settingsStore?.durations;
+    
+    const effectiveDurations = importedDurations ?? currentDurations;
+
     if (data.settingsStore) {
       useSettingsStore.setState({
-        durations: data.settingsStore.durations,
+        durations: effectiveDurations,
         themeColors: data.settingsStore.themeColors,
         zenTrack: data.settingsStore.zenTrack,
         zenVolume: data.settingsStore.zenVolume,
@@ -171,10 +168,7 @@ export const importData = async (file: File): Promise<boolean> => {
       });
     }
 
-    const importedDurations = data.settingsStore?.durations;
-    const fallbackDuration = importedDurations 
-      ? importedDurations[data.timeStore.mode] * 60
-      : getDuration(data.timeStore.mode);
+    const fallbackDuration = effectiveDurations[data.timeStore.mode] * 60;
 
     useTimeStore.setState({ 
       mode: data.timeStore.mode, 
@@ -191,7 +185,11 @@ export const importData = async (file: File): Promise<boolean> => {
     
     return true;
   } catch {
-    alert("Failed to import file. It may be corrupt or invalid.");
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('storage-error', {
+        detail: { message: 'Failed to import file. It may be corrupt or invalid.' }
+      }));
+    }
     return false;
   }
 };
@@ -232,7 +230,11 @@ export const importSettingsOnly = async (file: File): Promise<boolean> => {
         });
         return true;
     } catch {
-        alert("Invalid settings file. It may be corrupt or invalid.");
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('storage-error', {
+            detail: { message: 'Invalid settings file. It may be corrupt or invalid.' }
+          }));
+        }
         return false;
     }
 };

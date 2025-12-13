@@ -33,7 +33,7 @@ function getRating(name: string, value: number): 'good' | 'needs-improvement' | 
   return 'poor';
 }
 
-function reportMetric(metric: WebVitalMetric) {
+function reportMetric(_metric: WebVitalMetric) {
 }
 
 /**
@@ -42,7 +42,6 @@ function reportMetric(metric: WebVitalMetric) {
 export function initWebVitals() {
   if (typeof window === 'undefined') return;
 
-  // LCP - Largest Contentful Paint
   if ('PerformanceObserver' in window) {
     try {
       const lcpObserver = new PerformanceObserver((list) => {
@@ -62,10 +61,8 @@ export function initWebVitals() {
       
       lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
     } catch {
-      // LCP not supported
     }
 
-    // FID - First Input Delay
     try {
       const fidObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
@@ -81,10 +78,8 @@ export function initWebVitals() {
       
       fidObserver.observe({ entryTypes: ['first-input'] });
     } catch {
-      // FID not supported
     }
 
-    // CLS - Cumulative Layout Shift
     try {
       let clsValue = 0;
       const clsObserver = new PerformanceObserver((list) => {
@@ -108,10 +103,8 @@ export function initWebVitals() {
       
       clsObserver.observe({ entryTypes: ['layout-shift'] });
     } catch {
-      // CLS not supported
     }
 
-    // FCP - First Contentful Paint
     try {
       const fcpObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
@@ -128,11 +121,9 @@ export function initWebVitals() {
       
       fcpObserver.observe({ entryTypes: ['paint'] });
     } catch {
-      // FCP not supported
     }
   }
 
-  // TTFB - Time to First Byte (using Navigation Timing API)
   if ('performance' in window && 'timing' in window.performance) {
     const timing = window.performance.timing;
     const ttfb = timing.responseStart - timing.requestStart;

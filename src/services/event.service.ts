@@ -33,7 +33,6 @@ type Listener<K extends keyof PomoEvents> = (data: PomoEvents[K]) => void;
  * @class EventService
  */
 class EventService {
-  // Use a mapped type for the listeners storage
   private listeners: { [K in keyof PomoEvents]?: Listener<K>[] } = {};
 
   /**

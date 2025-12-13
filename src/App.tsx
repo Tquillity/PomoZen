@@ -56,11 +56,19 @@ function App() {
       if (timeoutId !== null) window.clearTimeout(timeoutId);
       timeoutId = window.setTimeout(() => setStorageError(null), 5000);
     };
+    const handleStorageError = (e: Event) => {
+      const customEvent = e as CustomEvent<{ message: string }>;
+      setStorageError(customEvent.detail.message);
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => setStorageError(null), 5000);
+    };
     window.addEventListener('storage-fallback', handleStorageFallback);
+    window.addEventListener('storage-error', handleStorageError);
 
     return () => {
       if (timeoutId !== null) window.clearTimeout(timeoutId);
       window.removeEventListener('storage-fallback', handleStorageFallback);
+      window.removeEventListener('storage-error', handleStorageError);
     };
   }, []);
 

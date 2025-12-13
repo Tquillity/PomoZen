@@ -27,17 +27,40 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
       if (e.key === 'Escape') onClose();
 
       if (e.key === 'Tab' && modalRef.current) {
-        const focusables = modalRef.current.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
+        const focusableSelector = [
+          'a[href]',
+          'area[href]',
+          'input:not([disabled])',
+          'select:not([disabled])',
+          'textarea:not([disabled])',
+          'button:not([disabled])',
+          'iframe',
+          'object',
+          'embed',
+          '[contenteditable]',
+          'audio[controls]',
+          'video[controls]',
+          'summary',
+          '[tabindex]:not([tabindex="-1"])'
+        ].join(',');
+        
+        const focusables = Array.from(
+          modalRef.current.querySelectorAll<HTMLElement>(focusableSelector)
+        ).filter(el => {
+          const style = window.getComputedStyle(el);
+          return style.display !== 'none' && style.visibility !== 'hidden';
+        });
+        
         if (focusables.length === 0) return;
         
-        const first = focusables[0] as HTMLElement;
-        const last = focusables[focusables.length - 1] as HTMLElement;
-        if (e.shiftKey && document.activeElement === first) {
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const activeElement = document.activeElement as HTMLElement;
+        
+        if (e.shiftKey && activeElement === first) {
           last.focus();
           e.preventDefault();
-        } else if (!e.shiftKey && document.activeElement === last) {
+        } else if (!e.shiftKey && activeElement === last) {
           first.focus();
           e.preventDefault();
         }
@@ -53,10 +76,30 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
       root?.setAttribute('inert', '');
 
       focusTimeoutRef.current = window.setTimeout(() => {
-        const focusables = modalRef.current?.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        (focusables?.[0] ?? modalRef.current)?.focus();
+        const focusableSelector = [
+          'a[href]',
+          'area[href]',
+          'input:not([disabled])',
+          'select:not([disabled])',
+          'textarea:not([disabled])',
+          'button:not([disabled])',
+          'iframe',
+          'object',
+          'embed',
+          '[contenteditable]',
+          'audio[controls]',
+          'video[controls]',
+          'summary',
+          '[tabindex]:not([tabindex="-1"])'
+        ].join(',');
+        
+        const focusables = Array.from(
+          modalRef.current?.querySelectorAll<HTMLElement>(focusableSelector) ?? []
+        ).filter(el => {
+          const style = window.getComputedStyle(el);
+          return style.display !== 'none' && style.visibility !== 'hidden';
+        });
+        (focusables[0] ?? modalRef.current)?.focus();
       }, 0);
     }
 
