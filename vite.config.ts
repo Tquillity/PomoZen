@@ -24,6 +24,7 @@ export default defineConfig({
         clientsClaim: true,
         skipWaiting: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        globIgnores: ['**/adsterra-enclosure.html'],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.pathname === '/adsterra-enclosure.html',
