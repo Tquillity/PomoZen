@@ -16,13 +16,28 @@ export default defineConfig({
         'favicon.png', 
         'apple-touch-icon.png', 
         'pwa-192x192.png', 
-        'pwa-512x512.png', 
-        'sounds/*.mp3',
+        'pwa-512x512.png',
         'adsterra-enclosure.html'
       ],
       workbox: {
         navigateFallbackDenylist: [/^\/adsterra-enclosure\.html/],
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,mp3}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/sounds/') && url.pathname.endsWith('.mp3'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'pomozen-sounds-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
+        ]
       },
       manifest: {
         name: 'PomoZen',
