@@ -29,7 +29,7 @@ export const AdContainer = () => {
       <div className="w-full max-w-[728px] h-[90px] bg-black/20 backdrop-blur-md rounded-xl border border-white/10 overflow-hidden relative shadow-lg flex justify-center items-center">
         <iframe 
           title="Advertisement"
-          src={`/adsterra-enclosure.html?key=${encodeURIComponent(adKey)}`}
+          src={`/pomo-ads.html?key=${encodeURIComponent(adKey)}`}
           width="728"
           height="90"
           className="border-0 overflow-hidden origin-center transform scale-[0.45] sm:scale-[0.75] md:scale-100 transition-transform duration-300"

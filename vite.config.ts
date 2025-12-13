@@ -19,15 +19,15 @@ export default defineConfig({
         'pwa-512x512.png'
       ],
       workbox: {
-        navigateFallbackDenylist: [/adsterra-enclosure\.html/],
+        navigateFallbackDenylist: [/pomo-ads\.html/],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        globIgnores: ['**/adsterra-enclosure.html'],
+        globIgnores: ['**/pomo-ads.html'],
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => url.pathname === '/adsterra-enclosure.html',
+            urlPattern: ({ url }) => url.pathname.includes('pomo-ads.html'),
             handler: 'NetworkOnly',
           },
           {
