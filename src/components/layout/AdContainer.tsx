@@ -26,23 +26,17 @@ export const AdContainer = () => {
 
   return (
     <div className="w-full flex justify-center my-8 px-4 z-10">
-      <div className="w-full max-w-[728px] h-[41px] sm:h-[68px] md:h-[90px] bg-black/20 backdrop-blur-md rounded-xl border border-white/10 overflow-hidden relative shadow-lg">
-        <div className="w-full h-full flex items-center justify-center">
-          <iframe 
-            title="Advertisement"
-            src={`/pomo-ads.html?key=${encodeURIComponent(adKey)}`}
-            width="728"
-            height="90"
-            className="border-0 origin-center transform scale-[0.45] sm:scale-[0.75] md:scale-100 transition-transform duration-300"
-            style={{
-              width: '728px',
-              height: '90px',
-            }}
-            scrolling="no"
-            sandbox="allow-scripts allow-popups allow-same-origin"
-            loading="lazy"
-          />
-        </div>
+      <div className="w-full max-w-[330px] sm:max-w-[550px] md:max-w-[728px] h-[42px] sm:h-[68px] md:h-[90px] bg-black/20 backdrop-blur-md rounded-xl border border-white/10 overflow-hidden relative shadow-lg flex justify-center items-center transition-all duration-300">
+        <iframe 
+          title="Advertisement"
+          src={`/pomo-ads.html?key=${encodeURIComponent(adKey)}`}
+          width="728"
+          height="90"
+          className="border-0 overflow-hidden origin-center transform scale-[0.45] sm:scale-[0.75] md:scale-100 transition-transform duration-300"
+          scrolling="no"
+          sandbox="allow-scripts allow-popups allow-same-origin"
+          loading="lazy"
+        />
       </div>
     </div>
   );
