@@ -95,7 +95,7 @@ function App() {
       <VisualBell />
       <ZenPlayer />
 
-      <div className="w-full flex justify-end px-4 pt-4 sm:absolute sm:top-6 sm:right-6 z-30">
+      <div className="w-full flex justify-end items-center px-4 pt-4 sm:absolute sm:top-6 sm:right-6 z-30">
         <div className="flex flex-col items-end sm:flex-row sm:items-center gap-2">
           <div className="hidden sm:flex flex-row gap-2">
             <button onClick={() => setIsColorPsychOpen(true)} className="bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm font-medium px-3 sm:px-4 py-2 rounded-full transition-colors cursor-pointer whitespace-nowrap">Color Psychology</button>
