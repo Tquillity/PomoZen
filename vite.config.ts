@@ -19,7 +19,7 @@ export default defineConfig({
         'pwa-512x512.png'
       ],
       workbox: {
-        navigateFallbackDenylist: [/pomo-ads\.html/],
+        navigateFallbackDenylist: [/^\/pomo-ads\.html/],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
