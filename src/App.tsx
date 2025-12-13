@@ -95,19 +95,14 @@ function App() {
       <VisualBell />
       <ZenPlayer />
 
-      {/* HEADER SECTION */}
-      {/* Fixed: Use flex-row and items-center to keep icons centered and aligned */}
       <div className="w-full flex justify-end px-4 pt-6 sm:absolute sm:top-6 sm:right-6 z-30">
         <div className="flex flex-row items-center gap-2">
-          
-          {/* Text Buttons: Hidden on Mobile, Visible on Desktop */}
           <div className="hidden sm:flex flex-row gap-2">
             <button onClick={() => setIsColorPsychOpen(true)} className="bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm font-medium px-3 sm:px-4 py-2 rounded-full transition-colors cursor-pointer whitespace-nowrap">Color Psychology</button>
             <button onClick={() => setIsGuideOpen(true)} className="bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm font-medium px-3 sm:px-4 py-2 rounded-full transition-colors cursor-pointer whitespace-nowrap">Pomodoro Technique</button>
           </div>
 
           <div className="flex gap-2">
-            {/* Mobile Only: Help Icon */}
             <button 
               onClick={() => setIsGuideOpen(true)} 
               className="sm:hidden bg-white/20 p-2 rounded-full hover:bg-white/30 text-white transition-colors cursor-pointer flex items-center justify-center" 

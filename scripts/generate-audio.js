@@ -10,10 +10,8 @@ if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
 }
 
-// Open Source Sound URLs
 const SOUNDS = {
     'click.mp3': 'https://www.soundjay.com/buttons/sounds/button-30.mp3',
-    // CHANGED: Using a calm bell ringing sound instead of microwave bell
     'alarm.mp3': 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'
 };
 
