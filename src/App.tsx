@@ -10,6 +10,7 @@ import { ZenPlayer } from './components/sound/ZenPlayer';
 import { SEOHelmet } from './components/seo/SEOHelmet';
 import { VisualBell } from './components/common/VisualBell';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { SwitchModeModal } from './components/modals/SwitchModeModal';
 
 import { useTheme } from './hooks/useTheme';
 import { useTimerEffects } from './hooks/useTimerEffects';
@@ -18,10 +19,12 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useFocusMode } from './hooks/useFocusMode';
 
 import { useSettingsStore } from './store/useSettingsStore';
+import { useTimeStore } from './store/useTimeStore';
 
 import { setStorageQuotaErrorHandler } from './utils/storageWrapper';
 
 import { PomodoroGuideModal } from './components/modals/PomodoroGuideModal';
+import type { TimerMode } from './types';
 
 const SettingsModal = lazy(() => import('./components/settings/SettingsModal').then(module => ({ default: module.SettingsModal })));
 const StatsModal = lazy(() => import('./components/stats/StatsModal').then(module => ({ default: module.StatsModal })));
@@ -39,8 +42,21 @@ function App() {
   const [isColorPsychOpen, setIsColorPsychOpen] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
+  const [switchModalState, setSwitchModalState] = useState<{
+    isOpen: boolean;
+    currentMode: TimerMode;
+    targetMode: TimerMode;
+    wasRunning: boolean;
+  }>({
+    isOpen: false,
+    currentMode: 'pomodoro',
+    targetMode: 'pomodoro',
+    wasRunning: false,
+  });
   
   const { zenModeEnabled, isAudioUnlocked, unlockAudio } = useSettingsStore();
+  const startTimer = useTimeStore(state => state.startTimer);
+  const switchModeWithSkip = useTimeStore(state => state.switchModeWithSkip);
 
   useEffect(() => {
     let timeoutId: number | null = null;
@@ -88,6 +104,28 @@ function App() {
     }
   }, [zenModeEnabled, isAudioUnlocked, unlockAudio]);
 
+  const handleDirtySwitch = ({ targetMode, currentMode, wasRunning }: { targetMode: TimerMode; currentMode: TimerMode; wasRunning: boolean }) => {
+    setSwitchModalState({
+      isOpen: true,
+      targetMode,
+      currentMode,
+      wasRunning,
+    });
+  };
+
+  const handleConfirmSwitch = () => {
+    switchModeWithSkip(switchModalState.targetMode);
+    setSwitchModalState(prev => ({ ...prev, isOpen: false }));
+  };
+
+  const handleCancelSwitch = () => {
+    const shouldResume = switchModalState.wasRunning;
+    setSwitchModalState(prev => ({ ...prev, isOpen: false }));
+    if (shouldResume) {
+      startTimer();
+    }
+  };
+
   return (
     <div className="h-screen w-full flex flex-col items-center transition-colors duration-500 relative overflow-hidden bg-(--theme-bg)">
 
@@ -95,8 +133,8 @@ function App() {
       <VisualBell />
       <ZenPlayer />
 
-      <div className="w-full flex justify-end px-4 pt-6 sm:absolute sm:top-6 sm:right-6 z-30">
-        <div className="flex flex-row items-center gap-2">
+      <div className="w-full flex justify-end px-4 pt-6 sm:absolute sm:top-6 sm:right-6 z-30 pointer-events-none">
+        <div className="flex flex-row items-center gap-2 pointer-events-auto">
           <div className="hidden sm:flex flex-row gap-2">
             <button onClick={() => setIsColorPsychOpen(true)} className="bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm font-medium px-3 sm:px-4 py-2 rounded-full transition-colors cursor-pointer whitespace-nowrap">Color Psychology</button>
             <button onClick={() => setIsGuideOpen(true)} className="bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm font-medium px-3 sm:px-4 py-2 rounded-full transition-colors cursor-pointer whitespace-nowrap">Pomodoro Technique</button>
@@ -124,7 +162,7 @@ function App() {
       </div>
 
       <main className="flex-1 w-full flex flex-col items-center justify-start pt-2 sm:pt-6 pb-4 min-h-0 px-4 gap-[13px] overflow-y-auto custom-scrollbar z-10">
-        <ModeSwitcher />
+        <ModeSwitcher onDirtySwitch={handleDirtySwitch} />
         
         <div className="shrink-0">
           <TimerDisplay />
@@ -159,6 +197,14 @@ function App() {
           {storageError}
         </div>
       )}
+
+      <SwitchModeModal
+        isOpen={switchModalState.isOpen}
+        currentMode={switchModalState.currentMode}
+        targetMode={switchModalState.targetMode}
+        onCancel={handleCancelSwitch}
+        onConfirm={handleConfirmSwitch}
+      />
 
       <Suspense fallback={null}>
         <ErrorBoundary>

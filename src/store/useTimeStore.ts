@@ -43,6 +43,7 @@ interface DailyStats {
  * @property {() => void} pauseTimer - Pause the timer
  * @property {() => void} resetTimer - Reset timer to initial duration for current mode
  * @property {(mode: TimerMode) => void} setMode - Change timer mode and reset
+ * @property {(mode: TimerMode) => void} switchModeWithSkip - Skip current session and switch modes while maintaining cycle position
  * @property {() => void} tick - Decrement timer (called by worker)
  */
 interface TimeState {
@@ -56,6 +57,7 @@ interface TimeState {
   pauseTimer: () => void;
   resetTimer: () => void;
   setMode: (mode: TimerMode) => void;
+  switchModeWithSkip: (mode: TimerMode) => void;
   tick: () => void;
 }
 
@@ -92,6 +94,22 @@ export const useTimeStore = create<TimeState>()(
 
       setMode: (mode) => {
         set({ mode, isRunning: false, timeLeft: getDuration(mode) });
+        getWorker().reset();
+      },
+
+      switchModeWithSkip: (targetMode) => {
+        const { mode, pomodorosCompleted } = get();
+
+        const shouldIncrement =
+          mode === 'pomodoro' && targetMode !== 'pomodoro';
+
+        set({
+          pomodorosCompleted: shouldIncrement ? pomodorosCompleted + 1 : pomodorosCompleted,
+          mode: targetMode,
+          isRunning: false,
+          timeLeft: getDuration(targetMode),
+        });
+
         getWorker().reset();
       },
 
