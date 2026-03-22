@@ -16,7 +16,7 @@ export const PomodoroGuideModal = ({ isOpen, onClose }: Props) => {
     <Modal isOpen={isOpen} onClose={onClose} title="The Pomodoro Technique">
       
       {/* Tab Navigation */}
-      <div className="flex p-1 bg-black/20 rounded-lg mb-6 sticky top-0 backdrop-blur-sm z-10">
+      <div className="app-segmented flex mb-6 sticky top-0 backdrop-blur-sm z-10">
         <button
           onClick={() => setActiveTab('guide')}
           className={cn(
@@ -41,13 +41,13 @@ export const PomodoroGuideModal = ({ isOpen, onClose }: Props) => {
         </button>
       </div>
 
-      <div className="space-y-6 text-sm leading-relaxed text-white/80">
+      <div className="app-modal-stack app-body-copy">
         
         {/* TAB 1: GUIDE (Original Content) */}
         {activeTab === 'guide' && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-        <div>
-          <p className="font-semibold text-white mb-2">What is PomoZen?</p>
+          <div className="app-modal-stack animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="app-subsurface rounded-2xl p-4 sm:p-5">
+          <p className="app-modal-section-title">What is PomoZen?</p>
           <p>
             PomoZen is a customizable, privacy-first focus timer designed to help you enter flow state.
                 It is inspired by the <a href="https://www.pomodorotechnique.com/" target="_blank" rel="noopener noreferrer" className="text-white underline font-bold decoration-white/50 hover:text-white/90">Pomodoro Technique®</a>,
@@ -55,41 +55,41 @@ export const PomodoroGuideModal = ({ isOpen, onClose }: Props) => {
           </p>
         </div>
 
-        <div>
-          <p className="font-semibold text-white mb-2">What is the Pomodoro Technique?</p>
+        <div className="app-subsurface rounded-2xl p-4 sm:p-5">
+          <p className="app-modal-section-title">What is the Pomodoro Technique?</p>
           <p>
             The Pomodoro Technique is a time management method developed by Francesco Cirillo in the late 1980s. It uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks.
           </p>
         </div>
 
-        <div>
-          <p className="font-semibold text-white mb-2">How to use PomoZen</p>
+        <div className="app-subsurface rounded-2xl p-4 sm:p-5">
+          <p className="app-modal-section-title">How to use PomoZen</p>
               <ul className="space-y-2">
-                <li className="flex gap-2">
+                <li className="flex gap-2 rounded-xl bg-white/5 px-3 py-2.5">
                   <span className="text-white font-bold">•</span>
                   <span><strong className="text-white">Add a Task:</strong> Use the task input to define what you want to work on.</span>
                 </li>
-                <li className="flex gap-2">
+                <li className="flex gap-2 rounded-xl bg-white/5 px-3 py-2.5">
                   <span className="text-white font-bold">•</span>
                   <span><strong className="text-white">Start the Timer:</strong> Click Start to begin your 25-minute focus session.</span>
                 </li>
-                <li className="flex gap-2">
+                <li className="flex gap-2 rounded-xl bg-white/5 px-3 py-2.5">
                   <span className="text-white font-bold">•</span>
                   <span><strong className="text-white">Work until the Alarm:</strong> Focus exclusively on the task. No distractions.</span>
                 </li>
-                <li className="flex gap-2">
+                <li className="flex gap-2 rounded-xl bg-white/5 px-3 py-2.5">
                   <span className="text-white font-bold">•</span>
                   <span><strong className="text-white">Take a Break:</strong> When the alarm rings, take a 5-minute break.</span>
                 </li>
-                <li className="flex gap-2">
+                <li className="flex gap-2 rounded-xl bg-white/5 px-3 py-2.5">
                   <span className="text-white font-bold">•</span>
                   <span><strong className="text-white">Repeat:</strong> After 4 cycles, take a longer 15-minute break.</span>
                 </li>
           </ul>
         </div>
 
-        <div>
-          <p className="font-semibold text-white mb-2">Why choose PomoZen?</p>
+        <div className="app-subsurface rounded-2xl p-4 sm:p-5">
+          <p className="app-modal-section-title">Why choose PomoZen?</p>
           <p>
             Unlike other timers, PomoZen works entirely offline. Your data is stored in your browser's Local Storage, ensuring 100% privacy. With built-in features like Zen Mode (Ambient Soundscapes) and History Tracking, it's designed to help you enter a flow state faster.
           </p>
@@ -99,11 +99,11 @@ export const PomodoroGuideModal = ({ isOpen, onClose }: Props) => {
 
         {/* TAB 2: SCIENCE (New Content) */}
         {activeTab === 'science' && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="app-modal-stack animate-in fade-in slide-in-from-bottom-2 duration-300">
             
             {/* Key Benefits */}
-            <section>
-              <h3 className="text-lg font-bold text-white mb-3">Key Benefits of Incorporating Pauses</h3>
+            <section className="app-subsurface rounded-2xl p-4 sm:p-5">
+              <h3 className="app-modal-section-title">Key Benefits of Incorporating Pauses</h3>
               <ul className="space-y-3">
                 <li className="bg-white/5 p-3 rounded-lg border border-white/5">
                   <strong className="text-white block mb-1">🧠 Mental Freshness</strong>
@@ -120,11 +120,9 @@ export const PomodoroGuideModal = ({ isOpen, onClose }: Props) => {
               </ul>
             </section>
 
-            <hr className="border-white/10" />
-
             {/* In-App Context */}
-            <section>
-              <h3 className="text-lg font-bold text-white mb-2">The Science Behind Pauses in PomoZen</h3>
+            <section className="app-subsurface rounded-2xl p-4 sm:p-5">
+              <h3 className="app-modal-section-title">The Science Behind Pauses in PomoZen</h3>
               <p className="mb-4">
                 Pauses are more than just downtime—they're essential for staying fresh and productive. Studies show that short, repeated breaks help restore mental energy, reduce fatigue, and keep you in a flow state longer. 
               </p>
@@ -134,8 +132,8 @@ export const PomodoroGuideModal = ({ isOpen, onClose }: Props) => {
             </section>
 
             {/* Deep Dive / Research Data */}
-            <section>
-              <h3 className="text-lg font-bold text-white mb-3">Research Highlights</h3>
+            <section className="app-subsurface rounded-2xl p-4 sm:p-5">
+              <h3 className="app-modal-section-title">Research Highlights</h3>
               
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
@@ -167,11 +165,9 @@ export const PomodoroGuideModal = ({ isOpen, onClose }: Props) => {
               </div>
             </section>
 
-            <hr className="border-white/10" />
-
             {/* Podcast Resources */}
-            <section>
-              <h3 className="text-lg font-bold text-white mb-3">Relevant Podcasts</h3>
+            <section className="app-subsurface rounded-2xl p-4 sm:p-5">
+              <h3 className="app-modal-section-title">Relevant Podcasts</h3>
               <ul className="space-y-3 text-xs">
                 <li>
                   <a href="https://podcasts.apple.com/us/podcast/break-free-from-burnout-how-to-accomplish-more-by-doing/id1333552422?i=1000660936092" target="_blank" rel="noopener noreferrer" className="block p-3 rounded bg-white/5 hover:bg-white/10 transition-colors border border-white/5 group">

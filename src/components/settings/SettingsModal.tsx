@@ -117,10 +117,10 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Settings">
-        <div className="space-y-6">
+        <div className="app-modal-stack">
           {/* Timer Durations */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-white uppercase text-xs tracking-wider">Timer (Minutes)</h3>
+          <div className="app-modal-section app-subsurface rounded-[24px] p-4 sm:p-5">
+            <h3 className="app-modal-section-title">Timer (Minutes)</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {(['pomodoro', 'short', 'long'] as TimerMode[]).map((mode) => (
                 <div key={mode} className="flex flex-col">
@@ -131,7 +131,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                     type="number"
                     value={durations[mode]}
                     onChange={(e) => handleDurationChange(mode, parseInt(e.target.value) || 0)}
-                    className="border border-white/30 bg-white/10 text-white rounded p-2 focus:ring-2 focus:ring-white/50 focus:outline-none transition-shadow"
+                    className="border border-white/20 bg-black/20 text-white rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-white/50 focus:outline-none transition-shadow"
                     min="1"
                     max="60"
                   />
@@ -149,22 +149,20 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 type="number"
                 value={dailyGoalPomodoros}
                 onChange={(e) => handleDailyGoalChange(parseInt(e.target.value, 10) || 0)}
-                className="w-full border border-white/30 bg-white/10 text-white rounded p-2 focus:ring-2 focus:ring-white/50 focus:outline-none transition-shadow"
+                className="w-full border border-white/20 bg-black/20 text-white rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-white/50 focus:outline-none transition-shadow"
                 min="1"
                 max="24"
               />
             </div>
           </div>
 
-        <hr className="border-white/10" />
-
         {/* Theme Colors */}
-        <div className="space-y-3">
+        <div className="app-modal-section app-subsurface rounded-[24px] p-4 sm:p-5">
             <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-white uppercase text-xs tracking-wider">Theme Colors</h3>
+              <h3 className="app-modal-section-title">Theme Colors</h3>
               <button
                 onClick={resetThemeColors}
-                className="text-xs text-white/50 underline hover:text-white transition-colors"
+                className="text-[11px] uppercase tracking-[0.14em] text-white/50 underline hover:text-white transition-colors"
                 title="Reset theme colors"
               >
                 Reset Defaults
@@ -181,7 +179,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                       type="color"
                       value={themeColors[mode]}
                       onChange={(e) => setThemeColor(mode, e.target.value)}
-                      className="w-full h-8 rounded cursor-pointer bg-transparent border-0 p-0"
+                      className="w-full h-10 rounded-xl cursor-pointer bg-transparent border border-white/10 p-1"
                     />
                   </div>
                 </div>
@@ -189,11 +187,10 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
             </div>
         </div>
 
-        <hr className="border-white/10" />
-
         {/* Toggles */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
+        <div className="app-modal-section app-subsurface rounded-[24px] p-4 sm:p-5">
+          <h3 className="app-modal-section-title">Preferences</h3>
+          <div className="flex justify-between items-center gap-4 rounded-xl bg-black/20 px-3 py-2.5">
             <label htmlFor="toggle-autostart-breaks" className="font-medium text-white">Auto-start Breaks</label>
             <button
               id="toggle-autostart-breaks"
@@ -212,7 +209,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
             </button>
           </div>
 
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-4 rounded-xl bg-black/20 px-3 py-2.5">
             <label htmlFor="toggle-autostart-pomodoros" className="font-medium text-white">Auto-start Focus Sessions</label>
             <button
               id="toggle-autostart-pomodoros"
@@ -231,7 +228,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
             </button>
           </div>
 
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-4 rounded-xl bg-black/20 px-3 py-2.5">
             <label htmlFor="toggle-sound" className="font-medium text-white">Sound Effects</label>
             <button
               id="toggle-sound"
@@ -250,7 +247,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
             </button>
           </div>
 
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-4 rounded-xl bg-black/20 px-3 py-2.5">
             <label htmlFor="toggle-notifications" className="font-medium text-white">Notifications</label>
             <button
               id="toggle-notifications"
@@ -269,7 +266,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
             </button>
           </div>
 
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-4 rounded-xl bg-black/20 px-3 py-2.5">
             <label htmlFor="toggle-focus" className="font-medium text-white">Focus Mode (Fullscreen)</label>
             <button
               id="toggle-focus"
@@ -301,13 +298,11 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           </div>
         </div>
 
-        <hr className="border-white/10" />
-
         {/* Zen Mode */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-white uppercase text-xs tracking-wider">Zen Mode</h3>
+        <div className="app-modal-section app-subsurface rounded-[24px] p-4 sm:p-5">
+          <h3 className="app-modal-section-title">Zen Mode</h3>
 
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-4 rounded-xl bg-black/20 px-3 py-2.5">
             <label htmlFor="toggle-zen" className="font-medium text-white">Background Audio</label>
             <button
               id="toggle-zen"
@@ -327,7 +322,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           </div>
 
           {zenModeEnabled && (
-            <div className="space-y-3 bg-white/10 p-4 rounded-lg border border-white/10">
+            <div className="space-y-3 rounded-2xl bg-black/20 p-4 border border-white/10">
               <div className="flex flex-col gap-2">
                 <label htmlFor="zen-track-select" className="text-sm text-white">Soundscape</label>
                 <select
@@ -335,7 +330,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                   name="zen-track"
                   value={zenTrack}
                   onChange={(e) => setZenTrack(e.target.value as ZenTrack)}
-                  className="border border-white/30 bg-white/10 text-white rounded p-2 focus:ring-2 focus:ring-white/50 focus:outline-none"
+                  className="border border-white/20 bg-white/10 text-white rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-white/50 focus:outline-none"
                 >
                   <option value="rain">Heavy Rain</option>
                   <option value="forest">Forest Morning</option>
@@ -348,7 +343,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 <div className="flex gap-2">
                   <button
                      onClick={() => setZenStrategy('always')}
-                     className={cn("flex-1 py-1.5 px-3 rounded text-xs font-medium border transition-colors",
+                     className={cn("flex-1 py-2 px-3 rounded-xl text-xs font-medium border transition-colors",
                         zenStrategy === 'always' ? "bg-white text-(--theme-primary) border-white" : "bg-transparent text-white/70 border-white/20 hover:border-white/40"
                      )}
                   >
@@ -356,7 +351,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                   </button>
                   <button
                      onClick={() => setZenStrategy('break_only')}
-                     className={cn("flex-1 py-1.5 px-3 rounded text-xs font-medium border transition-colors",
+                     className={cn("flex-1 py-2 px-3 rounded-xl text-xs font-medium border transition-colors",
                         zenStrategy === 'break_only' ? "bg-white text-(--theme-primary) border-white" : "bg-transparent text-white/70 border-white/20 hover:border-white/40"
                      )}
                   >
@@ -383,11 +378,9 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           )}
         </div>
 
-        <hr className="border-white/10" />
-
         {/* Presets & Data */}
-        <div className="space-y-4">
-             <h3 className="font-semibold text-white uppercase text-xs tracking-wider">Presets & Data</h3>
+        <div className="app-modal-section app-subsurface rounded-[24px] p-4 sm:p-5">
+             <h3 className="app-modal-section-title">Presets & Data</h3>
 
              {/* Add New Preset */}
              <div className="flex gap-2">
@@ -398,7 +391,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                     value={presetName}
                     onChange={(e) => setPresetName(e.target.value)}
                     placeholder="Preset Name (e.g. Deep Work)"
-                    className="flex-1 bg-white/10 text-white text-sm px-3 py-2 rounded border border-white/20 focus:outline-none focus:border-white/50 placeholder-white/30"
+                    className="flex-1 bg-white/10 text-white text-sm px-3 py-2.5 rounded-xl border border-white/20 focus:outline-none focus:border-white/50 placeholder-white/30"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         handleSavePreset();
@@ -408,7 +401,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 <button
                   onClick={handleSavePreset}
                   disabled={!presetName.trim()}
-                  className="bg-white/20 hover:bg-white/30 text-white p-2 rounded disabled:opacity-50 transition-colors"
+                  className="bg-white/20 hover:bg-white/30 text-white p-2.5 rounded-xl disabled:opacity-50 transition-colors"
                   title="Save Current Settings"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
@@ -417,12 +410,12 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
              {/* Preset List */}
              {presets.length > 0 && (
-                 <div className="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-black/20 p-2 rounded">
+                 <div className="max-h-32 overflow-y-auto custom-scrollbar space-y-1 bg-black/20 p-2.5 rounded-2xl">
                     {presets.map(p => (
-                        <div key={p.id} className="flex justify-between items-center bg-white/5 p-2 rounded hover:bg-white/10 transition-colors group">
+                        <div key={p.id} className="flex justify-between items-center bg-white/5 p-2.5 rounded-xl hover:bg-white/10 transition-colors group">
                             <span className="text-sm text-white truncate">{p.name}</span>
                             <div className="flex gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
-                                <button onClick={() => loadPreset(p.id)} className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded hover:bg-green-500/30">Load</button>
+                                <button onClick={() => loadPreset(p.id)} className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-lg hover:bg-green-500/30">Load</button>
                                 <button onClick={() => deletePreset(p.id)} className="text-white/50 hover:text-red-400 px-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
                                 </button>
@@ -432,26 +425,24 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                  </div>
              )}
 
-             <hr className="border-white/10" />
-
              {/* Actions */}
              <div className="flex flex-col sm:flex-row gap-2">
                 <button
                     onClick={exportSettingsOnly}
-                    className="flex-1 bg-white/10 hover:bg-white/20 text-white text-xs py-2 rounded transition-colors flex items-center justify-center gap-1"
+                    className="flex-1 bg-white/10 hover:bg-white/20 text-white text-xs py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1"
                     title="Export settings"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>
                     Export Config
                 </button>
-                <label className="flex-1 bg-white/10 hover:bg-white/20 text-white text-xs py-2 rounded transition-colors flex items-center justify-center gap-1 cursor-pointer" title="Import settings">
+                <label className="flex-1 bg-white/10 hover:bg-white/20 text-white text-xs py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1 cursor-pointer" title="Import settings">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" className="rotate-180" /></svg>
                     Import Config
                     <input type="file" className="hidden" accept=".json" ref={settingsFileInputRef} onChange={handleSettingsImport} />
                 </label>
                 <button
                     onClick={loadFactoryDefaults}
-                    className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-200 text-xs py-2 rounded transition-colors"
+                    className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-200 text-xs py-2.5 rounded-xl transition-colors"
                     title="Reset all settings"
                 >
                     Reset All

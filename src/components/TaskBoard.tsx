@@ -88,11 +88,14 @@ export const TaskBoard = () => {
   };
 
   return (
-    <div className="task-board w-full max-w-md bg-black/30 border border-white/10 shadow-2xl p-4 sm:p-6 rounded-2xl backdrop-blur-md flex flex-col h-full max-h-[380px] sm:max-h-[400px] relative overflow-hidden transition-all">
+    <div className="task-board app-surface w-full max-w-md p-4 sm:p-5 rounded-[28px] backdrop-blur-md flex flex-col h-full max-h-[380px] sm:max-h-[400px] relative overflow-hidden transition-all">
 
       {/* Header */}
       <div className="flex justify-between items-center mb-4 shrink-0 z-10">
-        <h2 className="text-xl font-bold text-white tracking-tight">Tasks</h2>
+        <div>
+          <p className="app-eyebrow">Task Board</p>
+          <h2 className="app-card-title mt-1">Tasks</h2>
+        </div>
 
         <div ref={menuRef} className="relative">
           <button
@@ -140,32 +143,32 @@ export const TaskBoard = () => {
       </div>
 
       {/* Current Focus Section */}
-      <div className="mb-4 bg-white/5 rounded-lg p-3 text-center border border-white/5 shrink-0">
-        <span className="text-white/50 uppercase text-[10px] tracking-widest font-bold block mb-1">Current Focus</span>
-        <div className="text-white text-base font-medium truncate">
+      <div className="app-subsurface mb-4 rounded-2xl p-3.5 text-center shrink-0">
+        <span className="app-eyebrow block mb-1 text-center">Current Focus</span>
+        <div className="text-white text-base sm:text-[1.05rem] font-medium truncate">
             {tasks.find(t => t.id === activeTaskId)?.title || "No active task"}
         </div>
       </div>
 
       <div className="mb-4 grid grid-cols-3 gap-1.5 sm:gap-2 shrink-0">
-        <div className="min-w-0 rounded-lg border border-white/5 bg-white/5 p-2 text-center">
-          <div className="truncate text-sm sm:text-base font-bold text-white">{planningSummary.totalEstimated}</div>
-          <div className="text-[10px] uppercase tracking-wider text-white/45">Planned</div>
+        <div className="app-metric-card">
+          <div className="app-metric-value truncate text-sm sm:text-base">{planningSummary.totalEstimated}</div>
+          <div className="app-metric-label">Planned</div>
         </div>
-        <div className="min-w-0 rounded-lg border border-white/5 bg-white/5 p-2 text-center">
-          <div className="truncate text-sm sm:text-base font-bold text-white">{planningSummary.totalActual}</div>
-          <div className="text-[10px] uppercase tracking-wider text-white/45">Actual</div>
+        <div className="app-metric-card">
+          <div className="app-metric-value truncate text-sm sm:text-base">{planningSummary.totalActual}</div>
+          <div className="app-metric-label">Actual</div>
         </div>
-        <div className="min-w-0 rounded-lg border border-white/5 bg-white/5 p-2 text-center">
-          <div className="truncate text-sm sm:text-base font-bold text-white">
+        <div className="app-metric-card">
+          <div className="app-metric-value truncate text-sm sm:text-base">
             {planningSummary.planningAccuracy === null ? '--' : `${planningSummary.planningAccuracy}%`}
           </div>
-          <div className="text-[10px] uppercase tracking-wider text-white/45">Accuracy</div>
+          <div className="app-metric-label">Accuracy</div>
         </div>
       </div>
 
       {/* Input Form */}
-      <form onSubmit={handleAdd} className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_auto] gap-2 mb-4 shrink-0">
+      <form onSubmit={handleAdd} className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_auto] gap-2.5 mb-4 shrink-0">
         <label htmlFor="new-task-input" className="sr-only">New Task Name</label>
         <input
           id="new-task-input"
@@ -175,7 +178,7 @@ export const TaskBoard = () => {
           onChange={(e) => setInput(e.target.value)}
           placeholder="New task..."
           maxLength={100}
-          className="min-w-0 col-span-2 sm:col-span-1 bg-black/20 text-white placeholder-white/70 px-3 py-2 rounded-lg text-sm border border-transparent focus:border-white/30 focus:outline-none focus:bg-black/40 transition-all"
+          className="min-w-0 col-span-2 sm:col-span-1 bg-black/20 text-white placeholder-white/60 px-3.5 py-2.5 rounded-xl text-sm border border-white/5 focus:border-white/25 focus:outline-none focus:bg-black/35 transition-all"
         />
         <label htmlFor="new-task-estimate" className="sr-only">Estimated Pomodoros</label>
         <select
@@ -184,7 +187,7 @@ export const TaskBoard = () => {
           value={estimate}
           onChange={(e) => setEstimate(parseInt(e.target.value, 10))}
           title="Estimated pomodoros"
-          className="w-full sm:w-20 bg-black/20 text-white px-2 py-2 rounded-lg text-sm border border-transparent focus:border-white/30 focus:outline-none focus:bg-black/40 transition-all"
+          className="w-full sm:w-20 bg-black/20 text-white px-2.5 py-2.5 rounded-xl text-sm border border-white/5 focus:border-white/25 focus:outline-none focus:bg-black/35 transition-all"
         >
           {Array.from({ length: 8 }, (_, index) => index + 1).map((value) => (
             <option key={value} value={value} className="bg-[#1f1f1f] text-white">
@@ -192,7 +195,7 @@ export const TaskBoard = () => {
             </option>
           ))}
         </select>
-        <button type="submit" aria-label="Add Task" title="Add Task" className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium cursor-pointer text-sm transition-colors border border-white/5">
+        <button type="submit" aria-label="Add Task" title="Add Task" className="bg-white/10 hover:bg-white/20 text-white px-4 py-2.5 rounded-xl font-medium cursor-pointer text-sm transition-colors border border-white/5">
           +
         </button>
       </form>
@@ -209,7 +212,7 @@ export const TaskBoard = () => {
           <div
             key={task.id}
             className={clsx(
-              "group w-full p-3 rounded-lg border transition-all flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center",
+              "group w-full p-3 rounded-2xl border transition-all flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center",
               activeTaskId === task.id
                 ? "bg-(--theme-primary)/40 border-white/30 shadow-lg translate-x-1"
                 : "bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10"

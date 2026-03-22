@@ -25,18 +25,14 @@ export const DailyGoalCard = () => {
       : `${pluralize(progress.remaining, 'pomodoro')} left to hit today's goal.`;
 
   return (
-    <section className="goal-card w-full max-w-md rounded-2xl border border-white/10 bg-black/30 p-4 sm:p-5 shadow-2xl backdrop-blur-md">
+    <section className="goal-card app-surface w-full max-w-md rounded-[28px] p-4 sm:p-5 backdrop-blur-md">
       <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">
-            Daily Goal
-          </p>
-          <h2 className="text-lg font-bold text-white">
-            {progress.completed}/{progress.goal} pomodoros
-          </h2>
+          <p className="app-eyebrow">Daily Goal</p>
+          <h2 className="app-card-title mt-1">{progress.completed}/{progress.goal} pomodoros</h2>
         </div>
 
-        <div className="self-start rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/80 sm:self-auto">
+        <div className="self-start rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/80 sm:self-auto">
           {progress.met ? 'Goal hit' : `${progress.percent}% there`}
         </div>
       </div>
@@ -51,26 +47,20 @@ export const DailyGoalCard = () => {
         />
       </div>
 
-      <p className="mt-3 text-xs sm:text-sm text-white/75">{helperText}</p>
+      <p className="app-body-copy mt-3 text-sm">{helperText}</p>
 
       <div className="mt-4 grid grid-cols-3 gap-1.5 sm:gap-2">
-        <div className="min-w-0 rounded-xl border border-white/5 bg-white/5 p-2.5 sm:p-3 text-center">
-          <div className="truncate text-base sm:text-lg font-bold text-white">{progress.remaining}</div>
-          <div className="text-[10px] uppercase tracking-wider leading-tight text-white/45">
-            Left Today
-          </div>
+        <div className="app-metric-card">
+          <div className="app-metric-value truncate">{progress.remaining}</div>
+          <div className="app-metric-label">Left Today</div>
         </div>
-        <div className="min-w-0 rounded-xl border border-white/5 bg-white/5 p-2.5 sm:p-3 text-center">
-          <div className="truncate text-base sm:text-lg font-bold text-white">{focusStreak.count}</div>
-          <div className="text-[10px] uppercase tracking-wider leading-tight text-white/45">
-            Focus Streak
-          </div>
+        <div className="app-metric-card">
+          <div className="app-metric-value truncate">{focusStreak.count}</div>
+          <div className="app-metric-label">Focus Streak</div>
         </div>
-        <div className="min-w-0 rounded-xl border border-white/5 bg-white/5 p-2.5 sm:p-3 text-center">
-          <div className="truncate text-base sm:text-lg font-bold text-white">{goalStreak.count}</div>
-          <div className="text-[10px] uppercase tracking-wider leading-tight text-white/45">
-            Goal Streak
-          </div>
+        <div className="app-metric-card">
+          <div className="app-metric-value truncate">{goalStreak.count}</div>
+          <div className="app-metric-label">Goal Streak</div>
         </div>
       </div>
     </section>

@@ -243,49 +243,53 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Your Progress">
-      <div className="space-y-6 text-white">
+      <div className="app-modal-stack text-white">
 
         {/* Totals Cards */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          <div className="min-w-0 bg-white/5 rounded-lg p-3 border border-white/5 text-center">
-            <div className="truncate text-xl sm:text-2xl font-bold">{totals.pomoMins}</div>
-            <div className="text-[10px] uppercase tracking-wider text-white/50">Focus Mins</div>
-          </div>
+        <div className="app-modal-section">
+          <p className="app-modal-section-title">Overview</p>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <div className="app-metric-card">
+              <div className="app-metric-value truncate">{totals.pomoMins}</div>
+              <div className="app-metric-label">Focus Mins</div>
+            </div>
 
-          <div className="min-w-0 bg-white/5 rounded-lg p-3 border border-white/5 text-center">
-            <div className="truncate text-xl sm:text-2xl font-bold">{totals.totalSessions}</div>
-            <div className="text-[10px] uppercase tracking-wider text-white/50">Sessions</div>
-          </div>
+            <div className="app-metric-card">
+              <div className="app-metric-value truncate">{totals.totalSessions}</div>
+              <div className="app-metric-label">Sessions</div>
+            </div>
 
-          <div className="min-w-0 bg-white/5 rounded-lg p-3 border border-white/5 text-center">
-            <div className="truncate text-xl sm:text-2xl font-bold">{totals.breakMins}</div>
-            <div className="text-[10px] uppercase tracking-wider text-white/50">Break Mins</div>
+            <div className="app-metric-card">
+              <div className="app-metric-value truncate">{totals.breakMins}</div>
+              <div className="app-metric-label">Break Mins</div>
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          <div className="min-w-0 bg-white/5 rounded-lg p-3 border border-white/5 text-center">
-            <div className="truncate text-xl sm:text-2xl font-bold">
+          <div className="app-metric-card">
+            <div className="app-metric-value truncate">
               {goalSnapshot.today.completed}/{goalSnapshot.today.goal}
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-white/50">Today's Goal</div>
+            <div className="app-metric-label">Today's Goal</div>
           </div>
 
-          <div className="min-w-0 bg-white/5 rounded-lg p-3 border border-white/5 text-center">
-            <div className="truncate text-xl sm:text-2xl font-bold">{goalSnapshot.focusStreak.count}</div>
-            <div className="text-[10px] uppercase tracking-wider text-white/50">Focus Streak</div>
+          <div className="app-metric-card">
+            <div className="app-metric-value truncate">{goalSnapshot.focusStreak.count}</div>
+            <div className="app-metric-label">Focus Streak</div>
           </div>
 
-          <div className="min-w-0 bg-white/5 rounded-lg p-3 border border-white/5 text-center">
-            <div className="truncate text-xl sm:text-2xl font-bold">{goalSnapshot.goalStreak.count}</div>
-            <div className="text-[10px] uppercase tracking-wider text-white/50">Goal Streak</div>
+          <div className="app-metric-card">
+            <div className="app-metric-value truncate">{goalSnapshot.goalStreak.count}</div>
+            <div className="app-metric-label">Goal Streak</div>
           </div>
         </div>
 
         {/* Controls */}
-        <div className="flex flex-col gap-3">
+        <div className="app-modal-section">
+          <p className="app-modal-section-title">Activity View</p>
           {/* Time Range Selector */}
-          <div className="grid grid-cols-2 sm:flex bg-black/20 p-1 rounded-lg gap-1">
+          <div className="app-segmented grid grid-cols-2 sm:flex gap-1">
             <button
               onClick={() => handleRangeChange('7d')}
               className={cn("px-3 py-1 text-xs font-medium rounded transition-colors", range === '7d' ? "bg-white text-black" : "text-white/50 hover:text-white")}
@@ -313,7 +317,7 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
           </div>
 
           {/* Navigation and Date Range */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+          <div className="app-subsurface flex flex-col gap-3 rounded-2xl p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
             {/* Navigation Arrows - Hidden for All Time */}
             {range !== 'all' && (
               <div className="flex items-center gap-2">
@@ -345,7 +349,7 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
             </div>
 
             {/* Metric Toggle */}
-            <div className="flex self-center sm:self-auto bg-black/20 p-1 rounded-lg">
+            <div className="app-segmented flex self-center sm:self-auto">
               <button
                 onClick={() => setMetric('minutes')}
                 className={cn("px-3 py-1 text-xs font-medium rounded transition-colors", metric === 'minutes' ? "bg-white text-black" : "text-white/50 hover:text-white")}
@@ -363,7 +367,9 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
         </div>
 
         {/* The Graph */}
-        <div className="border-b border-white/10 pb-2">
+        <div className="app-modal-section">
+          <p className="app-modal-section-title">History</p>
+          <div className="app-subsurface rounded-[24px] p-3 sm:p-4">
           <div className={cn(
             "h-48 overflow-y-visible pt-4",
             range === '7d' ? "" : "overflow-x-auto custom-scrollbar"
@@ -425,6 +431,7 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
               ))}
             </div>
           </div>
+        </div>
         </div>
       </div>
     </Modal>
