@@ -1,33 +1,35 @@
-import { useEffect, useRef } from 'react';
-import { useTimeStore } from '../store/useTimeStore';
+import { useEffect } from 'react';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { playAlarm, sendNotification } from '../services/sound.service';
+import { events } from '../services/event.service';
+import { useTimeStore } from '../store/useTimeStore';
+import { getScheduledBreakMode } from '../utils/timerSchedule';
 
 export const useTimerEffects = () => {
-  const timeLeft = useTimeStore(state => state.timeLeft);
-  const mode = useTimeStore(state => state.mode);
-  const hasHandledComplete = useRef(false);
-
   useEffect(() => {
-    if (timeLeft === 0 && !hasHandledComplete.current) {
-      hasHandledComplete.current = true;
-      const { soundEnabled } = useSettingsStore.getState();
-      
+    const unsubscribe = events.on('timer:complete', (completedMode) => {
+      const { soundEnabled, notificationsEnabled } = useSettingsStore.getState();
+
       if (soundEnabled) {
         playAlarm();
       }
-      
-      const { notificationsEnabled } = useSettingsStore.getState();
+
       if (notificationsEnabled) {
-        if (mode === 'pomodoro') {
-          sendNotification("Break Time!", "Great job! Take a short break.");
+        if (completedMode === 'pomodoro') {
+          const pomodorosCompleted = useTimeStore.getState().pomodorosCompleted;
+          const nextBreakMode = getScheduledBreakMode(pomodorosCompleted);
+
+          sendNotification(
+            'Break Time!',
+            `Great job! Take a ${nextBreakMode === 'long' ? 'long' : 'short'} break.`
+          );
         } else {
-          sendNotification("Back to Work!", "Break is over. Let's focus.");
+          sendNotification('Back to Work!', "Break is over. Let's focus.");
         }
       }
-      
-    } else if (timeLeft > 0) {
-      hasHandledComplete.current = false;
-    }
-  }, [timeLeft, mode]);
+
+    });
+
+    return unsubscribe;
+  }, []);
 };

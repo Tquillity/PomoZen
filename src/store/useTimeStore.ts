@@ -18,8 +18,7 @@ import { useTaskStore } from './useTaskStore';
 import { format } from 'date-fns';
 import { createSafeStorage } from '../utils/storageWrapper';
 import { getDuration } from '../utils/timerDefaults';
-
-const POMODOROS_PER_SET = 4;
+import { getScheduledBreakMode } from '../utils/timerSchedule';
 
 /**
  * Daily statistics tracking pomodoros and breaks completed.
@@ -147,7 +146,7 @@ export const useTimeStore = create<TimeState>()(
         
         if (mode === 'pomodoro') {
            const newCompleted = pomodorosCompleted + 1;
-           const nextMode = newCompleted % POMODOROS_PER_SET === 0 ? 'long' : 'short';
+           const nextMode = getScheduledBreakMode(pomodorosCompleted);
            
            set({ 
              pomodorosCompleted: newCompleted, 

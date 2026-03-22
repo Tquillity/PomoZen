@@ -70,7 +70,12 @@ export default defineConfig({
         ]
       }
     }),
-    sitemap({ hostname: 'https://pomozen.online' })
+    sitemap({
+      hostname: 'https://pomozen.online',
+      exclude: ['/pomo-ads', '/pomo-ads.html'],
+      generateRobotsTxt: false,
+      readable: true,
+    })
   ],
   // Note: CSP is set via meta tag in index.html
   // frame-ancestors cannot be enforced via meta tag, so for production

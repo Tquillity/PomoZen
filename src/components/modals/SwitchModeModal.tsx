@@ -29,7 +29,10 @@ export const SwitchModeModal = ({
       title="Switch Mode?"
     >
       <p className="text-white/80 text-sm sm:text-base leading-relaxed mb-6">
-        Are you sure you want to switch to {modeLabels[targetMode]}? Your current time spent in {modeLabels[currentMode]} will be removed and not added to statistics but it will count towards the current position in the 4-4-1 pomodoro range.
+        Are you sure you want to switch to {modeLabels[targetMode]}? Your current
+        time spent in {modeLabels[currentMode]} will be removed and not added to
+        statistics, but it will still count toward your current Pomodoro cycle
+        position.
       </p>
 
       <div className="flex justify-end gap-3">

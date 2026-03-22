@@ -6,8 +6,8 @@ import { SEOContent } from './components/layout/SEOContent';
 import { TimerDisplay } from './components/timer/TimerDisplay';
 import { TimerControls } from './components/timer/TimerControls';
 import { ModeSwitcher } from './components/timer/ModeSwitcher';
+import { ScheduleMeter } from './components/timer/ScheduleMeter';
 import { ZenPlayer } from './components/sound/ZenPlayer';
-import { SEOHelmet } from './components/seo/SEOHelmet';
 import { VisualBell } from './components/common/VisualBell';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { SwitchModeModal } from './components/modals/SwitchModeModal';
@@ -129,7 +129,6 @@ function App() {
   return (
     <div className="h-screen w-full flex flex-col items-center transition-colors duration-500 relative overflow-hidden bg-(--theme-bg)">
 
-      <SEOHelmet />
       <VisualBell />
       <ZenPlayer />
 
@@ -163,6 +162,7 @@ function App() {
 
       <main className="flex-1 w-full flex flex-col items-center justify-start pt-2 sm:pt-6 pb-4 min-h-0 px-4 gap-[13px] overflow-y-auto custom-scrollbar z-10">
         <ModeSwitcher onDirtySwitch={handleDirtySwitch} />
+        <ScheduleMeter />
         
         <div className="shrink-0">
           <TimerDisplay />

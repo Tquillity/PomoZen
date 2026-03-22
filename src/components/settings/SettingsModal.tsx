@@ -169,7 +169,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         {/* Toggles */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <label htmlFor="toggle-autostart" className="font-medium text-white">Auto-start Breaks</label>
+            <label htmlFor="toggle-autostart" className="font-medium text-white">Auto-start Next Session</label>
             <button
               id="toggle-autostart"
               onClick={toggleAutoStart}
@@ -178,7 +178,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 autoStart ? "bg-green-500" : "bg-gray-300"
               )}
               aria-pressed={autoStart}
-              aria-label="Toggle Auto-start"
+              aria-label="Toggle Auto-start Next Session"
             >
               <div className={cn(
                 "w-4 h-4 bg-white rounded-full absolute top-1 transition-transform",

@@ -127,6 +127,33 @@ describe('useTimeStore', () => {
     });
   });
 
+  describe('switchModeWithSkip', () => {
+    it('should count a skipped pomodoro toward the cycle', () => {
+      useTimeStore.setState({ mode: 'pomodoro', pomodorosCompleted: 2, timeLeft: 900 });
+
+      const { switchModeWithSkip } = useTimeStore.getState();
+      switchModeWithSkip('long');
+
+      const state = useTimeStore.getState();
+      expect(state.mode).toBe('long');
+      expect(state.pomodorosCompleted).toBe(3);
+      expect(state.timeLeft).toBe(900);
+      expect(getWorker().reset).toHaveBeenCalled();
+    });
+
+    it('should not count skipped breaks as completed pomodoros', () => {
+      useTimeStore.setState({ mode: 'short', pomodorosCompleted: 2, timeLeft: 120 });
+
+      const { switchModeWithSkip } = useTimeStore.getState();
+      switchModeWithSkip('pomodoro');
+
+      const state = useTimeStore.getState();
+      expect(state.mode).toBe('pomodoro');
+      expect(state.pomodorosCompleted).toBe(2);
+      expect(state.timeLeft).toBe(1500);
+    });
+  });
+
   describe('tick', () => {
     it('should decrement timeLeft when > 1', () => {
       useTimeStore.setState({ timeLeft: 10 });

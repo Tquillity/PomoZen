@@ -77,4 +77,4 @@ See [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
-See [CONTRIBUTING_AI.md](CONTRIBUTING_AI.md) for project guidelines and architecture details.
+See [CLAUDE.md](CLAUDE.md) for project guidelines and architecture details.

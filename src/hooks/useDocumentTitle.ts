@@ -9,9 +9,9 @@ export const useDocumentTitle = () => {
     const timeString = formatTime(timeLeft);
 
     if (isRunning) {
-      document.title = `${timeString} - Focusing - PomoZen`;
+      document.title = `${timeString} | Focusing with PomoZen`;
     } else {
-      document.title = 'Pomodoro Timer Online | PomoZen Focus Tool';
+      document.title = 'Free Pomodoro Timer Online for Focus and Study | PomoZen';
     }
   }, [timeLeft, isRunning]);
 };
