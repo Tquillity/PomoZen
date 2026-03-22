@@ -246,38 +246,38 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
       <div className="space-y-6 text-white">
 
         {/* Totals Cards */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white/5 rounded-lg p-3 border border-white/5 text-center">
-            <div className="text-2xl font-bold">{totals.pomoMins}</div>
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="min-w-0 bg-white/5 rounded-lg p-3 border border-white/5 text-center">
+            <div className="truncate text-xl sm:text-2xl font-bold">{totals.pomoMins}</div>
             <div className="text-[10px] uppercase tracking-wider text-white/50">Focus Mins</div>
           </div>
 
-          <div className="bg-white/5 rounded-lg p-3 border border-white/5 text-center">
-            <div className="text-2xl font-bold">{totals.totalSessions}</div>
+          <div className="min-w-0 bg-white/5 rounded-lg p-3 border border-white/5 text-center">
+            <div className="truncate text-xl sm:text-2xl font-bold">{totals.totalSessions}</div>
             <div className="text-[10px] uppercase tracking-wider text-white/50">Sessions</div>
           </div>
 
-          <div className="bg-white/5 rounded-lg p-3 border border-white/5 text-center">
-            <div className="text-2xl font-bold">{totals.breakMins}</div>
+          <div className="min-w-0 bg-white/5 rounded-lg p-3 border border-white/5 text-center">
+            <div className="truncate text-xl sm:text-2xl font-bold">{totals.breakMins}</div>
             <div className="text-[10px] uppercase tracking-wider text-white/50">Break Mins</div>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white/5 rounded-lg p-3 border border-white/5 text-center">
-            <div className="text-2xl font-bold">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="min-w-0 bg-white/5 rounded-lg p-3 border border-white/5 text-center">
+            <div className="truncate text-xl sm:text-2xl font-bold">
               {goalSnapshot.today.completed}/{goalSnapshot.today.goal}
             </div>
             <div className="text-[10px] uppercase tracking-wider text-white/50">Today's Goal</div>
           </div>
 
-          <div className="bg-white/5 rounded-lg p-3 border border-white/5 text-center">
-            <div className="text-2xl font-bold">{goalSnapshot.focusStreak.count}</div>
+          <div className="min-w-0 bg-white/5 rounded-lg p-3 border border-white/5 text-center">
+            <div className="truncate text-xl sm:text-2xl font-bold">{goalSnapshot.focusStreak.count}</div>
             <div className="text-[10px] uppercase tracking-wider text-white/50">Focus Streak</div>
           </div>
 
-          <div className="bg-white/5 rounded-lg p-3 border border-white/5 text-center">
-            <div className="text-2xl font-bold">{goalSnapshot.goalStreak.count}</div>
+          <div className="min-w-0 bg-white/5 rounded-lg p-3 border border-white/5 text-center">
+            <div className="truncate text-xl sm:text-2xl font-bold">{goalSnapshot.goalStreak.count}</div>
             <div className="text-[10px] uppercase tracking-wider text-white/50">Goal Streak</div>
           </div>
         </div>
@@ -285,7 +285,7 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
         {/* Controls */}
         <div className="flex flex-col gap-3">
           {/* Time Range Selector */}
-          <div className="flex bg-black/20 p-1 rounded-lg">
+          <div className="grid grid-cols-2 sm:flex bg-black/20 p-1 rounded-lg gap-1">
             <button
               onClick={() => handleRangeChange('7d')}
               className={cn("px-3 py-1 text-xs font-medium rounded transition-colors", range === '7d' ? "bg-white text-black" : "text-white/50 hover:text-white")}
@@ -313,7 +313,7 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
           </div>
 
           {/* Navigation and Date Range */}
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
             {/* Navigation Arrows - Hidden for All Time */}
             {range !== 'all' && (
               <div className="flex items-center gap-2">
@@ -337,15 +337,15 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
                 </button>
               </div>
             )}
-            {range === 'all' && <div />} {/* Spacer when arrows are hidden */}
+            {range === 'all' && <div className="hidden sm:block" />} {/* Spacer when arrows are hidden */}
 
             {/* Date Range Display */}
-            <div className="text-xs text-white/70 font-medium">
+            <div className="text-xs text-white/70 font-medium text-center sm:text-left">
               {dateRange}
             </div>
 
             {/* Metric Toggle */}
-            <div className="flex bg-black/20 p-1 rounded-lg">
+            <div className="flex self-center sm:self-auto bg-black/20 p-1 rounded-lg">
               <button
                 onClick={() => setMetric('minutes')}
                 className={cn("px-3 py-1 text-xs font-medium rounded transition-colors", metric === 'minutes' ? "bg-white text-black" : "text-white/50 hover:text-white")}
@@ -382,7 +382,10 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
                 <div key={i} className={cn(
                   "h-full flex flex-col justify-end group relative",
                   range === '7d' ? "flex-1" : "min-w-[20px] shrink-0"
-                )}>
+                )}
+                  aria-label={`${d.fullDate}: focus ${d.work} ${metric === 'minutes' ? 'minutes' : 'sessions'}, rest ${d.rest} ${metric === 'minutes' ? 'minutes' : 'sessions'}`}
+                  title={`${d.fullDate} — Focus: ${d.work} ${metric === 'minutes' ? 'm' : 'x'}, Rest: ${d.rest} ${metric === 'minutes' ? 'm' : 'x'}`}
+                >
                   {/* Tooltip */}
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-[10px] p-2 rounded whitespace-nowrap z-10 pointer-events-none shadow-xl border border-white/20">
                     <div className="font-bold border-b border-white/20 pb-1 mb-1">{d.fullDate}</div>

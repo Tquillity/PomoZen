@@ -25,7 +25,7 @@ export const AdContainer = () => {
   }
 
   return (
-    <div className="w-full flex justify-center my-4 sm:my-6 md:my-8 px-4 z-10">
+    <div className="ad-shell w-full flex justify-center my-4 sm:my-6 md:my-8 px-4 z-10">
       <div className="w-full max-w-[300px] sm:max-w-[550px] md:max-w-[728px] h-[40px] sm:h-[68px] md:h-[90px] bg-black/20 backdrop-blur-md rounded-xl border border-white/10 overflow-hidden relative shadow-lg flex justify-center items-center transition-all duration-300">
         <iframe 
           title="Advertisement"

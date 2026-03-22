@@ -121,7 +121,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           {/* Timer Durations */}
           <div className="space-y-3">
             <h3 className="font-semibold text-white uppercase text-xs tracking-wider">Timer (Minutes)</h3>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {(['pomodoro', 'short', 'long'] as TimerMode[]).map((mode) => (
                 <div key={mode} className="flex flex-col">
                   <label htmlFor={`duration-${mode}`} className="text-sm text-white capitalize mb-1">{mode}</label>
@@ -165,11 +165,12 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
               <button
                 onClick={resetThemeColors}
                 className="text-xs text-white/50 underline hover:text-white transition-colors"
+                title="Reset theme colors"
               >
                 Reset Defaults
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {(['pomodoro', 'short', 'long'] as TimerMode[]).map((mode) => (
                 <div key={mode} className="flex flex-col">
                   <label htmlFor={`color-${mode}`} className="text-sm text-white capitalize mb-1">{mode}</label>
@@ -434,15 +435,16 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
              <hr className="border-white/10" />
 
              {/* Actions */}
-             <div className="flex gap-2">
+             <div className="flex flex-col sm:flex-row gap-2">
                 <button
                     onClick={exportSettingsOnly}
                     className="flex-1 bg-white/10 hover:bg-white/20 text-white text-xs py-2 rounded transition-colors flex items-center justify-center gap-1"
+                    title="Export settings"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>
                     Export Config
                 </button>
-                <label className="flex-1 bg-white/10 hover:bg-white/20 text-white text-xs py-2 rounded transition-colors flex items-center justify-center gap-1 cursor-pointer">
+                <label className="flex-1 bg-white/10 hover:bg-white/20 text-white text-xs py-2 rounded transition-colors flex items-center justify-center gap-1 cursor-pointer" title="Import settings">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" className="rotate-180" /></svg>
                     Import Config
                     <input type="file" className="hidden" accept=".json" ref={settingsFileInputRef} onChange={handleSettingsImport} />
@@ -450,6 +452,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 <button
                     onClick={loadFactoryDefaults}
                     className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-200 text-xs py-2 rounded transition-colors"
+                    title="Reset all settings"
                 >
                     Reset All
                 </button>

@@ -48,7 +48,8 @@ export const ScheduleMeter = () => {
               )}
               role="listitem"
               aria-current={isCurrent ? 'step' : undefined}
-              aria-label={segment.label}
+              aria-label={`${segment.label}${isCurrent ? ', current step' : isComplete ? ', completed' : ''}`}
+              title={segment.label}
             >
               <div className="relative h-2.5 sm:h-3 rounded-full overflow-hidden bg-black/20 border border-white/10">
                 <div

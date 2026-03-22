@@ -16,7 +16,7 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="w-full mt-auto flex flex-col items-center pb-3 sm:pb-4 z-20">
+    <footer className="app-footer w-full mt-auto flex flex-col items-center pb-3 sm:pb-4 z-20">
       <AdContainer />
 
       <div className="w-full px-4 sm:px-6">

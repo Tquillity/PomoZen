@@ -36,6 +36,8 @@ export const TimerControls = () => {
             "w-full max-w-60 px-4 sm:px-6 md:px-8 py-3 sm:py-4 text-base sm:text-xl md:text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 uppercase",
             "bg-white text-(--theme-primary) hover:bg-gray-100"
           )}
+          aria-label={isRunning ? 'Pause timer' : 'Start timer'}
+          title={isRunning ? 'Pause timer' : 'Start timer'}
       >
           {isRunning ? 'Pause' : 'Start'}
       </button>

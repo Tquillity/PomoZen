@@ -20,7 +20,7 @@ export const PomodoroGuideModal = ({ isOpen, onClose }: Props) => {
         <button
           onClick={() => setActiveTab('guide')}
           className={cn(
-            "flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200",
+            "min-w-0 flex-1 py-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200",
             activeTab === 'guide' 
               ? "bg-white/10 text-white shadow-sm" 
               : "text-white/50 hover:text-white hover:bg-white/5"
@@ -31,7 +31,7 @@ export const PomodoroGuideModal = ({ isOpen, onClose }: Props) => {
         <button
           onClick={() => setActiveTab('science')}
           className={cn(
-            "flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200",
+            "min-w-0 flex-1 py-2 px-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200",
             activeTab === 'science' 
               ? "bg-white/10 text-white shadow-sm" 
               : "text-white/50 hover:text-white hover:bg-white/5"

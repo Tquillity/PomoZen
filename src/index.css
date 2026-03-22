@@ -11,6 +11,13 @@ body {
   transition: background-color 0.5s ease;
 }
 
+:where(button, [role="button"], a, input, select, textarea, summary):focus,
+:where(button, [role="button"], a, input, select, textarea, summary):focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.98) !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(15, 23, 42, 0.45) !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   body {
     transition: none;
@@ -60,4 +67,35 @@ body {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-height: 820px) {
+  .app-shell {
+    gap: 0.625rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .timer-readout {
+    margin-bottom: 0.5rem;
+  }
+
+  .goal-card,
+  .task-board {
+    padding-top: 0.875rem;
+    padding-bottom: 0.875rem;
+  }
+
+  .task-board {
+    max-height: 21rem;
+  }
+
+  .ad-shell {
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .app-footer {
+    padding-bottom: 0.5rem;
+  }
 }

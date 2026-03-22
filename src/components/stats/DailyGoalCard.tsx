@@ -25,7 +25,7 @@ export const DailyGoalCard = () => {
       : `${pluralize(progress.remaining, 'pomodoro')} left to hit today's goal.`;
 
   return (
-    <section className="w-full max-w-md rounded-2xl border border-white/10 bg-black/30 p-4 sm:p-5 shadow-2xl backdrop-blur-md">
+    <section className="goal-card w-full max-w-md rounded-2xl border border-white/10 bg-black/30 p-4 sm:p-5 shadow-2xl backdrop-blur-md">
       <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">

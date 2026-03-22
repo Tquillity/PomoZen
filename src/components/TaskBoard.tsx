@@ -88,7 +88,7 @@ export const TaskBoard = () => {
   };
 
   return (
-    <div className="w-full max-w-md bg-black/30 border border-white/10 shadow-2xl p-4 sm:p-6 rounded-2xl backdrop-blur-md flex flex-col h-full max-h-[380px] sm:max-h-[400px] relative overflow-hidden transition-all">
+    <div className="task-board w-full max-w-md bg-black/30 border border-white/10 shadow-2xl p-4 sm:p-6 rounded-2xl backdrop-blur-md flex flex-col h-full max-h-[380px] sm:max-h-[400px] relative overflow-hidden transition-all">
 
       {/* Header */}
       <div className="flex justify-between items-center mb-4 shrink-0 z-10">
@@ -100,6 +100,7 @@ export const TaskBoard = () => {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="text-white/70 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label="Task Options"
+            title="Task Options"
             aria-expanded={isMenuOpen}
             aria-controls="task-options-menu"
             aria-haspopup="true"
@@ -182,6 +183,7 @@ export const TaskBoard = () => {
           name="new-task-estimate"
           value={estimate}
           onChange={(e) => setEstimate(parseInt(e.target.value, 10))}
+          title="Estimated pomodoros"
           className="w-full sm:w-20 bg-black/20 text-white px-2 py-2 rounded-lg text-sm border border-transparent focus:border-white/30 focus:outline-none focus:bg-black/40 transition-all"
         >
           {Array.from({ length: 8 }, (_, index) => index + 1).map((value) => (
@@ -190,7 +192,7 @@ export const TaskBoard = () => {
             </option>
           ))}
         </select>
-        <button type="submit" aria-label="Add Task" className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium cursor-pointer text-sm transition-colors border border-white/5">
+        <button type="submit" aria-label="Add Task" title="Add Task" className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium cursor-pointer text-sm transition-colors border border-white/5">
           +
         </button>
       </form>
@@ -259,6 +261,7 @@ export const TaskBoard = () => {
                     onClick={() => deleteTask(task.id)}
                     className="text-white/20 hover:text-red-400 p-1 rounded transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:text-red-400 focus:outline-none focus:ring-2 focus:ring-white/50"
                     aria-label={`Delete task: ${task.title}`}
+                    title={`Delete ${task.title}`}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

@@ -39,6 +39,8 @@ export const ModeSwitcher = ({ onDirtySwitch }: ModeSwitcherProps) => {
         <button
           key={m}
           onClick={() => handleModeChange(m)}
+          aria-pressed={mode === m}
+          title={m === 'pomodoro' ? 'Focus session' : m === 'short' ? 'Short break' : 'Long break'}
           className={cn(
             "flex-1 px-2 sm:px-3 md:px-4 py-2 rounded-full capitalize text-[11px] sm:text-sm font-bold transition-all cursor-pointer",
             mode === m ? "bg-black/20 text-white shadow-sm" : "text-white/60 hover:text-white hover:bg-black/10"
