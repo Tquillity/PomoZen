@@ -17,6 +17,9 @@ body {
 }
 
 .app-surface {
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
     var(--surface-panel);
@@ -213,10 +216,6 @@ body {
   .task-board {
     padding-top: 0.875rem;
     padding-bottom: 0.875rem;
-  }
-
-  .task-board {
-    max-height: 21rem;
   }
 
   .ad-shell {

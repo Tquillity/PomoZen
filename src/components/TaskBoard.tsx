@@ -88,7 +88,7 @@ export const TaskBoard = () => {
   };
 
   return (
-    <div className="task-board app-surface w-full max-w-md p-4 sm:p-5 rounded-[28px] backdrop-blur-md flex flex-col h-full max-h-[380px] sm:max-h-[400px] relative overflow-hidden transition-all">
+    <div className="task-board app-surface w-full max-w-md p-4 sm:p-5 rounded-[28px] backdrop-blur-md flex flex-col relative transition-all">
 
       {/* Header */}
       <div className="flex justify-between items-center mb-4 shrink-0 z-10">
@@ -97,7 +97,7 @@ export const TaskBoard = () => {
           <h2 className="app-card-title mt-1">Tasks</h2>
         </div>
 
-        <div ref={menuRef} className="relative">
+        <div ref={menuRef} className="relative z-20">
           <button
             ref={menuButtonRef}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -117,12 +117,12 @@ export const TaskBoard = () => {
             <div 
               id="task-options-menu"
               role="menu"
-              className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50 overflow-hidden text-gray-800 ring-1 ring-black/5"
+              className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-2xl border border-white/10 bg-black/75 text-white shadow-2xl shadow-black/30 backdrop-blur-xl ring-1 ring-white/10"
             >
               <button
                 ref={(el) => { menuItemsRef.current[0] = el; }}
                 onClick={() => { clearCompletedTasks(); setIsMenuOpen(false); }}
-                className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition-colors focus:outline-none focus:bg-gray-100"
+                className="w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-white/10 focus:outline-none focus:bg-white/10"
                 role="menuitem"
                 tabIndex={0}
               >
@@ -131,7 +131,7 @@ export const TaskBoard = () => {
               <button
                 ref={(el) => { menuItemsRef.current[1] = el; }}
                 onClick={() => { clearTasks(); setIsMenuOpen(false); }}
-                className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 text-sm transition-colors border-t border-gray-100 focus:outline-none focus:bg-red-50"
+                className="w-full border-t border-white/10 px-4 py-2.5 text-left text-sm text-red-200 transition-colors hover:bg-red-500/15 focus:outline-none focus:bg-red-500/15"
                 role="menuitem"
                 tabIndex={0}
               >
@@ -200,10 +200,10 @@ export const TaskBoard = () => {
         </button>
       </form>
 
-      {/* Scrollable Task List */}
-      <div className="space-y-2 overflow-y-auto custom-scrollbar flex-1 min-h-0 pr-1 -mr-2">
+      {/* Task List */}
+      <div className="space-y-2">
         {tasks.length === 0 && (
-            <div className="h-full flex flex-col items-center justify-center text-white/30 text-sm italic min-h-[100px]">
+            <div className="flex min-h-[100px] flex-col items-center justify-center text-white/30 text-sm italic">
                 <p>Stay focused.</p>
                 <p>Add a task above.</p>
             </div>
@@ -214,7 +214,7 @@ export const TaskBoard = () => {
             className={clsx(
               "group w-full p-3 rounded-2xl border transition-all flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center",
               activeTaskId === task.id
-                ? "bg-(--theme-primary)/40 border-white/30 shadow-lg translate-x-1"
+                ? "bg-(--theme-primary)/45 border-white/35 shadow-xl ring-1 ring-white/10"
                 : "bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10"
             )}
           >
@@ -229,16 +229,23 @@ export const TaskBoard = () => {
                >
                  {task.completed && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>}
                </button>
-               <button
-                 onClick={() => setActiveTask(task.id)}
-                 className={clsx(
-                   "flex-1 text-left truncate text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 rounded px-1 -mx-1",
-                   task.completed ? "line-through text-white/40" : "text-white/90"
-                 )}
-                 aria-label={`Task: ${task.title}. Click to set as active task.`}
-               >
-                 {task.title}
-               </button>
+              <div className="flex min-w-0 flex-1 items-center gap-2">
+                <button
+                  onClick={() => setActiveTask(task.id)}
+                  className={clsx(
+                    "flex-1 text-left truncate text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 rounded px-1 -mx-1",
+                    task.completed ? "line-through text-white/40" : activeTaskId === task.id ? "font-semibold text-white" : "text-white/90"
+                  )}
+                  aria-label={activeTaskId === task.id ? `Task: ${task.title}. Selected as active task.` : `Task: ${task.title}. Click to set as active task.`}
+                >
+                  {task.title}
+                </button>
+                {activeTaskId === task.id && (
+                  <span className="shrink-0 rounded-full border border-white/15 bg-white/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/90">
+                    Selected
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center justify-between sm:justify-end gap-3 sm:pl-2">
