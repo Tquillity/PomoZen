@@ -17,7 +17,9 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   const {
     durations,
     themeColors,
-    autoStart,
+    dailyGoalPomodoros,
+    autoStartBreaks,
+    autoStartPomodoros,
     soundEnabled,
     notificationsEnabled,
     isFocusMode,
@@ -27,9 +29,11 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     zenStrategy,
     presets,
     updateDuration,
+    setDailyGoalPomodoros,
     setThemeColor,
     resetThemeColors,
-    toggleAutoStart,
+    toggleAutoStartBreaks,
+    toggleAutoStartPomodoros,
     toggleSound,
     toggleNotifications,
     toggleFocusMode,
@@ -55,6 +59,10 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     const minutes = Math.min(60, Math.max(1, value));
     updateDuration(mode, minutes);
     resetTimer();
+  };
+
+  const handleDailyGoalChange = (value: number) => {
+    setDailyGoalPomodoros(Math.min(24, Math.max(1, value)));
   };
 
   const handleSavePreset = () => {
@@ -130,6 +138,22 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 </div>
               ))}
             </div>
+
+            <div className="max-w-[180px]">
+              <label htmlFor="daily-goal" className="text-sm text-white block mb-1">
+                Daily Goal (Pomodoros)
+              </label>
+              <input
+                id="daily-goal"
+                name="daily-goal"
+                type="number"
+                value={dailyGoalPomodoros}
+                onChange={(e) => handleDailyGoalChange(parseInt(e.target.value, 10) || 0)}
+                className="w-full border border-white/30 bg-white/10 text-white rounded p-2 focus:ring-2 focus:ring-white/50 focus:outline-none transition-shadow"
+                min="1"
+                max="24"
+              />
+            </div>
           </div>
 
         <hr className="border-white/10" />
@@ -169,20 +193,39 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         {/* Toggles */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <label htmlFor="toggle-autostart" className="font-medium text-white">Auto-start Next Session</label>
+            <label htmlFor="toggle-autostart-breaks" className="font-medium text-white">Auto-start Breaks</label>
             <button
-              id="toggle-autostart"
-              onClick={toggleAutoStart}
+              id="toggle-autostart-breaks"
+              onClick={toggleAutoStartBreaks}
               className={cn(
                 "w-12 h-6 rounded-full transition-colors relative cursor-pointer",
-                autoStart ? "bg-green-500" : "bg-gray-300"
+                autoStartBreaks ? "bg-green-500" : "bg-gray-300"
               )}
-              aria-pressed={autoStart}
-              aria-label="Toggle Auto-start Next Session"
+              aria-pressed={autoStartBreaks}
+              aria-label="Toggle Auto-start Breaks"
             >
               <div className={cn(
                 "w-4 h-4 bg-white rounded-full absolute top-1 transition-transform",
-                autoStart ? "left-7" : "left-1"
+                autoStartBreaks ? "left-7" : "left-1"
+              )} />
+            </button>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <label htmlFor="toggle-autostart-pomodoros" className="font-medium text-white">Auto-start Focus Sessions</label>
+            <button
+              id="toggle-autostart-pomodoros"
+              onClick={toggleAutoStartPomodoros}
+              className={cn(
+                "w-12 h-6 rounded-full transition-colors relative cursor-pointer",
+                autoStartPomodoros ? "bg-green-500" : "bg-gray-300"
+              )}
+              aria-pressed={autoStartPomodoros}
+              aria-label="Toggle Auto-start Focus Sessions"
+            >
+              <div className={cn(
+                "w-4 h-4 bg-white rounded-full absolute top-1 transition-transform",
+                autoStartPomodoros ? "left-7" : "left-1"
               )} />
             </button>
           </div>

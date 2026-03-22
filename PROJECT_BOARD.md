@@ -34,11 +34,12 @@ A privacy-first, offline-capable Pomodoro timer with ambient soundscapes. Built 
 
 ## Development Commands
 ```bash
-npm install    # Install dependencies
-npm run dev    # Start dev server
-npm test       # Run tests
-npm run build  # Production build
-npm run lint   # Lint code
+corepack enable  # Make pnpm available via Node 22
+pnpm install     # Install dependencies
+pnpm dev         # Start dev server
+pnpm test        # Run tests
+pnpm build       # Production build
+pnpm lint        # Lint code
 ```
 
 ## Project Status

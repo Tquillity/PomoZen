@@ -29,11 +29,11 @@ export const TimerControls = () => {
   };
 
   return (
-    <div className="flex gap-2 sm:gap-4 mb-[10px] sm:mb-[13px] md:mb-[20px] z-10">
+    <div className="flex w-full max-w-sm items-center justify-center gap-2 sm:max-w-md sm:gap-4 mb-[10px] sm:mb-[13px] md:mb-[20px] z-10">
       <button
           onClick={isRunning ? handlePause : handleStart}
           className={cn(
-            "px-4 sm:px-6 md:px-8 py-3 sm:py-4 text-lg sm:text-xl md:text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 uppercase w-32 sm:w-40 md:w-48",
+            "w-full max-w-60 px-4 sm:px-6 md:px-8 py-3 sm:py-4 text-base sm:text-xl md:text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 uppercase",
             "bg-white text-(--theme-primary) hover:bg-gray-100"
           )}
       >
@@ -42,7 +42,7 @@ export const TimerControls = () => {
 
       <button
           onClick={handleReset}
-          className="px-3 sm:px-4 py-3 sm:py-4 text-lg sm:text-xl md:text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 bg-white/20 text-white hover:bg-white/30"
+          className="w-14 sm:w-auto px-3 sm:px-4 py-3 sm:py-4 text-lg sm:text-xl md:text-2xl font-bold rounded-lg shadow-xl cursor-pointer transition-transform active:scale-95 bg-white/20 text-white hover:bg-white/30"
           aria-label="Reset"
           title="Reset Timer"
       >

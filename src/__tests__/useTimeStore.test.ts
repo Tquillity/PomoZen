@@ -43,13 +43,15 @@ describe('useTimeStore', () => {
       isRunning: false,
       mode: 'pomodoro',
       pomodorosCompleted: 0,
-      history: {}
+      history: {},
+      sessionEndAt: null,
     });
     
     // Mock settings store
     (useSettingsStore.getState as ReturnType<typeof vi.fn>).mockReturnValue({
       durations: { pomodoro: 25, short: 5, long: 15 },
-      autoStart: false
+      autoStartBreaks: false,
+      autoStartPomodoros: false,
     });
     
     // Mock task store
@@ -78,6 +80,7 @@ describe('useTimeStore', () => {
       await startTimer();
       
       expect(useTimeStore.getState().isRunning).toBe(true);
+      expect(useTimeStore.getState().sessionEndAt).not.toBeNull();
       expect(getWorker().start).toHaveBeenCalled();
     });
 
@@ -92,24 +95,26 @@ describe('useTimeStore', () => {
 
   describe('pauseTimer', () => {
     it('should pause the timer', () => {
-      useTimeStore.setState({ isRunning: true });
+      useTimeStore.setState({ isRunning: true, sessionEndAt: 12345 });
       const { pauseTimer } = useTimeStore.getState();
       pauseTimer();
       
       expect(useTimeStore.getState().isRunning).toBe(false);
+      expect(useTimeStore.getState().sessionEndAt).toBeNull();
       expect(getWorker().pause).toHaveBeenCalled();
     });
   });
 
   describe('resetTimer', () => {
     it('should reset timer to initial duration', () => {
-      useTimeStore.setState({ timeLeft: 100, isRunning: true });
+      useTimeStore.setState({ timeLeft: 100, isRunning: true, sessionEndAt: 999 });
       const { resetTimer } = useTimeStore.getState();
       resetTimer();
       
       const state = useTimeStore.getState();
       expect(state.timeLeft).toBe(1500); // 25 minutes
       expect(state.isRunning).toBe(false);
+      expect(state.sessionEndAt).toBeNull();
       expect(getWorker().reset).toHaveBeenCalled();
     });
   });
@@ -123,6 +128,7 @@ describe('useTimeStore', () => {
       expect(state.mode).toBe('short');
       expect(state.timeLeft).toBe(300); // 5 minutes
       expect(state.isRunning).toBe(false);
+      expect(state.sessionEndAt).toBeNull();
       expect(getWorker().reset).toHaveBeenCalled();
     });
   });
@@ -151,6 +157,7 @@ describe('useTimeStore', () => {
       expect(state.mode).toBe('pomodoro');
       expect(state.pomodorosCompleted).toBe(2);
       expect(state.timeLeft).toBe(1500);
+      expect(state.sessionEndAt).toBeNull();
     });
   });
 
@@ -225,10 +232,11 @@ describe('useTimeStore', () => {
       expect(useTimeStore.getState().mode).toBe('pomodoro');
     });
 
-    it('should auto-start if enabled', async () => {
+    it('should auto-start breaks if enabled', async () => {
       (useSettingsStore.getState as ReturnType<typeof vi.fn>).mockReturnValue({
         durations: { pomodoro: 25, short: 5, long: 15 },
-        autoStart: true
+        autoStartBreaks: true,
+        autoStartPomodoros: false,
       });
       
       useTimeStore.setState({ timeLeft: 1, mode: 'pomodoro' });
@@ -239,6 +247,91 @@ describe('useTimeStore', () => {
       // Auto-start should trigger (check that start was called on worker)
       await new Promise(resolve => setTimeout(resolve, 10));
       expect(mockWorker.start).toHaveBeenCalled();
+    });
+
+    it('should auto-start pomodoros if enabled', async () => {
+      (useSettingsStore.getState as ReturnType<typeof vi.fn>).mockReturnValue({
+        durations: { pomodoro: 25, short: 5, long: 15 },
+        autoStartBreaks: false,
+        autoStartPomodoros: true,
+      });
+
+      useTimeStore.setState({ timeLeft: 1, mode: 'short' });
+      const { tick } = useTimeStore.getState();
+
+      tick();
+
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(mockWorker.start).toHaveBeenCalled();
+    });
+  });
+
+  describe('syncWithWallClock', () => {
+    it('should sync an active running session to current time', async () => {
+      useTimeStore.setState({
+        isRunning: true,
+        timeLeft: 1500,
+        sessionEndAt: 10_000,
+      });
+
+      const { syncWithWallClock } = useTimeStore.getState();
+      await syncWithWallClock(7_500);
+
+      expect(useTimeStore.getState().timeLeft).toBe(3);
+      expect(mockWorker.start).toHaveBeenCalled();
+    });
+
+    it('should recover into an auto-started break when work elapsed in the background', async () => {
+      (useSettingsStore.getState as ReturnType<typeof vi.fn>).mockReturnValue({
+        durations: { pomodoro: 1, short: 1, long: 1 },
+        autoStartBreaks: true,
+        autoStartPomodoros: false,
+      });
+
+      useTimeStore.setState({
+        isRunning: true,
+        mode: 'pomodoro',
+        timeLeft: 10,
+        pomodorosCompleted: 0,
+        history: {},
+        sessionEndAt: 1_000,
+      });
+
+      const { syncWithWallClock } = useTimeStore.getState();
+      await syncWithWallClock(2_000);
+
+      const state = useTimeStore.getState();
+      expect(state.mode).toBe('short');
+      expect(state.isRunning).toBe(true);
+      expect(state.pomodorosCompleted).toBe(1);
+      expect(state.timeLeft).toBe(59);
+      expect(state.sessionEndAt).toBe(61_000);
+    });
+
+    it('should stop on the next session when auto-start is disabled', async () => {
+      (useSettingsStore.getState as ReturnType<typeof vi.fn>).mockReturnValue({
+        durations: { pomodoro: 1, short: 1, long: 1 },
+        autoStartBreaks: false,
+        autoStartPomodoros: false,
+      });
+
+      useTimeStore.setState({
+        isRunning: true,
+        mode: 'pomodoro',
+        timeLeft: 10,
+        pomodorosCompleted: 0,
+        history: {},
+        sessionEndAt: 1_000,
+      });
+
+      const { syncWithWallClock } = useTimeStore.getState();
+      await syncWithWallClock(2_000);
+
+      const state = useTimeStore.getState();
+      expect(state.mode).toBe('short');
+      expect(state.isRunning).toBe(false);
+      expect(state.timeLeft).toBe(60);
+      expect(state.sessionEndAt).toBeNull();
     });
   });
 });

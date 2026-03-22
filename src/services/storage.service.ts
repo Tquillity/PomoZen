@@ -10,6 +10,7 @@ const TimeStoreSchema = z.object({
   pomodorosCompleted: z.number().int().min(0).max(10000),
   timeLeft: z.number().int().min(0).optional(),
   isRunning: z.boolean().optional(),
+  sessionEndAt: z.number().int().min(0).nullable().optional(),
   history: z.record(z.string(), z.object({
     pomodoro: z.number().int().min(0),
     short: z.number().int().min(0),
@@ -44,6 +45,9 @@ const SettingsStoreSchema = z.object({
   zenTrack: z.enum(['rain', 'white_noise', 'forest']).optional(),
   zenVolume: z.number().min(0).max(1).optional(),
   zenStrategy: z.enum(['always', 'break_only']).optional(),
+  dailyGoalPomodoros: z.number().int().min(1).max(24).optional(),
+  autoStartBreaks: z.boolean().optional(),
+  autoStartPomodoros: z.boolean().optional(),
   autoStart: z.boolean().optional(),
   soundEnabled: z.boolean().optional(),
   notificationsEnabled: z.boolean().optional(),
@@ -92,6 +96,9 @@ const SettingsFileSchema = z.object({
   zenTrack: z.enum(['rain', 'white_noise', 'forest']),
   zenVolume: z.number().min(0).max(1),
   zenStrategy: z.enum(['always', 'break_only']),
+  dailyGoalPomodoros: z.number().int().min(1).max(24).optional(),
+  autoStartBreaks: z.boolean().optional(),
+  autoStartPomodoros: z.boolean().optional(),
   presets: z.array(z.object({
     id: z.string(),
     name: z.string().max(50),
@@ -131,7 +138,7 @@ export const exportData = () => {
     taskStore: useTaskStore.getState(),
     settingsStore: useSettingsStore.getState(),
     timestamp: Date.now(),
-    version: 2
+    version: 3
   };
   downloadJSON(data, `pomozen-backup-${new Date().toISOString().slice(0, 10)}.json`);
 };
@@ -148,7 +155,8 @@ export const importData = async (file: File): Promise<boolean> => {
 
     const data = result.data;
 
-    const currentDurations = useSettingsStore.getState().durations;
+    const currentSettings = useSettingsStore.getState();
+    const currentDurations = currentSettings.durations;
     const importedDurations = data.settingsStore?.durations;
     
     const effectiveDurations = importedDurations ?? currentDurations;
@@ -156,15 +164,25 @@ export const importData = async (file: File): Promise<boolean> => {
     if (data.settingsStore) {
       useSettingsStore.setState({
         durations: effectiveDurations,
-        themeColors: data.settingsStore.themeColors,
-        zenTrack: data.settingsStore.zenTrack,
-        zenVolume: data.settingsStore.zenVolume,
-        zenStrategy: data.settingsStore.zenStrategy,
+        themeColors: data.settingsStore.themeColors ?? currentSettings.themeColors,
+        zenTrack: data.settingsStore.zenTrack ?? currentSettings.zenTrack,
+        zenVolume: data.settingsStore.zenVolume ?? currentSettings.zenVolume,
+        zenStrategy: data.settingsStore.zenStrategy ?? currentSettings.zenStrategy,
         presets: data.settingsStore.presets ?? [],
-        autoStart: data.settingsStore.autoStart,
-        soundEnabled: data.settingsStore.soundEnabled,
-        notificationsEnabled: data.settingsStore.notificationsEnabled,
-        zenModeEnabled: data.settingsStore.zenModeEnabled
+        dailyGoalPomodoros:
+          data.settingsStore.dailyGoalPomodoros ?? currentSettings.dailyGoalPomodoros,
+        autoStartBreaks:
+          data.settingsStore.autoStartBreaks ??
+          data.settingsStore.autoStart ??
+          currentSettings.autoStartBreaks,
+        autoStartPomodoros:
+          data.settingsStore.autoStartPomodoros ??
+          data.settingsStore.autoStart ??
+          currentSettings.autoStartPomodoros,
+        soundEnabled: data.settingsStore.soundEnabled ?? currentSettings.soundEnabled,
+        notificationsEnabled:
+          data.settingsStore.notificationsEnabled ?? currentSettings.notificationsEnabled,
+        zenModeEnabled: data.settingsStore.zenModeEnabled ?? currentSettings.zenModeEnabled
       });
     }
 
@@ -175,7 +193,8 @@ export const importData = async (file: File): Promise<boolean> => {
       pomodorosCompleted: data.timeStore.pomodorosCompleted,
       timeLeft: data.timeStore.timeLeft ?? fallbackDuration,
       isRunning: false,
-      history: data.timeStore.history ?? {}
+      history: data.timeStore.history ?? {},
+      sessionEndAt: null
     });
     
     useTaskStore.setState({ 
@@ -202,6 +221,9 @@ export const exportSettingsOnly = () => {
         zenTrack: settings.zenTrack,
         zenVolume: settings.zenVolume,
         zenStrategy: settings.zenStrategy,
+        dailyGoalPomodoros: settings.dailyGoalPomodoros,
+        autoStartBreaks: settings.autoStartBreaks,
+        autoStartPomodoros: settings.autoStartPomodoros,
         presets: settings.presets,
         type: 'pomozen_settings' as const
     };
@@ -219,6 +241,7 @@ export const importSettingsOnly = async (file: File): Promise<boolean> => {
         }
 
         const data = result.data;
+        const currentSettings = useSettingsStore.getState();
 
         useSettingsStore.setState({
             durations: data.durations,
@@ -226,6 +249,12 @@ export const importSettingsOnly = async (file: File): Promise<boolean> => {
             zenTrack: data.zenTrack,
             zenVolume: data.zenVolume,
             zenStrategy: data.zenStrategy,
+            dailyGoalPomodoros:
+              data.dailyGoalPomodoros ?? currentSettings.dailyGoalPomodoros,
+            autoStartBreaks:
+              data.autoStartBreaks ?? currentSettings.autoStartBreaks,
+            autoStartPomodoros:
+              data.autoStartPomodoros ?? currentSettings.autoStartPomodoros,
             presets: data.presets
         });
         return true;

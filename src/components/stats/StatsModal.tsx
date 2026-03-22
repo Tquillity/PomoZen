@@ -4,6 +4,10 @@ import { useSettingsStore } from '../../store/useSettingsStore';
 import { format, parseISO, startOfMonth, endOfMonth, eachMonthOfInterval, startOfWeek, endOfWeek, addWeeks, addMonths, addYears, eachDayOfInterval, startOfYear, endOfYear } from 'date-fns';
 import { cn } from '../../utils/cn';
 import { Modal } from '../common/Modal';
+import {
+  getCurrentStreak,
+  getDailyGoalProgress,
+} from '../../utils/historyInsights';
 
 interface StatsModalProps {
   isOpen: boolean;
@@ -16,6 +20,7 @@ type TimeRange = '7d' | 'all' | 'month' | 'year';
 export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
   const history = useTimeStore(state => state.history);
   const durations = useSettingsStore(state => state.durations);
+  const dailyGoalPomodoros = useSettingsStore(state => state.dailyGoalPomodoros);
   const [metric, setMetric] = useState<ViewMetric>('minutes');
   const [range, setRange] = useState<TimeRange>('7d');
   const [offset, setOffset] = useState(0);
@@ -35,6 +40,12 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
       totalSessions: pomoCount + shortCount + longCount
     };
   }, [history, durations.pomodoro, durations.short, durations.long]);
+
+  const goalSnapshot = useMemo(() => ({
+    today: getDailyGoalProgress(history, dailyGoalPomodoros),
+    focusStreak: getCurrentStreak(history, 1),
+    goalStreak: getCurrentStreak(history, dailyGoalPomodoros),
+  }), [dailyGoalPomodoros, history]);
 
   const baseDate = useMemo(() => {
     const today = new Date();
@@ -249,6 +260,25 @@ export const StatsModal = ({ isOpen, onClose }: StatsModalProps) => {
           <div className="bg-white/5 rounded-lg p-3 border border-white/5 text-center">
             <div className="text-2xl font-bold">{totals.breakMins}</div>
             <div className="text-[10px] uppercase tracking-wider text-white/50">Break Mins</div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-white/5 rounded-lg p-3 border border-white/5 text-center">
+            <div className="text-2xl font-bold">
+              {goalSnapshot.today.completed}/{goalSnapshot.today.goal}
+            </div>
+            <div className="text-[10px] uppercase tracking-wider text-white/50">Today's Goal</div>
+          </div>
+
+          <div className="bg-white/5 rounded-lg p-3 border border-white/5 text-center">
+            <div className="text-2xl font-bold">{goalSnapshot.focusStreak.count}</div>
+            <div className="text-[10px] uppercase tracking-wider text-white/50">Focus Streak</div>
+          </div>
+
+          <div className="bg-white/5 rounded-lg p-3 border border-white/5 text-center">
+            <div className="text-2xl font-bold">{goalSnapshot.goalStreak.count}</div>
+            <div className="text-[10px] uppercase tracking-wider text-white/50">Goal Streak</div>
           </div>
         </div>
 

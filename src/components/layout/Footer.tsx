@@ -16,19 +16,19 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="w-full mt-auto flex flex-col items-center pb-4 z-20">
+    <footer className="w-full mt-auto flex flex-col items-center pb-3 sm:pb-4 z-20">
       <AdContainer />
 
-      <div className="w-full px-6">
-        <div className="max-w-3xl mx-auto bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-6 py-3 shadow-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div className="w-full px-4 sm:px-6">
+        <div className="max-w-3xl mx-auto bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl sm:rounded-full px-4 sm:px-6 py-3 shadow-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
           
-          <div className="flex items-center gap-2 text-white/60">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-white/60">
             <span className="font-bold text-white tracking-wide">PomoZen</span>
             <span className="text-xs border border-white/20 px-1.5 rounded text-white/40">v1.1</span>
             <span className="text-xs hidden sm:inline">Offline First</span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
             <button
               onClick={exportData}
               className="text-xs font-medium text-white/70 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"

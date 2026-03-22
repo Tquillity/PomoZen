@@ -70,15 +70,16 @@ scripts/                # Build helpers (icon/audio generation)
 ## Commands
 
 ```bash
-npm install          # Install dependencies
-npm run dev          # Dev server (Vite)
-npm run build        # Type-check + production build
-npm run lint         # ESLint (flat config)
-npm run test         # Vitest (unit + integration, watch mode)
-npm run test:ui      # Vitest browser UI
-npm run test:e2e     # Playwright E2E
-npm run test:e2e:ui  # Playwright UI mode
-npm run preview      # Preview production build
+corepack enable      # Make pnpm available via Node 22
+pnpm install         # Install dependencies
+pnpm dev             # Dev server (Vite)
+pnpm build           # Type-check + production build
+pnpm lint            # ESLint (flat config)
+pnpm test            # Vitest (unit + integration, watch mode)
+pnpm test:ui         # Vitest browser UI
+pnpm test:e2e        # Playwright E2E
+pnpm test:e2e:ui     # Playwright UI mode
+pnpm preview         # Preview production build
 ```
 
 ## Coding Conventions

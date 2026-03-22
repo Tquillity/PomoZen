@@ -1,6 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTaskStore } from '../store/useTaskStore';
 import clsx from 'clsx';
+import {
+  getTaskPlanningSummary,
+  getTaskStatusLabel,
+  getTaskVariance,
+} from '../utils/taskInsights';
 
 export const TaskBoard = () => {
   const {
@@ -14,10 +19,12 @@ export const TaskBoard = () => {
     clearCompletedTasks
   } = useTaskStore();
   const [input, setInput] = useState('');
+  const [estimate, setEstimate] = useState(1);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuItemsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  const planningSummary = getTaskPlanningSummary(tasks);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -75,12 +82,13 @@ export const TaskBoard = () => {
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
-    addTask(input, 1);
+    addTask(input, estimate);
     setInput('');
+    setEstimate(1);
   };
 
   return (
-    <div className="w-full max-w-md bg-black/30 border border-white/10 shadow-2xl p-6 rounded-2xl backdrop-blur-md flex flex-col h-full max-h-[400px] relative overflow-hidden transition-all">
+    <div className="w-full max-w-md bg-black/30 border border-white/10 shadow-2xl p-4 sm:p-6 rounded-2xl backdrop-blur-md flex flex-col h-full max-h-[380px] sm:max-h-[400px] relative overflow-hidden transition-all">
 
       {/* Header */}
       <div className="flex justify-between items-center mb-4 shrink-0 z-10">
@@ -138,8 +146,25 @@ export const TaskBoard = () => {
         </div>
       </div>
 
+      <div className="mb-4 grid grid-cols-3 gap-1.5 sm:gap-2 shrink-0">
+        <div className="min-w-0 rounded-lg border border-white/5 bg-white/5 p-2 text-center">
+          <div className="truncate text-sm sm:text-base font-bold text-white">{planningSummary.totalEstimated}</div>
+          <div className="text-[10px] uppercase tracking-wider text-white/45">Planned</div>
+        </div>
+        <div className="min-w-0 rounded-lg border border-white/5 bg-white/5 p-2 text-center">
+          <div className="truncate text-sm sm:text-base font-bold text-white">{planningSummary.totalActual}</div>
+          <div className="text-[10px] uppercase tracking-wider text-white/45">Actual</div>
+        </div>
+        <div className="min-w-0 rounded-lg border border-white/5 bg-white/5 p-2 text-center">
+          <div className="truncate text-sm sm:text-base font-bold text-white">
+            {planningSummary.planningAccuracy === null ? '--' : `${planningSummary.planningAccuracy}%`}
+          </div>
+          <div className="text-[10px] uppercase tracking-wider text-white/45">Accuracy</div>
+        </div>
+      </div>
+
       {/* Input Form */}
-      <form onSubmit={handleAdd} className="flex gap-2 mb-4 shrink-0">
+      <form onSubmit={handleAdd} className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_auto] gap-2 mb-4 shrink-0">
         <label htmlFor="new-task-input" className="sr-only">New Task Name</label>
         <input
           id="new-task-input"
@@ -149,8 +174,22 @@ export const TaskBoard = () => {
           onChange={(e) => setInput(e.target.value)}
           placeholder="New task..."
           maxLength={100}
-          className="flex-1 bg-black/20 text-white placeholder-white/70 px-3 py-2 rounded-lg text-sm border border-transparent focus:border-white/30 focus:outline-none focus:bg-black/40 transition-all"
+          className="min-w-0 col-span-2 sm:col-span-1 bg-black/20 text-white placeholder-white/70 px-3 py-2 rounded-lg text-sm border border-transparent focus:border-white/30 focus:outline-none focus:bg-black/40 transition-all"
         />
+        <label htmlFor="new-task-estimate" className="sr-only">Estimated Pomodoros</label>
+        <select
+          id="new-task-estimate"
+          name="new-task-estimate"
+          value={estimate}
+          onChange={(e) => setEstimate(parseInt(e.target.value, 10))}
+          className="w-full sm:w-20 bg-black/20 text-white px-2 py-2 rounded-lg text-sm border border-transparent focus:border-white/30 focus:outline-none focus:bg-black/40 transition-all"
+        >
+          {Array.from({ length: 8 }, (_, index) => index + 1).map((value) => (
+            <option key={value} value={value} className="bg-[#1f1f1f] text-white">
+              {value}p
+            </option>
+          ))}
+        </select>
         <button type="submit" aria-label="Add Task" className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium cursor-pointer text-sm transition-colors border border-white/5">
           +
         </button>
@@ -168,13 +207,13 @@ export const TaskBoard = () => {
           <div
             key={task.id}
             className={clsx(
-              "group w-full p-3 rounded-lg border transition-all flex justify-between items-center",
+              "group w-full p-3 rounded-lg border transition-all flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center",
               activeTaskId === task.id
                 ? "bg-(--theme-primary)/40 border-white/30 shadow-lg translate-x-1"
                 : "bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10"
             )}
           >
-            <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="flex items-center gap-3 flex-1 min-w-0 w-full">
                <button
                  onClick={() => toggleTask(task.id)}
                  className={clsx(
@@ -197,9 +236,23 @@ export const TaskBoard = () => {
                </button>
             </div>
 
-            <div className="flex items-center gap-3 pl-2">
-                <div className="text-white/60 text-[10px] font-mono bg-black/20 px-1.5 py-0.5 rounded">
-                  {task.actPomodoros}/{task.estPomodoros}
+            <div className="flex items-center justify-between sm:justify-end gap-3 sm:pl-2">
+                <div className="flex flex-col items-end gap-1">
+                  <div className="text-white/60 text-[10px] font-mono bg-black/20 px-1.5 py-0.5 rounded">
+                    {task.actPomodoros}/{task.estPomodoros}
+                  </div>
+                  <div
+                    className={clsx(
+                      "text-[10px] font-semibold uppercase tracking-wide",
+                      getTaskVariance(task) > 0
+                        ? "text-amber-200/80"
+                        : getTaskVariance(task) === 0 && task.actPomodoros > 0
+                          ? "text-green-200/80"
+                          : "text-white/45"
+                    )}
+                  >
+                    {getTaskStatusLabel(task)}
+                  </div>
                 </div>
 
                 <button

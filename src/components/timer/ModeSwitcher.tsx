@@ -34,13 +34,13 @@ export const ModeSwitcher = ({ onDirtySwitch }: ModeSwitcherProps) => {
   };
 
   return (
-    <div className="relative z-40 flex gap-1 sm:gap-2 mb-[14px] sm:mb-[22px] md:mb-[29px] bg-black/20 p-1 rounded-full pointer-events-auto">
+    <div className="relative z-40 flex w-full max-w-sm gap-1 sm:gap-2 mb-[14px] sm:mb-[22px] md:mb-[29px] bg-black/20 p-1 rounded-full pointer-events-auto">
       {(['pomodoro', 'short', 'long'] as TimerMode[]).map((m) => (
         <button
           key={m}
           onClick={() => handleModeChange(m)}
           className={cn(
-            "px-2 sm:px-3 md:px-4 py-2 rounded-full capitalize text-xs sm:text-sm font-bold transition-all cursor-pointer",
+            "flex-1 px-2 sm:px-3 md:px-4 py-2 rounded-full capitalize text-[11px] sm:text-sm font-bold transition-all cursor-pointer",
             mode === m ? "bg-black/20 text-white shadow-sm" : "text-white/60 hover:text-white hover:bg-black/10"
           )}
         >

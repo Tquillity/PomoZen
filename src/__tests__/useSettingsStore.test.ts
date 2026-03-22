@@ -19,7 +19,9 @@ describe('useSettingsStore', () => {
     useSettingsStore.setState({
       durations: { pomodoro: 25, short: 5, long: 15 },
       themeColors: { pomodoro: '#c15c5c', short: '#52a89a', long: '#2c5578' },
-      autoStart: false,
+      dailyGoalPomodoros: 8,
+      autoStartBreaks: false,
+      autoStartPomodoros: false,
       soundEnabled: true,
       isFocusMode: false,
       zenModeEnabled: false,
@@ -75,11 +77,18 @@ describe('useSettingsStore', () => {
   });
 
   describe('toggles', () => {
-    it('should toggle autoStart', () => {
-      const { toggleAutoStart } = useSettingsStore.getState();
-      toggleAutoStart();
+    it('should toggle autoStartBreaks', () => {
+      const { toggleAutoStartBreaks } = useSettingsStore.getState();
+      toggleAutoStartBreaks();
       
-      expect(useSettingsStore.getState().autoStart).toBe(true);
+      expect(useSettingsStore.getState().autoStartBreaks).toBe(true);
+    });
+
+    it('should toggle autoStartPomodoros', () => {
+      const { toggleAutoStartPomodoros } = useSettingsStore.getState();
+      toggleAutoStartPomodoros();
+
+      expect(useSettingsStore.getState().autoStartPomodoros).toBe(true);
     });
 
     it('should toggle soundEnabled', () => {
@@ -101,6 +110,18 @@ describe('useSettingsStore', () => {
       toggleZenMode();
       
       expect(useSettingsStore.getState().zenModeEnabled).toBe(true);
+    });
+  });
+
+  describe('daily goal', () => {
+    it('should update and clamp the daily goal', () => {
+      const { setDailyGoalPomodoros } = useSettingsStore.getState();
+
+      setDailyGoalPomodoros(12);
+      expect(useSettingsStore.getState().dailyGoalPomodoros).toBe(12);
+
+      setDailyGoalPomodoros(0);
+      expect(useSettingsStore.getState().dailyGoalPomodoros).toBe(1);
     });
   });
 
@@ -171,7 +192,9 @@ describe('useSettingsStore', () => {
         zenTrack: 'forest',
         zenVolume: 0.8,
         zenStrategy: 'break_only',
-        autoStart: true,
+        dailyGoalPomodoros: 12,
+        autoStartBreaks: true,
+        autoStartPomodoros: true,
         soundEnabled: false,
         zenModeEnabled: true
       });
@@ -189,7 +212,9 @@ describe('useSettingsStore', () => {
       expect(state.zenTrack).toBe('rain');
       expect(state.zenVolume).toBe(0.5);
       expect(state.zenStrategy).toBe('always');
-      expect(state.autoStart).toBe(false);
+      expect(state.dailyGoalPomodoros).toBe(8);
+      expect(state.autoStartBreaks).toBe(false);
+      expect(state.autoStartPomodoros).toBe(false);
       expect(state.soundEnabled).toBe(true);
       expect(state.zenModeEnabled).toBe(false);
     });

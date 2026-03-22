@@ -81,7 +81,8 @@ describe('storage.service', () => {
       pomodorosCompleted: 2,
       timeLeft: 300,
       isRunning: false,
-      history: {}
+      history: {},
+      sessionEndAt: null
     });
   });
 });

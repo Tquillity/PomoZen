@@ -11,7 +11,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import * as Comlink from 'comlink';
 import { getWorker } from '../services/worker.service';
-import type { TimerMode } from '../types';
+import type { DailyStats, HistoryByDate, TimerMode } from '../types';
 import { events } from '../services/event.service';
 import { useSettingsStore } from './useSettingsStore';
 import { useTaskStore } from './useTaskStore';
@@ -20,14 +20,66 @@ import { createSafeStorage } from '../utils/storageWrapper';
 import { getDuration } from '../utils/timerDefaults';
 import { getScheduledBreakMode } from '../utils/timerSchedule';
 
-/**
- * Daily statistics tracking pomodoros and breaks completed.
- */
-interface DailyStats {
-  pomodoro: number;
-  short: number;
-  long: number;
-}
+const EMPTY_DAILY_STATS: DailyStats = {
+  pomodoro: 0,
+  short: 0,
+  long: 0,
+};
+
+const updateHistoryForCompletion = (
+  history: HistoryByDate,
+  mode: TimerMode,
+  completedAt: number
+) => {
+  const dayKey = format(new Date(completedAt), 'yyyy-MM-dd');
+  const currentStats = history[dayKey] ?? EMPTY_DAILY_STATS;
+
+  return {
+    ...history,
+    [dayKey]: {
+      ...currentStats,
+      [mode]: currentStats[mode] + 1,
+    },
+  };
+};
+
+const applyCompletedPomodoroToTask = () => {
+  const activeId = useTaskStore.getState().activeTaskId;
+  if (activeId) {
+    useTaskStore.getState().updateActPomo(activeId);
+  }
+};
+
+const getNextSessionState = (
+  mode: TimerMode,
+  pomodorosCompleted: number,
+  history: HistoryByDate,
+  completedAt: number
+) => {
+  const updatedHistory = updateHistoryForCompletion(history, mode, completedAt);
+
+  if (mode === 'pomodoro') {
+    const nextMode = getScheduledBreakMode(pomodorosCompleted);
+    return {
+      pomodorosCompleted: pomodorosCompleted + 1,
+      mode: nextMode,
+      timeLeft: getDuration(nextMode),
+      history: updatedHistory,
+    };
+  }
+
+  return {
+    pomodorosCompleted,
+    mode: 'pomodoro' as const,
+    timeLeft: getDuration('pomodoro'),
+    history: updatedHistory,
+  };
+};
+
+const shouldAutoStartMode = (mode: TimerMode) => {
+  const { autoStartBreaks, autoStartPomodoros } = useSettingsStore.getState();
+  return mode === 'pomodoro' ? autoStartPomodoros : autoStartBreaks;
+};
 
 /**
  * Timer state interface.
@@ -38,26 +90,30 @@ interface DailyStats {
  * @property {TimerMode} mode - Current timer mode (pomodoro, short, long)
  * @property {number} pomodorosCompleted - Total pomodoros completed in current session
  * @property {Record<string, DailyStats>} history - Daily completion history keyed by date (YYYY-MM-DD)
+ * @property {number | null} sessionEndAt - Unix timestamp when the active session should end
  * @property {() => Promise<void>} startTimer - Start the timer
  * @property {() => void} pauseTimer - Pause the timer
  * @property {() => void} resetTimer - Reset timer to initial duration for current mode
  * @property {(mode: TimerMode) => void} setMode - Change timer mode and reset
  * @property {(mode: TimerMode) => void} switchModeWithSkip - Skip current session and switch modes while maintaining cycle position
- * @property {() => void} tick - Decrement timer (called by worker)
+ * @property {(elapsedSeconds?: number) => void} tick - Decrement timer (called by worker)
+ * @property {(now?: number) => Promise<void>} syncWithWallClock - Reconcile the timer against the system clock
  */
 interface TimeState {
   timeLeft: number;
   isRunning: boolean;
   mode: TimerMode;
   pomodorosCompleted: number;
-  history: Record<string, DailyStats>;
+  history: HistoryByDate;
+  sessionEndAt: number | null;
   
-  startTimer: () => void;
+  startTimer: () => Promise<void>;
   pauseTimer: () => void;
   resetTimer: () => void;
   setMode: (mode: TimerMode) => void;
   switchModeWithSkip: (mode: TimerMode) => void;
-  tick: () => void;
+  tick: (elapsedSeconds?: number) => void;
+  syncWithWallClock: (now?: number) => Promise<void>;
 }
 
 export const useTimeStore = create<TimeState>()(
@@ -68,31 +124,36 @@ export const useTimeStore = create<TimeState>()(
       mode: 'pomodoro',
       pomodorosCompleted: 0,
       history: {},
+      sessionEndAt: null,
 
       startTimer: async () => {
-        const { isRunning } = get();
+        const { isRunning, timeLeft } = get();
         if (isRunning) return;
-        set({ isRunning: true });
+
+        const sessionEndAt = Date.now() + timeLeft * 1000;
+        set({ isRunning: true, sessionEndAt });
         try {
-          await getWorker().start(Comlink.proxy(() => get().tick()));
+          await getWorker().start(
+            Comlink.proxy((elapsedSeconds: number = 1) => get().tick(elapsedSeconds))
+          );
         } catch {
-          set({ isRunning: false });
+          set({ isRunning: false, sessionEndAt: null });
         }
       },
 
       pauseTimer: () => {
-        set({ isRunning: false });
+        set({ isRunning: false, sessionEndAt: null });
         getWorker().pause();
       },
 
       resetTimer: () => {
         const { mode } = get();
-        set({ isRunning: false, timeLeft: getDuration(mode) });
+        set({ isRunning: false, timeLeft: getDuration(mode), sessionEndAt: null });
         getWorker().reset();
       },
 
       setMode: (mode) => {
-        set({ mode, isRunning: false, timeLeft: getDuration(mode) });
+        set({ mode, isRunning: false, timeLeft: getDuration(mode), sessionEndAt: null });
         getWorker().reset();
       },
 
@@ -107,6 +168,7 @@ export const useTimeStore = create<TimeState>()(
           mode: targetMode,
           isRunning: false,
           timeLeft: getDuration(targetMode),
+          sessionEndAt: null,
         });
 
         getWorker().reset();
@@ -122,70 +184,150 @@ export const useTimeStore = create<TimeState>()(
           return;
         }
 
-        set({ timeLeft: 0 });
+        set({ timeLeft: 0, sessionEndAt: null });
         get().pauseTimer();
         events.emit('timer:complete', mode);
         
         if (mode === 'pomodoro') {
-          const activeId = useTaskStore.getState().activeTaskId;
-          if (activeId) {
-            useTaskStore.getState().updateActPomo(activeId);
+          applyCompletedPomodoroToTask();
+        }
+
+        const nextSessionState = getNextSessionState(
+          mode,
+          pomodorosCompleted,
+          history,
+          Date.now()
+        );
+
+        set(nextSessionState);
+
+        if (shouldAutoStartMode(nextSessionState.mode)) {
+          void get().startTimer();
+        }
+      },
+
+      syncWithWallClock: async (now = Date.now()) => {
+        const { isRunning, sessionEndAt } = get();
+
+        if (!isRunning) {
+          return;
+        }
+
+        if (!sessionEndAt) {
+          set({ isRunning: false, sessionEndAt: null });
+          getWorker().reset();
+          return;
+        }
+
+        if (sessionEndAt > now) {
+          const syncedTimeLeft = Math.max(
+            1,
+            Math.ceil((sessionEndAt - now) / 1000)
+          );
+
+          if (syncedTimeLeft !== get().timeLeft) {
+            set({ timeLeft: syncedTimeLeft });
           }
+
+          try {
+            await getWorker().start(
+              Comlink.proxy((elapsedSeconds: number = 1) => get().tick(elapsedSeconds))
+            );
+          } catch {
+            set({ isRunning: false, sessionEndAt: null });
+          }
+          return;
         }
-        
-        const todayKey = format(new Date(), 'yyyy-MM-dd');
-        const currentStats = history[todayKey] || { pomodoro: 0, short: 0, long: 0 };
-        
-        const newHistory = { 
-          ...history, 
-          [todayKey]: { 
-            ...currentStats, 
-            [mode]: currentStats[mode] + 1 
-          } 
-        };
-        
-        if (mode === 'pomodoro') {
-           const newCompleted = pomodorosCompleted + 1;
-           const nextMode = getScheduledBreakMode(pomodorosCompleted);
-           
-           set({ 
-             pomodorosCompleted: newCompleted, 
-             mode: nextMode,
-             timeLeft: getDuration(nextMode),
-             history: newHistory
-           });
-        } else {
-           set({ 
-             mode: 'pomodoro',
-             timeLeft: getDuration('pomodoro'),
-             history: newHistory
-           });
+
+        let currentMode = get().mode;
+        let currentPomodorosCompleted = get().pomodorosCompleted;
+        let currentHistory = get().history;
+        let currentSessionEndAt = sessionEndAt;
+        let iterations = 0;
+
+        while (currentSessionEndAt <= now && iterations < 100) {
+          if (currentMode === 'pomodoro') {
+            applyCompletedPomodoroToTask();
+          }
+
+          const completedSessionState = getNextSessionState(
+            currentMode,
+            currentPomodorosCompleted,
+            currentHistory,
+            currentSessionEndAt
+          );
+
+          currentMode = completedSessionState.mode;
+          currentPomodorosCompleted = completedSessionState.pomodorosCompleted;
+          currentHistory = completedSessionState.history;
+
+          if (!shouldAutoStartMode(currentMode)) {
+            set({
+              ...completedSessionState,
+              isRunning: false,
+              sessionEndAt: null,
+            });
+            getWorker().reset();
+            return;
+          }
+
+          currentSessionEndAt += getDuration(currentMode) * 1000;
+          iterations += 1;
         }
-        
-        const { autoStart } = useSettingsStore.getState();
-        if (autoStart) {
-          get().startTimer();
+
+        const syncedTimeLeft = Math.max(
+          1,
+          Math.ceil((currentSessionEndAt - now) / 1000)
+        );
+
+        set({
+          mode: currentMode,
+          pomodorosCompleted: currentPomodorosCompleted,
+          history: currentHistory,
+          timeLeft: syncedTimeLeft,
+          isRunning: true,
+          sessionEndAt: currentSessionEndAt,
+        });
+
+        try {
+          await getWorker().start(
+            Comlink.proxy((elapsedSeconds: number = 1) => get().tick(elapsedSeconds))
+          );
+        } catch {
+          set({ isRunning: false, sessionEndAt: null });
         }
-      }
+      },
     }),
     { 
       name: 'pomo-time-storage',
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => createSafeStorage()),
       migrate: (persistedState: unknown, version: number) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const state = persistedState as any;
 
+        let migratedState = state;
+
         if (version === 0 || version === 1) {
-          const newHistory: Record<string, DailyStats> = {};
+          const newHistory: HistoryByDate = {};
           if (state.history) {
             Object.entries(state.history).forEach(([date, count]) => {
               newHistory[date] = { pomodoro: count as number, short: 0, long: 0 };
             });
           }
-          return { ...state, history: newHistory };
+          migratedState = { ...state, history: newHistory };
         }
-        return state;
+
+        if (version < 3) {
+          return {
+            ...migratedState,
+            history: migratedState.history ?? {},
+            isRunning: false,
+            sessionEndAt: null,
+          };
+        }
+
+        return migratedState;
       },
     }
   )

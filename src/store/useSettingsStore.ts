@@ -20,7 +20,9 @@ export interface Preset {
 interface SettingsState {
   durations: Record<TimerMode, number>;
   themeColors: Record<TimerMode, string>;
-  autoStart: boolean;
+  dailyGoalPomodoros: number;
+  autoStartBreaks: boolean;
+  autoStartPomodoros: boolean;
   soundEnabled: boolean;
   isFocusMode: boolean;
   zenModeEnabled: boolean;
@@ -32,9 +34,11 @@ interface SettingsState {
   notificationsEnabled: boolean;
   
   updateDuration: (mode: TimerMode, minutes: number) => void;
+  setDailyGoalPomodoros: (goal: number) => void;
   setThemeColor: (mode: TimerMode, color: string) => void;
   resetThemeColors: () => void;
-  toggleAutoStart: () => void;
+  toggleAutoStartBreaks: () => void;
+  toggleAutoStartPomodoros: () => void;
   toggleSound: () => void;
   toggleFocusMode: () => void;
   
@@ -58,13 +62,16 @@ const DEFAULT_THEME_COLORS = {
 };
 
 const DEFAULT_DURATIONS = { pomodoro: 25, short: 5, long: 15 };
+const DEFAULT_DAILY_GOAL = 8;
 
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set, get) => ({
       durations: DEFAULT_DURATIONS,
       themeColors: DEFAULT_THEME_COLORS,
-      autoStart: false,
+      dailyGoalPomodoros: DEFAULT_DAILY_GOAL,
+      autoStartBreaks: false,
+      autoStartPomodoros: false,
       soundEnabled: true,
       isFocusMode: false,
       
@@ -79,12 +86,20 @@ export const useSettingsStore = create<SettingsState>()(
       updateDuration: (mode, minutes) => set((state) => ({
         durations: { ...state.durations, [mode]: minutes }
       })),
+      setDailyGoalPomodoros: (goal) => set({
+        dailyGoalPomodoros: Math.min(24, Math.max(1, goal))
+      }),
       setThemeColor: (mode, color) => set((state) => ({
         themeColors: { ...state.themeColors, [mode]: color }
       })),
       resetThemeColors: () => set({ themeColors: DEFAULT_THEME_COLORS }),
       
-      toggleAutoStart: () => set((state) => ({ autoStart: !state.autoStart })),
+      toggleAutoStartBreaks: () => set((state) => ({
+        autoStartBreaks: !state.autoStartBreaks
+      })),
+      toggleAutoStartPomodoros: () => set((state) => ({
+        autoStartPomodoros: !state.autoStartPomodoros
+      })),
       toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
       toggleFocusMode: () => set((state) => ({ isFocusMode: !state.isFocusMode })),
       
@@ -127,7 +142,9 @@ export const useSettingsStore = create<SettingsState>()(
               zenTrack: 'rain',
               zenVolume: 0.5,
               zenStrategy: 'always',
-              autoStart: false,
+              dailyGoalPomodoros: DEFAULT_DAILY_GOAL,
+              autoStartBreaks: false,
+              autoStartPomodoros: false,
               soundEnabled: true,
               zenModeEnabled: false
           });
@@ -156,12 +173,14 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     { 
       name: 'pomo-settings-storage',
-      version: 4,
+      version: 5,
       storage: createJSONStorage(() => createSafeStorage()),
       partialize: (state) => ({ 
         durations: state.durations, 
         themeColors: state.themeColors,
-        autoStart: state.autoStart, 
+        dailyGoalPomodoros: state.dailyGoalPomodoros,
+        autoStartBreaks: state.autoStartBreaks,
+        autoStartPomodoros: state.autoStartPomodoros,
         soundEnabled: state.soundEnabled,
         zenModeEnabled: state.zenModeEnabled,
         zenTrack: state.zenTrack,
@@ -174,26 +193,41 @@ export const useSettingsStore = create<SettingsState>()(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const state = persistedState as any;
 
+          let migratedState = state;
+
           if (version === 3) {
-              const oldPreset = state.savedPreset;
-              const newPresets = [];
-              if (oldPreset) {
-                  newPresets.push({
-                      id: 'migrated-legacy-preset',
-                      name: 'My Saved Preset',
-                      data: oldPreset
-                  });
-              }
-              return {
-                  ...state,
-                  presets: newPresets,
-                  savedPreset: undefined
-              };
+            const oldPreset = state.savedPreset;
+            const newPresets = [];
+            if (oldPreset) {
+              newPresets.push({
+                id: 'migrated-legacy-preset',
+                name: 'My Saved Preset',
+                data: oldPreset
+              });
+            }
+            migratedState = {
+              ...state,
+              presets: newPresets,
+              savedPreset: undefined
+            };
+          } else if (version < 3) {
+            migratedState = { ...state, presets: [] };
           }
-          if (version < 3) {
-             return { ...state, presets: [] };
+
+          if (version < 5) {
+            const legacyAutoStart = migratedState.autoStart ?? false;
+            return {
+              ...migratedState,
+              dailyGoalPomodoros:
+                migratedState.dailyGoalPomodoros ?? DEFAULT_DAILY_GOAL,
+              autoStartBreaks:
+                migratedState.autoStartBreaks ?? legacyAutoStart,
+              autoStartPomodoros:
+                migratedState.autoStartPomodoros ?? legacyAutoStart,
+            };
           }
-          return state;
+
+          return migratedState;
       }
     }
   )

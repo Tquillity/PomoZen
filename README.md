@@ -39,23 +39,26 @@ A privacy-first, offline-capable Pomodoro timer with ambient soundscapes. Built 
 ## Development
 
 ```bash
+# Enable pnpm via Corepack (once per machine)
+corepack enable
+
 # Install dependencies
-npm install
+pnpm install
 
 # Start development server
-npm run dev
+pnpm dev
 
 # Run tests
-npm run test
+pnpm test
 
 # Build for production
-npm run build
+pnpm build
 
 # Preview production build
-npm run preview
+pnpm preview
 
 # Lint code
-npm run lint
+pnpm lint
 ```
 
 ## Project Structure
