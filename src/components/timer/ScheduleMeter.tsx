@@ -1,4 +1,5 @@
 import { useTimeStore } from '../../store/useTimeStore';
+import { playClick } from '../../services/sound.service';
 import { cn } from '../../utils/cn';
 import {
   getCurrentCycleLabel,
@@ -12,6 +13,7 @@ export const ScheduleMeter = () => {
   const mode = useTimeStore((state) => state.mode);
   const pomodorosCompleted = useTimeStore((state) => state.pomodorosCompleted);
   const timeLeft = useTimeStore((state) => state.timeLeft);
+  const resetCycle = useTimeStore((state) => state.resetCycle);
 
   const currentStep = getCurrentScheduleStep(mode, pomodorosCompleted);
   const progress = getCurrentSessionProgress(mode, timeLeft);
@@ -19,15 +21,30 @@ export const ScheduleMeter = () => {
   const nextLabel = getNextCycleLabel(mode, pomodorosCompleted);
   const segments = getScheduleSegments();
 
+  const handleResetCycle = () => {
+    playClick();
+    resetCycle();
+  };
+
   return (
     <section
       className="w-full max-w-md sm:max-w-lg shrink-0 mb-1 sm:mb-2 md:mb-3"
       aria-label={`Pomodoro cycle progress. ${currentLabel}. Next up: ${nextLabel}.`}
     >
       <div className="flex flex-col gap-1.5 mb-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-        <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-white/60">
-          Cycle Meter
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-white/60">
+            Cycle Meter
+          </p>
+          <button
+            onClick={handleResetCycle}
+            className="text-white/40 hover:text-white/80 transition-colors cursor-pointer text-xs leading-none"
+            aria-label="Reset cycle"
+            title="Reset cycle"
+          >
+            ↺
+          </button>
+        </div>
         <p className="text-[11px] sm:text-xs text-left sm:text-right text-white/70">
           Next: <span className="text-white">{nextLabel}</span>
         </p>

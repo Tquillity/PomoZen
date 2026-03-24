@@ -161,6 +161,29 @@ describe('useTimeStore', () => {
     });
   });
 
+  describe('resetCycle', () => {
+    it('should reset pomodorosCompleted to 0 and return to pomodoro mode', () => {
+      useTimeStore.setState({
+        mode: 'short',
+        pomodorosCompleted: 3,
+        timeLeft: 120,
+        isRunning: true,
+        sessionEndAt: 99999,
+      });
+
+      const { resetCycle } = useTimeStore.getState();
+      resetCycle();
+
+      const state = useTimeStore.getState();
+      expect(state.pomodorosCompleted).toBe(0);
+      expect(state.mode).toBe('pomodoro');
+      expect(state.timeLeft).toBe(1500);
+      expect(state.isRunning).toBe(false);
+      expect(state.sessionEndAt).toBeNull();
+      expect(getWorker().reset).toHaveBeenCalled();
+    });
+  });
+
   describe('tick', () => {
     it('should decrement timeLeft when > 1', () => {
       useTimeStore.setState({ timeLeft: 10 });

@@ -110,6 +110,7 @@ interface TimeState {
   startTimer: () => Promise<void>;
   pauseTimer: () => void;
   resetTimer: () => void;
+  resetCycle: () => void;
   setMode: (mode: TimerMode) => void;
   switchModeWithSkip: (mode: TimerMode) => void;
   tick: (elapsedSeconds?: number) => void;
@@ -149,6 +150,17 @@ export const useTimeStore = create<TimeState>()(
       resetTimer: () => {
         const { mode } = get();
         set({ isRunning: false, timeLeft: getDuration(mode), sessionEndAt: null });
+        getWorker().reset();
+      },
+
+      resetCycle: () => {
+        set({
+          pomodorosCompleted: 0,
+          mode: 'pomodoro',
+          isRunning: false,
+          timeLeft: getDuration('pomodoro'),
+          sessionEndAt: null,
+        });
         getWorker().reset();
       },
 
